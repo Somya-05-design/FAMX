@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ProjectStatus } from "@prisma/client";
 import { updateProjectStatusAction, updateQuoteAmountAction, toggleDisputeAction } from "@/app/actions/projects";
+import { requestPaymentAction } from "@/app/actions/payments";
 
 interface AdminProjectManagerProps {
   projectId: string;
@@ -27,6 +28,28 @@ export function AdminProjectManager({
   const [isStatusPending, setIsStatusPending] = useState(false);
   const [isQuotePending, setIsQuotePending] = useState(false);
   const [isDisputePending, setIsDisputePending] = useState(false);
+
+  const [paymentAmountInput, setPaymentAmountInput] = useState(quoteAmount?.toString() || proposedBudget.toString());
+  const [isPaymentPending, setIsPaymentPending] = useState(false);
+
+  const handlePaymentRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amount = parseFloat(paymentAmountInput);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid amount to request");
+      return;
+    }
+
+    setIsPaymentPending(true);
+    try {
+      await requestPaymentAction(projectId, amount);
+      alert("Stripe Payment request generated successfully!");
+    } catch (err: any) {
+      alert(err.message || "Failed to create payment request");
+    } finally {
+      setIsPaymentPending(false);
+    }
+  };
 
   const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value as ProjectStatus;
@@ -140,6 +163,38 @@ export function AdminProjectManager({
               <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             )}
             <span>Apply</span>
+          </button>
+        </form>
+      </div>
+
+      {/* Request Payment Form */}
+      <div className="bg-zinc-900/30 p-6 border border-zinc-800 rounded-2xl">
+        <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+          Request Payment (Stripe Checkout)
+        </label>
+        <form onSubmit={handlePaymentRequest} className="flex gap-2">
+          <div className="relative flex-1">
+            <span className="absolute left-4 top-3 text-zinc-400 font-semibold text-sm">$</span>
+            <input
+              type="number"
+              value={paymentAmountInput}
+              onChange={(e) => setPaymentAmountInput(e.target.value)}
+              placeholder={(quoteAmount || proposedBudget).toString()}
+              min="1"
+              step="0.01"
+              disabled={isPaymentPending}
+              className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 rounded-xl pl-8 pr-4 py-2.5 text-sm text-zinc-200 outline-none transition-all"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isPaymentPending}
+            className="bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md shadow-indigo-950/20 flex items-center space-x-1.5 shrink-0 cursor-pointer disabled:opacity-50"
+          >
+            {isPaymentPending && (
+              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            )}
+            <span>Invoice</span>
           </button>
         </form>
       </div>

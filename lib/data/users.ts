@@ -13,3 +13,17 @@ export async function updateNotificationSettings(session: Session, enabled: bool
     data: { emailNotificationsEnabled: enabled },
   });
 }
+
+export async function updateProfile(
+  session: Session,
+  name: string,
+  emailNotificationsEnabled: boolean
+) {
+  return await prisma.user.update({
+    where: { id: session.user.id },
+    data: {
+      name,
+      emailNotificationsEnabled,
+    },
+  });
+}

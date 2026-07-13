@@ -3,6 +3,7 @@ import { getServerSession } from "@/lib/supabase/server";
 import { getProjectById } from "@/lib/data/projects";
 import { CancelProjectButton } from "@/components/CancelProjectButton";
 import { AttachmentLink } from "@/components/AttachmentLink";
+import { PayNowButton } from "@/components/PayNowButton";
 import { ProjectStatus } from "@prisma/client";
 import Link from "next/link";
 
@@ -237,17 +238,22 @@ export default async function ClientProjectDetailPage({
                         {new Date(payment.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <span
-                      className={`text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${
-                        payment.status === "SUCCEEDED"
-                          ? "bg-emerald-950/40 text-emerald-400 border border-emerald-800/20"
-                          : payment.status === "PENDING"
-                          ? "bg-amber-950/40 text-amber-400 border border-amber-800/20"
-                          : "bg-rose-950/40 text-rose-400 border border-rose-800/20"
-                      }`}
-                    >
-                      {payment.status}
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      {payment.status === "PENDING" && (
+                        <PayNowButton paymentId={payment.id} />
+                      )}
+                      <span
+                        className={`text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${
+                          payment.status === "SUCCEEDED"
+                            ? "bg-emerald-950/40 text-emerald-400 border border-emerald-800/20"
+                            : payment.status === "PENDING"
+                            ? "bg-amber-950/40 text-amber-400 border border-amber-800/20"
+                            : "bg-rose-950/40 text-rose-400 border border-rose-800/20"
+                        }`}
+                      >
+                        {payment.status}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
