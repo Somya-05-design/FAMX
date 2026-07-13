@@ -4,26 +4,26 @@
 
 ## Phase 0 — Project Setup
 
-- [ ] Initialize Next.js App Router project (TypeScript strict mode)
-- [ ] Set up ESLint/Prettier config, commit hooks (lint-staged + husky, or equivalent)
-- [ ] Create Supabase project (dev/staging) and a separate one for production
-- [ ] Install and configure Prisma; point `DATABASE_URL`/`DIRECT_URL` at Supabase Postgres
-- [ ] Configure Tailwind
+- [x] Initialize Next.js App Router project (TypeScript strict mode)
+- [x] Set up ESLint/Prettier config, commit hooks (lint-staged + husky, or equivalent)
+- [x] Create Supabase project (dev/staging) and a separate one for production
+- [x] Install and configure Prisma; point `DATABASE_URL`/`DIRECT_URL` at Supabase Postgres
+- [x] Configure Tailwind
 - [ ] Set up Vercel project, connect repo, configure preview deployments
-- [ ] Add all env vars from `plan.md` §8.3 to local `.env.local` (never commit) and Vercel project settings
+- [x] Add all env vars from `plan.md` §8.3 to local `.env.local` (never commit) and Vercel project settings
 
 ## Phase 1 — Foundation (Data Model, Auth, RLS)
 
-- [ ] Write full Prisma schema per `plan.md` §3; run initial migration
-- [ ] Seed `Service` table with initial catalog entries (Web Design, UI Design, Graphic Design)
-- [ ] Configure Supabase Auth: enable email/password + Google OAuth provider
-- [ ] Ensure `User.id` matches `auth.users.id` — implement a Supabase Auth trigger (or app-layer hook) that creates the corresponding `User` row on signup, defaulting `role = CLIENT`
+- [x] Write full Prisma schema per `plan.md` §3; run initial migration
+- [x] Seed `Service` table with initial catalog entries (Web Design, UI Design, Graphic Design)
+- [x] Configure Supabase Auth: enable email/password + Google OAuth provider
+- [x] Ensure `User.id` matches `auth.users.id` — implement a Supabase Auth trigger (or app-layer hook) that creates the corresponding `User` row on signup, defaulting `role = CLIENT`
 - [ ] Manually create the first `ADMIN` user (update role directly in DB — no self-serve admin signup)
-- [ ] Write RLS policies for every table per `plan.md` §5; commit as raw-SQL Prisma migration
+- [x] Write RLS policies for every table per `plan.md` §5; commit as raw-SQL Prisma migration
 - [ ] **Verify RLS from the client SDK (not the SQL editor)**: confirm a Client-role JWT cannot read another client's `Project`/`ProjectMessage` rows
-- [ ] Build `lib/data/` scaffolding with the session-first pattern from `plan.md` §4 (start with `users.ts`, `projects.ts` stubs)
-- [ ] Build Next.js middleware for session handling + route-group role gating (`(client)` vs `(admin)`)
-- [ ] Build shared layout shells for Client and Admin route groups (left nav per `spec.md` §6/§7, no functional pages yet)
+- [x] Build `lib/data/` scaffolding with the session-first pattern from `plan.md` §4 (start with `users.ts`, `projects.ts` stubs)
+- [x] Build Next.js middleware for session handling + route-group role gating (`(client)` vs `(admin)`)
+- [x] Build shared layout shells for Client and Admin route groups (left nav per `spec.md` §6/§7, no functional pages yet)
 
 ## Phase 2 — Core Project Flow
 
