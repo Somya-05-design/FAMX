@@ -1,13 +1,155 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../app/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+}
+
+enum UserRole {
+  CLIENT
+  ADMIN
+}
+
+enum ProjectStatus {
+  SUBMITTED
+  QUOTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TimelineTier {
+  INSTANT
+  WITHIN_WEEK
+  WITHIN_MONTH
+  CUSTOM_DATE
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+enum NotificationType {
+  NEW_MESSAGE
+  QUOTE_RECEIVED
+  PAYMENT_REQUESTED
+  PAYMENT_SUCCEEDED
+  PROJECT_STATUS_CHANGED
+  NEW_PROJECT_SUBMITTED
+}
+
+model User {
+  id                        String    @id // matches Supabase auth.users.id
+  email                     String    @unique
+  name                      String?
+  role                      UserRole  @default(CLIENT)
+  emailNotificationsEnabled Boolean   @default(true)
+  stripeCustomerId          String?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  projects      Project[]
+  messages      ProjectMessage[]
+  notifications Notification[]
+  attachments   Attachment[]
+}
+
+model Service {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  isActive    Boolean   @default(true)
+  projects    Project[]
+}
+
+model Project {
+  id                 String        @id @default(uuid())
+  clientId           String
+  client             User          @relation(fields: [clientId], references: [id])
+  serviceId          String?
+  service            Service?      @relation(fields: [serviceId], references: [id])
+  customServiceText  String?
+  title              String
+  description        String
+  requirements       String?
+  proposedBudget     Decimal       @db.Decimal(10, 2)
+  timelineTier       TimelineTier
+  customExpectedDate DateTime?
+  quoteAmount        Decimal?      @db.Decimal(10, 2)
+  status             ProjectStatus @default(SUBMITTED)
+  isDisputed         Boolean       @default(false)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  attachments   Attachment[]
+  messages      ProjectMessage[]
+  payments      Payment[]
+  notifications Notification[]
+
+  @@index([clientId])
+  @@index([status])
+}
+
+model Attachment {
+  id          String   @id @default(uuid())
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+  uploaderId  String
+  uploader    User     @relation(fields: [uploaderId], references: [id])
+  fileName    String
+  storagePath String
+  mimeType    String
+  sizeBytes   Int
+  createdAt   DateTime @default(now())
+
+  messages ProjectMessage[]
+
+  @@index([projectId])
+}
+
+model ProjectMessage {
+  id           String      @id @default(uuid())
+  projectId    String
+  project      Project     @relation(fields: [projectId], references: [id])
+  senderId     String
+  sender       User        @relation(fields: [senderId], references: [id])
+  body         String?
+  attachmentId String?
+  attachment   Attachment? @relation(fields: [attachmentId], references: [id])
+  createdAt    DateTime    @default(now())
+
+  @@index([projectId, createdAt])
+}
+
+model Payment {
+  id                    String        @id @default(uuid())
+  projectId             String
+  project               Project       @relation(fields: [projectId], references: [id])
+  stripeSessionId       String?
+  stripePaymentIntentId String?
+  amount                Decimal       @db.Decimal(10, 2)
+  status                PaymentStatus @default(PENDING)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  @@index([projectId])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType
+  projectId String?
+  project   Project?         @relation(fields: [projectId], references: [id])
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, read])
 }
