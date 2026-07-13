@@ -1,10 +1,33 @@
--- Create auth schema and mock users table if they don't exist (for Prisma shadow database compatibility)
-create schema if not exists auth;
-create table if not exists auth.users (
-  id uuid primary key,
-  email text,
-  raw_user_meta_data jsonb
-);
+-- Conditionally create mock auth.uid() function if it doesn't exist (for shadow database)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM pg_proc p 
+        JOIN pg_namespace n ON p.pronamespace = n.oid 
+        WHERE n.nspname = 'auth' AND p.proname = 'uid'
+    ) THEN
+        CREATE SCHEMA IF NOT EXISTS auth;
+        CREATE FUNCTION auth.uid() RETURNS uuid AS 'SELECT null::uuid;' LANGUAGE sql STABLE;
+    END IF;
+END $$;
+
+-- Conditionally create mock auth.users table if it doesn't exist (for shadow database)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM information_schema.tables 
+        WHERE table_schema = 'auth' AND table_name = 'users'
+    ) THEN
+        CREATE SCHEMA IF NOT EXISTS auth;
+        CREATE TABLE auth.users (
+            id uuid PRIMARY KEY,
+            email text,
+            raw_user_meta_data jsonb
+        );
+    END IF;
+END $$;
 
 -- Create a function to handle new user signups from Supabase Auth
 create or replace function public.handle_new_user()
