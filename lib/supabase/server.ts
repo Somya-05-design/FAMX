@@ -18,6 +18,14 @@ export async function createClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
+            // Ignored when called from Server Components during render.
+          }
+        },
+      },
+    }
+  );
+}
+
 export async function getServerSession() {
   const supabase = await createClient();
   const {
@@ -43,4 +51,3 @@ export async function getServerSession() {
     },
   };
 }
-
