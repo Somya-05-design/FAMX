@@ -8,3 +8,54 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/login");
 }
+
+export async function signInWithEmail(prevState: any, formData: FormData) {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const next = (formData.get("next") as string) || "/overview";
+
+  const supabase = await createClient();
+  const { error, data } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  // Lookup user role to determine where to redirect
+  const { data: dbUser } = await supabase
+    .from("User")
+    .select("role")
+    .eq("id", data.user.id)
+    .single();
+
+  const role = dbUser?.role;
+  const destination = role === "ADMIN" ? "/admin" : next;
+
+  redirect(destination);
+}
+
+export async function signUpWithEmail(prevState: any, formData: FormData) {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+  const name = formData.get("name") as string;
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        name,
+      },
+    },
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  redirect("/login?signup=success");
+}
