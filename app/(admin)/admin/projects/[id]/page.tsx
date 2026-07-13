@@ -3,6 +3,7 @@ import { getServerSession } from "@/lib/supabase/server";
 import { getProjectById } from "@/lib/data/projects";
 import { AttachmentLink } from "@/components/AttachmentLink";
 import { AdminProjectManager } from "@/components/AdminProjectManager";
+import { ChatPanel } from "@/components/ChatPanel";
 import Link from "next/link";
 
 export default async function AdminProjectDetailPage({
@@ -17,7 +18,6 @@ export default async function AdminProjectDetailPage({
     redirect("/login");
   }
 
-  // Retrieve project details (as admin, RLS allows this query to return any project)
   const project = await getProjectById(session, id);
 
   if (!project) {
@@ -200,32 +200,8 @@ export default async function AdminProjectDetailPage({
             )}
           </div>
 
-          {/* Chat Panel placeholder */}
-          <div className="bg-zinc-900/20 border border-zinc-800/80 rounded-2xl p-6 h-[300px] flex flex-col justify-between">
-            <div>
-              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Project Activity Chat</h3>
-              <p className="text-[10px] text-zinc-500">Communicate directly with the client.</p>
-            </div>
-            
-            <div className="text-center py-10">
-              <svg className="w-8 h-8 text-zinc-700 mx-auto mb-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              <p className="text-xs text-zinc-500 font-medium">Chat is locked during setup</p>
-              <p className="text-[9px] text-zinc-600 mt-0.5">Wired in Phase 4</p>
-            </div>
-
-            <div className="border-t border-zinc-900 pt-3">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Chat disabled..."
-                  disabled
-                  className="w-full bg-zinc-950 border border-zinc-900 rounded-xl px-3 py-2 text-xs text-zinc-500 outline-none"
-                />
-              </div>
-            </div>
-          </div>
+          {/* Live Chat Panel */}
+          <ChatPanel projectId={project.id} currentUserId={session.user.id} />
         </div>
 
       </div>

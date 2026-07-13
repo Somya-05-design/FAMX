@@ -45,14 +45,14 @@
 ## Phase 3 — Payments
 
 - [ ] Stripe account setup (test mode), configure webhook endpoint locally (Stripe CLI) and in Vercel
-- [ ] `lib/data/payments.ts`: `createPaymentRequest(session, projectId, amount)` (Admin-only) → creates Stripe Checkout Session, persists `Payment` row with `status = PENDING`
-- [ ] Admin: "Ready for Payment" toggle + amount field on project detail page
-- [ ] Client: "Pay Now" action on project detail/card showing the exact Admin-entered amount, redirecting to Stripe Checkout
-- [ ] `/api/webhooks/stripe` route handler: verify signature, handle `checkout.session.completed` → update `Payment.status = SUCCEEDED`, trigger `PAYMENT_SUCCEEDED` notification + email
-- [ ] Handle `checkout.session.expired`/failed cases → `Payment.status = FAILED`
-- [ ] Client Settings: "Manage Payment Methods" link to Stripe Customer Portal
-- [ ] Display payment history (list of `Payment` rows) on project detail page (both sides)
-- [ ] Compute and display "Total Money Spent" on client Overview from `SUCCEEDED` payments
+- [x] `lib/data/payments.ts`: `createPaymentRequest(session, projectId, amount)` (Admin-only) → creates Stripe Checkout Session, persists `Payment` row with `status = PENDING`
+- [x] Admin: "Ready for Payment" toggle + amount field on project detail page
+- [x] Client: "Pay Now" action on project detail/card showing the exact Admin-entered amount, redirecting to Stripe Checkout
+- [x] `/api/webhooks/stripe` route handler: verify signature, handle `checkout.session.completed` → update `Payment.status = SUCCEEDED`, trigger `PAYMENT_SUCCEEDED` notification + email (Phase 5)
+- [x] Handle `checkout.session.expired`/failed cases → `Payment.status = FAILED`
+- [x] Client Settings: "Manage Payment Methods" link to Stripe Customer Portal
+- [x] Display payment history (list of `Payment` rows) on project detail page (both sides)
+- [x] Compute and display "Total Money Spent" on client Overview from `SUCCEEDED` payments
 
 ## Phase 4 — Chat
 
