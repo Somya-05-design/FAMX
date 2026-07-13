@@ -27,20 +27,20 @@
 
 ## Phase 2 — Core Project Flow
 
-- [ ] `lib/data/projects.ts`: `createProject`, `getProjectsForUser`, `getProjectById`, `updateProjectStatus`, `updateQuoteAmount` — each enforcing authorization per `plan.md` §4
-- [ ] Client: New Project wizard
-  - [ ] Step 1 — category selection (catalog cards + "Other" free-text option)
-  - [ ] Step 2 — title/description/requirements + file upload (Supabase Storage)
-  - [ ] Step 3 — proposed budget input + timeline tier selector (Instant/Week/Month/Custom date)
-  - [ ] Step 4 — review & submit → creates `Project` with `status = SUBMITTED`
-  - [ ] Trigger `NEW_PROJECT_SUBMITTED` notification to Admin(s)
-- [ ] Client: Overview page — hero card, stats (total/active/completed/total spent), recent projects list
-- [ ] Client: My Projects page — status filter tabs, project card grid, empty states
-- [ ] Client: Project detail view (read-only brief + status + chat placeholder for now)
-- [ ] Client: cancellation action (only enabled while `SUBMITTED`/`QUOTED`)
-- [ ] Admin: All Projects list — search (title/client name), status filter, sort by date
-- [ ] Admin: Project detail page — client info, full brief + attachments, quote input, status dropdown, dispute toggle (chat panel wired in Phase 4)
-- [ ] Implement and test the full status transition matrix (`SUBMITTED → QUOTED → IN_PROGRESS → COMPLETED`, `CANCELLED` branches) with unit tests asserting illegal transitions are rejected
+- [x] `lib/data/projects.ts`: `createProject`, `getProjectsForUser`, `getProjectById`, `updateProjectStatus`, `updateQuoteAmount` — each enforcing authorization per `plan.md` §4
+- [x] Client: New Project wizard
+  - [x] Step 1 — category selection (catalog cards + "Other" free-text option)
+  - [x] Step 2 — title/description/requirements + file upload (Supabase Storage)
+  - [x] Step 3 — proposed budget input + timeline tier selector (Instant/Week/Month/Custom date)
+  - [x] Step 4 — review & submit → creates `Project` with `status = SUBMITTED`
+  - [ ] Trigger `NEW_PROJECT_SUBMITTED` notification to Admin(s) (Phase 5)
+- [x] Client: Overview page — hero card, stats (total/active/completed/total spent), recent projects list
+- [x] Client: My Projects page — status filter tabs, project card grid, empty states
+- [x] Client: Project detail view (read-only brief + status + chat placeholder for now)
+- [x] Client: cancellation action (only enabled while `SUBMITTED`/`QUOTED`)
+- [x] Admin: All Projects list — search (title/client name), status filter, sort by date
+- [x] Admin: Project detail page — client info, full brief + attachments, quote input, status dropdown, dispute toggle (chat panel wired in Phase 4)
+- [x] Implement and test the full status transition matrix (`SUBMITTED → QUOTED → IN_PROGRESS → COMPLETED`, `CANCELLED` branches) with unit tests asserting illegal transitions are rejected
 
 ## Phase 3 — Payments
 

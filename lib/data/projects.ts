@@ -21,6 +21,9 @@ export async function getProjectsForUser(session: Session) {
     where: { clientId: session.user.id },
     orderBy: { updatedAt: "desc" },
     include: {
+      client: {
+        select: { name: true, email: true }
+      },
       service: true
     }
   });
