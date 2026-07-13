@@ -56,12 +56,12 @@
 
 ## Phase 4 — Chat
 
-- [ ] `lib/data/messages.ts`: `getMessagesForProject`, `postMessage` (with authorization + attachment handling)
-- [ ] Build `ChatPanel` shared component (role-agnostic UI, used in both Client and Admin project detail views)
-- [ ] Wire Supabase Realtime subscription (Postgres Changes on `ProjectMessage`, filtered by `projectId`)
-- [ ] Support text messages, image attachments, PDF/document attachments (upload to Supabase Storage, link via `Attachment`)
-- [ ] Trigger `NEW_MESSAGE` notification (in-app + conditional email) to the non-sender party on every new message
-- [ ] Verify chat RLS policy again end-to-end (client A cannot subscribe to client B's project thread)
+- [x] `lib/data/messages.ts`: `getMessagesForProject`, `postMessage` (with authorization + attachment handling)
+- [x] Build `ChatPanel` shared component (role-agnostic UI, used in both Client and Admin project detail views)
+- [x] Wire Supabase Realtime subscription (Postgres Changes on `ProjectMessage`, filtered by `projectId`)
+- [x] Support text messages, image attachments, PDF/document attachments (upload to Supabase Storage, link via `Attachment`)
+- [ ] Trigger `NEW_MESSAGE` notification (in-app + conditional email) to the non-sender party on every new message (Phase 5)
+- [x] Verify chat RLS policy again end-to-end (client A cannot subscribe to client B's project thread)
 
 ## Phase 5 — Notifications
 

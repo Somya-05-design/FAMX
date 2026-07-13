@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/Sidebar";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export default async function AdminLayout({
   children,
@@ -24,6 +25,16 @@ export default async function AdminLayout({
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-screen overflow-y-auto bg-zinc-950">
+        {/* Top Header Navbar */}
+        <header className="h-16 border-b border-zinc-900/60 px-8 flex items-center justify-between shrink-0">
+          <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">
+            Portal / Admin Console
+          </div>
+          <div className="flex items-center space-x-4">
+            <NotificationBell userId={session.user.id} />
+          </div>
+        </header>
+
         <div className="flex-1 p-8 max-w-7xl w-full mx-auto">
           {children}
         </div>

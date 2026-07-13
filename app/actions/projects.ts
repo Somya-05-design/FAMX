@@ -14,7 +14,20 @@ export async function createProjectAction(input: projectData.CreateProjectInput)
 
   const project = await projectData.createProject(session, input);
 
-  // TODO: Trigger NEW_PROJECT_SUBMITTED notification to Admin(s) (Phase 5)
+  // Trigger NEW_PROJECT_SUBMITTED notification to Admin(s)
+  try {
+    const { createNotification } = await import("@/lib/data/notifications");
+    const admins = await prisma.user.findMany({ where: { role: "ADMIN" } });
+    for (const admin of admins) {
+      await createNotification(
+        admin.id,
+        "NEW_PROJECT_SUBMITTED",
+        project.id
+      );
+    }
+  } catch (err) {
+    console.error("Failed to trigger project submitted notification", err);
+  }
 
   revalidatePath("/overview");
   revalidatePath("/projects");
@@ -45,6 +58,18 @@ export async function updateQuoteAmountAction(projectId: string, quoteAmount: nu
   }
 
   const updated = await projectData.updateQuoteAmount(session, projectId, quoteAmount);
+
+  // Trigger PROJECT_QUOTED notification to Client
+  try {
+    const { createNotification } = await import("@/lib/data/notifications");
+    await createNotification(
+      updated.clientId,
+      "QUOTE_RECEIVED",
+      updated.id
+    );
+  } catch (err) {
+    console.error("Failed to trigger project quoted notification", err);
+  }
 
   revalidatePath(`/projects/${projectId}`);
   revalidatePath(`/admin/projects/${projectId}`);

@@ -13,6 +13,21 @@ export async function requestPaymentAction(projectId: string, amount: number) {
 
   const payment = await createPaymentRequest(session, projectId, amount);
 
+  // Trigger PAYMENT_REQUESTED notification to Client
+  try {
+    const project = await prisma.project.findUnique({ where: { id: projectId } });
+    if (project) {
+      const { createNotification } = await import("@/lib/data/notifications");
+      await createNotification(
+        project.clientId,
+        "PAYMENT_REQUESTED",
+        project.id
+      );
+    }
+  } catch (err) {
+    console.error("Failed to trigger payment requested notification", err);
+  }
+
   revalidatePath(`/admin/projects/${projectId}`);
   revalidatePath(`/projects/${projectId}`);
 
