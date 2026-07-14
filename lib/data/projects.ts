@@ -5,20 +5,8 @@ import { ProjectStatus, TimelineTier, Prisma } from "@prisma/client";
 // Core project queries with strict session-based authorization checks
 
 export async function getProjectsForUser(session: Session) {
-  if (session.user.role === "ADMIN") {
-    return await prisma.project.findMany({
-      orderBy: { updatedAt: "desc" },
-      include: {
-        client: {
-          select: { name: true, email: true }
-        },
-        service: true
-      }
-    });
-  }
-
-  return await prisma.project.findMany({
-    where: { clientId: session.user.id },
+  const projects = await prisma.project.findMany({
+    where: session.user.role === "ADMIN" ? {} : { clientId: session.user.id },
     orderBy: { updatedAt: "desc" },
     include: {
       client: {
@@ -27,6 +15,12 @@ export async function getProjectsForUser(session: Session) {
       service: true
     }
   });
+
+  return projects.map((project) => ({
+    ...project,
+    proposedBudget: project.proposedBudget.toNumber(),
+    quoteAmount: project.quoteAmount ? project.quoteAmount.toNumber() : null,
+  }));
 }
 
 export async function getProjectById(session: Session, projectId: string) {
