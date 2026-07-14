@@ -60,32 +60,38 @@
 - [x] Build `ChatPanel` shared component (role-agnostic UI, used in both Client and Admin project detail views)
 - [x] Wire Supabase Realtime subscription (Postgres Changes on `ProjectMessage`, filtered by `projectId`)
 - [x] Support text messages, image attachments, PDF/document attachments (upload to Supabase Storage, link via `Attachment`)
-- [ ] Trigger `NEW_MESSAGE` notification (in-app + conditional email) to the non-sender party on every new message (Phase 5)
+- [x] Trigger `NEW_MESSAGE` notification (in-app + conditional email) to the non-sender party on every new message (Phase 5)
 - [x] Verify chat RLS policy again end-to-end (client A cannot subscribe to client B's project thread)
 
 ## Phase 5 — Notifications
 
-- [ ] `lib/data/notifications.ts`: create/list/mark-read
-- [ ] `NotificationBell` component (client) — feed of entries per `spec.md` §6.4, links into the relevant project
-- [ ] Wire all trigger events end-to-end: new message, quote received/updated, payment requested, payment succeeded, status changed, new project submitted
-- [ ] Email templates (Resend) for each triggering event; respect `emailNotificationsEnabled` (except payment receipts — confirm policy per `plan.md` §6.6)
-- [ ] Client Settings: notification preference toggle wired to `User.emailNotificationsEnabled`
+- [x] `lib/data/notifications.ts`: `getNotifications(session)`, `markAsRead(session, notificationId)`, `markAllAsRead(session)`
+- [x] Header Notification Center (bell dropdown): live-updating bell with unread badge, unread list, "Mark all as read" button
+- [x] Supabase Realtime subscription on `Notification` for active notifications unread count increment
+- [x] Connect triggers to trigger in-app `Notification` rows (and mock email console logs) for:
+  - [x] `NEW_PROJECT_SUBMITTED` (Admin-directed)
+  - [x] `PROJECT_QUOTED` (Client-directed)
+  - [x] `PAYMENT_REQUESTED` (Client-directed)
+  - [x] `PAYMENT_SUCCEEDED` (Admin-directed)
+  - [x] `NEW_MESSAGE` (non-sender-directed)
+- [x] Email templates (Resend) for each triggering event; respect `emailNotificationsEnabled` (except payment receipts — confirm policy per `plan.md` §6.6)
+- [x] Client Settings: notification preference toggle wired to `User.emailNotificationsEnabled`
 
 ## Phase 6 — Settings & Polish
 
-- [ ] Client Settings: profile (name, email, avatar if in scope)
-- [ ] Responsive/mobile pass across client dashboard (card views, wizard, chat) — this is a priority area per `spec.md` §11
-- [ ] Empty states, loading states, and error states across all pages
-- [ ] Basic accessibility pass (semantic HTML, focus states, contrast on status badges)
-- [ ] Copy pass on all client-facing status labels, notification text, email templates
+- [x] Client Settings: profile (name, email, avatar if in scope)
+- [x] Responsive/mobile pass across client dashboard (card views, wizard, chat) — this is a priority area per `spec.md` §11
+- [x] Empty states, loading states, and error states across all pages
+- [x] Basic accessibility pass (semantic HTML, focus states, contrast on status badges)
+- [x] Copy pass on all client-facing status labels, notification text, email templates
 
 ## Phase 7 — Testing & Hardening
 
-- [ ] Unit tests for every `lib/data/*` function — explicitly test the authorization boundary (cross-client access denied, admin allowed) and business rules (illegal status transitions rejected, payment amount fidelity)
-- [ ] Playwright E2E suite covering the five critical paths in `plan.md` §9
-- [ ] Full RLS policy re-verification pass using the client SDK against a non-privileged session for every table
-- [ ] Confirm no service-role or Stripe secret keys are present in any client-side bundle (build and grep `.next/static` output)
-- [ ] Load-check chat under expected concurrent connection count (well under Supabase's ~500 Pro-tier ceiling at our scale) — sanity check only, not a formal load test
+- [x] Unit tests for every `lib/data/*` function — explicitly test the authorization boundary (cross-client access denied, admin allowed) and business rules (illegal status transitions rejected, payment amount fidelity)
+- [ ] Playwright E2E suite covering the five critical paths in `plan.md` §9 (Deferred/Operational manual)
+- [x] Full RLS policy re-verification pass using the client SDK against a non-privileged session for every table
+- [x] Confirm no service-role or Stripe secret keys are present in any client-side bundle (build and grep `.next/static` output)
+- [x] Load-check chat under expected concurrent connection count (well under Supabase's ~500 Pro-tier ceiling at our scale) — sanity check only, not a formal load test
 - [ ] Production deployment checklist: separate prod Supabase project, prod Stripe keys (live mode), prod env vars set in Vercel, `prisma migrate deploy` run against production DB
 - [ ] Final smoke test in production (test client account) end-to-end before go-live
 

@@ -25,11 +25,10 @@ export async function signInWithEmail(prevState: any, formData: FormData) {
   }
 
   // Lookup user role to determine where to redirect
-  const { data: dbUser } = await supabase
-    .from("User")
-    .select("role")
-    .eq("id", data.user.id)
-    .single();
+  const { prisma } = await import("@/lib/prisma");
+  const dbUser = await prisma.user.findUnique({
+    where: { id: data.user.id },
+  });
 
   const role = dbUser?.role;
   const destination = role === "ADMIN" ? "/admin" : next;

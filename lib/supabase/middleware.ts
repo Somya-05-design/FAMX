@@ -67,7 +67,14 @@ export async function updateSession(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    const role = dbUser?.role;
+    if (!dbUser) {
+      await supabase.auth.signOut();
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      return NextResponse.redirect(url);
+    }
+
+    const role = dbUser.role;
 
     // Gate Client pages from Admin
     if (isClientRoute && role === "ADMIN") {
@@ -92,7 +99,12 @@ export async function updateSession(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    const role = dbUser?.role;
+    if (!dbUser) {
+      await supabase.auth.signOut();
+      return supabaseResponse;
+    }
+
+    const role = dbUser.role;
     const url = request.nextUrl.clone();
     url.pathname = role === "ADMIN" ? "/admin" : "/overview";
     return NextResponse.redirect(url);

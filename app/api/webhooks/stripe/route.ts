@@ -50,8 +50,7 @@ export async function POST(req: Request) {
             await createNotification(
               updatedPayment.project.clientId,
               "PAYMENT_SUCCEEDED",
-              `Your payment of $${updatedPayment.amount.toNumber().toFixed(2)} for project: "${updatedPayment.project.title}" has succeeded. Thank you!`,
-              `/projects/${updatedPayment.projectId}`
+              updatedPayment.projectId
             );
 
             // Notify admins
@@ -60,8 +59,7 @@ export async function POST(req: Request) {
               await createNotification(
                 admin.id,
                 "PAYMENT_SUCCEEDED",
-                `Payment of $${updatedPayment.amount.toNumber().toFixed(2)} succeeded for project: "${updatedPayment.project.title}"`,
-                `/admin/projects/${updatedPayment.projectId}`
+                updatedPayment.projectId
               );
             }
           } catch (err) {
