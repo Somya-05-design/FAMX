@@ -13,6 +13,7 @@ async function runTests() {
   const adminUserId = "test-kanban-admin-id";
 
   // Clean up any stale test data
+  await prisma.notification.deleteMany({ where: { userId: { in: [clientUserId, otherClientUserId, adminUserId] } } });
   await prisma.project.deleteMany({ where: { clientId: { in: [clientUserId, otherClientUserId] } } });
   await prisma.user.deleteMany({ where: { id: { in: [clientUserId, otherClientUserId, adminUserId] } } });
 
@@ -143,6 +144,7 @@ async function runTests() {
   console.log("✓ Client can cancel own SUBMITTED project");
 
   // Clean up test data
+  await prisma.notification.deleteMany({ where: { userId: { in: [clientUserId, otherClientUserId, adminUserId] } } });
   await prisma.project.deleteMany({ where: { clientId: { in: [clientUserId, otherClientUserId] } } });
   await prisma.user.deleteMany({ where: { id: { in: [clientUserId, otherClientUserId, adminUserId] } } });
 
