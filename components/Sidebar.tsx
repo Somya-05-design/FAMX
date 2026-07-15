@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "@/app/actions/auth";
@@ -15,6 +16,7 @@ interface SidebarProps {
 export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
   const isAdmin = user.role === "ADMIN";
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const clientLinks = [
     {
@@ -125,18 +127,41 @@ export function Sidebar({ user }: SidebarProps) {
   const links = isAdmin ? adminLinks : clientLinks;
 
   return (
-    <aside className="w-64 bg-zinc-950 text-zinc-100 flex flex-col justify-between border-r border-zinc-900 h-screen sticky top-0">
+    <aside
+      className={`${
+        isCollapsed ? "w-16" : "w-64"
+      } bg-zinc-950 text-zinc-100 flex flex-col justify-between border-r border-zinc-900 h-screen sticky top-0 transition-all duration-300 ease-in-out`}
+    >
       <div className="flex flex-col">
         {/* Branding Header */}
-        <div className="h-16 flex items-center px-6 border-b border-zinc-900">
-          <Link href={isAdmin ? "/admin" : "/overview"} className="flex items-center space-x-2">
-            <span className="text-xl font-bold bg-gradient-to-r from-violet-400 to-indigo-500 bg-clip-text text-transparent">
-              FAMX
-            </span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400">
-              {isAdmin ? "Admin" : "Portal"}
-            </span>
-          </Link>
+        <div className="h-16 flex items-center justify-between px-4 border-b border-zinc-900 overflow-hidden">
+          {!isCollapsed && (
+            <Link href={isAdmin ? "/admin" : "/overview"} className="flex items-center space-x-2 truncate">
+              <span className="text-xl font-bold bg-gradient-to-r from-violet-400 to-indigo-500 bg-clip-text text-transparent">
+                FAMX
+              </span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400">
+                {isAdmin ? "Admin" : "Portal"}
+              </span>
+            </Link>
+          )}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className={`p-1.5 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900 border border-transparent hover:border-zinc-800 transition-all ${
+              isCollapsed ? "mx-auto" : ""
+            }`}
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            {isCollapsed ? (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            )}
+          </button>
         </div>
 
         {/* Navigation Items */}
@@ -147,14 +172,15 @@ export function Sidebar({ user }: SidebarProps) {
               <Link
                 key={link.label}
                 href={link.href}
+                title={isCollapsed ? link.label : undefined}
                 className={`flex items-center space-x-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                   isActive
                     ? "bg-gradient-to-r from-violet-950/40 to-indigo-950/40 text-violet-400 border-l-2 border-violet-500 pl-3.5"
                     : "text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200"
-                }`}
+                } ${isCollapsed ? "justify-center px-0" : ""}`}
               >
-                {link.icon}
-                <span>{link.label}</span>
+                <span className="shrink-0">{link.icon}</span>
+                {!isCollapsed && <span>{link.label}</span>}
               </Link>
             );
           })}
@@ -162,39 +188,77 @@ export function Sidebar({ user }: SidebarProps) {
       </div>
 
       {/* User profile & logout footer */}
-      <div className="p-4 border-t border-zinc-900 bg-zinc-950">
-        <div className="flex items-center space-x-3 px-2 py-1 mb-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-violet-500 to-indigo-500 flex items-center justify-center text-white font-semibold text-sm">
-            {(user.name || user.email).charAt(0).toUpperCase()}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-zinc-200 truncate">
-              {user.name || "Client User"}
-            </p>
-            <p className="text-[10px] text-zinc-500 truncate">{user.email}</p>
-          </div>
-        </div>
-        <form action={signOut}>
-          <button
-            type="submit"
-            className="w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 border border-zinc-900 hover:border-zinc-800 transition-all duration-150 cursor-pointer"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
+      <div
+        className={`p-4 border-t border-zinc-900 bg-zinc-950 flex ${
+          isCollapsed ? "flex-col items-center justify-center space-y-3" : "flex-col"
+        }`}
+      >
+        {!isCollapsed ? (
+          <>
+            <div className="flex items-center space-x-3 px-2 py-1 mb-3">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-violet-500 to-indigo-500 flex items-center justify-center text-white font-semibold text-sm">
+                {(user.name || user.email).charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-zinc-200 truncate">
+                  {user.name || "Client User"}
+                </p>
+                <p className="text-[10px] text-zinc-500 truncate">{user.email}</p>
+              </div>
+            </div>
+            <form action={signOut}>
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-lg text-xs font-medium text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 border border-zinc-900 hover:border-zinc-800 transition-all duration-150 cursor-pointer"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+                <span>Sign Out</span>
+              </button>
+            </form>
+          </>
+        ) : (
+          <>
+            <div
+              className="w-9 h-9 rounded-full bg-gradient-to-tr from-violet-500 to-indigo-500 flex items-center justify-center text-white font-semibold text-sm shrink-0"
+              title={`${user.name || "User"} (${user.email})`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-              />
-            </svg>
-            <span>Sign Out</span>
-          </button>
-        </form>
+              {(user.name || user.email).charAt(0).toUpperCase()}
+            </div>
+            <form action={signOut}>
+              <button
+                type="submit"
+                title="Sign Out"
+                className="p-2.5 rounded-lg text-zinc-500 hover:text-rose-400 hover:bg-zinc-900 border border-transparent hover:border-zinc-800 transition-all duration-150 cursor-pointer flex items-center justify-center shrink-0"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+              </button>
+            </form>
+          </>
+        )}
       </div>
     </aside>
   );
