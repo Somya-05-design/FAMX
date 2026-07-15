@@ -34,13 +34,17 @@ export async function createProjectAction(input: projectData.CreateProjectInput)
   return { id: project.id };
 }
 
-export async function updateProjectStatusAction(projectId: string, newStatus: ProjectStatus) {
+export async function updateProjectStatusAction(
+  projectId: string,
+  newStatus: ProjectStatus,
+  opts?: { quoteAmount?: number; expectedUpdatedAt?: Date | string }
+) {
   const session = await getServerSession();
   if (!session) {
     throw new Error("Unauthorized");
   }
 
-  const updated = await projectData.updateProjectStatus(session, projectId, newStatus);
+  const updated = await projectData.updateProjectStatus(session, projectId, newStatus, opts);
   
   revalidatePath(`/projects/${projectId}`);
   revalidatePath(`/admin/projects/${projectId}`);

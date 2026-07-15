@@ -101,7 +101,8 @@ export async function createProject(session: Session, input: CreateProjectInput)
 export async function updateProjectStatus(
   session: Session,
   projectId: string,
-  newStatus: ProjectStatus
+  newStatus: ProjectStatus,
+  opts?: { quoteAmount?: number; expectedUpdatedAt?: Date | string }
 ) {
   const project = await prisma.project.findUnique({
     where: { id: projectId }
@@ -125,21 +126,68 @@ export async function updateProjectStatus(
       throw new Error("Unauthorized");
     }
   } else if (session.user.role === "ADMIN") {
-    // Admins can transition, but validate that cancelled/completed projects cannot be reset
-    if (currentStatus === ProjectStatus.CANCELLED && newStatus !== ProjectStatus.CANCELLED) {
-      throw new Error("Cannot change status of a cancelled project");
+    // Concurrency guard
+    if (opts?.expectedUpdatedAt) {
+      const dbTime = new Date(project.updatedAt).getTime();
+      const clientTime = new Date(opts.expectedUpdatedAt).getTime();
+      if (dbTime !== clientTime) {
+        throw new Error("Concurrency conflict: this project was updated elsewhere, refresh and try again.");
+      }
     }
-    if (currentStatus === ProjectStatus.COMPLETED && newStatus !== ProjectStatus.COMPLETED) {
-      throw new Error("Cannot change status of a completed project");
+
+    // Transition matrix checks
+    const ALLOWED_ADMIN_TRANSITIONS: Record<ProjectStatus, ProjectStatus[]> = {
+      [ProjectStatus.SUBMITTED]: [ProjectStatus.QUOTED, ProjectStatus.CANCELLED],
+      [ProjectStatus.QUOTED]: [ProjectStatus.IN_PROGRESS, ProjectStatus.CANCELLED],
+      [ProjectStatus.IN_PROGRESS]: [ProjectStatus.COMPLETED, ProjectStatus.CANCELLED],
+      [ProjectStatus.COMPLETED]: [ProjectStatus.IN_PROGRESS, ProjectStatus.CANCELLED],
+      [ProjectStatus.CANCELLED]: [ProjectStatus.CANCELLED],
+    };
+
+    const allowed = ALLOWED_ADMIN_TRANSITIONS[currentStatus];
+    if (!allowed || !allowed.includes(newStatus)) {
+      throw new Error(`Unauthorized status transition from ${currentStatus} to ${newStatus}`);
+    }
+
+    // Quote completeness
+    if (newStatus === ProjectStatus.QUOTED) {
+      const amount = opts?.quoteAmount !== undefined ? opts.quoteAmount : project.quoteAmount?.toNumber();
+      if (amount === undefined || amount === null || amount <= 0) {
+        throw new Error("Quote amount is required and must be greater than zero when quoting a project");
+      }
     }
   } else {
     throw new Error("Unauthorized");
   }
 
-  return await prisma.project.update({
+  const updateData: Prisma.ProjectUpdateInput = {
+    status: newStatus,
+    updatedAt: new Date(),
+  };
+
+  if (newStatus === ProjectStatus.QUOTED && opts?.quoteAmount !== undefined) {
+    updateData.quoteAmount = new Prisma.Decimal(opts.quoteAmount);
+  }
+
+  const updatedProject = await prisma.project.update({
     where: { id: projectId },
-    data: { status: newStatus }
+    data: updateData
   });
+
+  // Trigger relevant notifications on success
+  try {
+    const { createNotification } = await import("./notifications");
+    const notificationType = newStatus === ProjectStatus.QUOTED ? "QUOTE_RECEIVED" : "PROJECT_STATUS_CHANGED";
+    await createNotification(
+      updatedProject.clientId,
+      notificationType,
+      updatedProject.id
+    );
+  } catch (err) {
+    console.error("Failed to trigger project status notification", err);
+  }
+
+  return updatedProject;
 }
 
 export async function updateQuoteAmount(
