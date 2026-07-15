@@ -117,11 +117,32 @@ export function AdminProjectManager({
             disabled={isStatusPending}
             className="w-full bg-zinc-950 border border-zinc-800 text-zinc-200 text-sm rounded-xl px-4 py-3 outline-none focus:border-violet-500 transition-all cursor-pointer appearance-none"
           >
-            <option value={ProjectStatus.SUBMITTED}>Submitted</option>
-            <option value={ProjectStatus.QUOTED}>Quoted</option>
-            <option value={ProjectStatus.IN_PROGRESS}>In Progress</option>
-            <option value={ProjectStatus.COMPLETED}>Completed</option>
-            <option value={ProjectStatus.CANCELLED}>Cancelled</option>
+            {[
+              { value: ProjectStatus.SUBMITTED, label: "Submitted" },
+              { value: ProjectStatus.QUOTED, label: "Quoted" },
+              { value: ProjectStatus.IN_PROGRESS, label: "In Progress" },
+              { value: ProjectStatus.COMPLETED, label: "Completed" },
+              { value: ProjectStatus.CANCELLED, label: "Cancelled" },
+            ].filter(opt => {
+              if (opt.value === status) return true;
+              if (status === ProjectStatus.SUBMITTED) {
+                return opt.value === ProjectStatus.QUOTED || opt.value === ProjectStatus.CANCELLED;
+              }
+              if (status === ProjectStatus.QUOTED) {
+                return opt.value === ProjectStatus.IN_PROGRESS || opt.value === ProjectStatus.CANCELLED;
+              }
+              if (status === ProjectStatus.IN_PROGRESS) {
+                return opt.value === ProjectStatus.COMPLETED || opt.value === ProjectStatus.CANCELLED;
+              }
+              if (status === ProjectStatus.COMPLETED) {
+                return opt.value === ProjectStatus.IN_PROGRESS || opt.value === ProjectStatus.CANCELLED;
+              }
+              return false;
+            }).map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {status === ProjectStatus.COMPLETED && opt.value === ProjectStatus.IN_PROGRESS ? "Reopen (In Progress)" : opt.label}
+              </option>
+            ))}
           </select>
           <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-zinc-500">
             {isStatusPending ? (
