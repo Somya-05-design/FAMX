@@ -40,6 +40,7 @@ export async function signUpWithEmail(prevState: any, formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const name = formData.get("name") as string;
+  const next = formData.get("next") as string || "";
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
@@ -56,5 +57,6 @@ export async function signUpWithEmail(prevState: any, formData: FormData) {
     return { error: error.message };
   }
 
-  redirect("/login?signup=success");
+  const redirectUrl = next ? `/login?signup=success&next=${encodeURIComponent(next)}` : "/login?signup=success";
+  redirect(redirectUrl);
 }

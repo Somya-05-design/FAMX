@@ -91,6 +91,22 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  // Redirect logged-in users away from the public landing page (root route)
+  if (path === "/" && user) {
+    const { data: dbUser } = await supabase
+      .from("User")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (dbUser) {
+      const role = dbUser.role;
+      const url = request.nextUrl.clone();
+      url.pathname = role === "ADMIN" ? "/admin" : "/overview";
+      return NextResponse.redirect(url);
+    }
+  }
+
   // Redirect logged-in users away from auth pages
   if (isAuthRoute && user) {
     const { data: dbUser } = await supabase
