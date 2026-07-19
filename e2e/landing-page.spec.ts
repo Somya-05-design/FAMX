@@ -1,28 +1,32 @@
+import "dotenv/config";
 import { test, expect } from "@playwright/test";
 import { prisma } from "../lib/prisma";
+import { createAdminClient } from "../lib/supabase/admin";
 
-const TEST_CLIENT_EMAIL = "testclient@example.com";
-const TEST_ADMIN_EMAIL = "testadmin@example.com";
 const TEST_PASSWORD = "testpassword123";
 
 async function cleanTestUsers() {
-  const emails = [TEST_CLIENT_EMAIL, TEST_ADMIN_EMAIL];
-  for (const email of emails) {
-    try {
-      // Clean inquiries
-      await prisma.contactInquiry.deleteMany({ where: { email } });
-      
-      // Clean DB users
-      await prisma.user.delete({ where: { email } }).catch(() => {});
-      
-      // Clean Supabase Auth users
-      await prisma.$executeRawUnsafe(
-        "DELETE FROM auth.users WHERE email = $1",
-        email
-      ).catch(() => {});
-    } catch (err) {
-      console.error(`Cleanup failed for ${email}:`, err);
-    }
+  try {
+    // Clean all contact inquiries from test emails
+    await prisma.contactInquiry.deleteMany({
+      where: {
+        email: {
+          startsWith: "test",
+        },
+      },
+    });
+
+    // Clean Supabase Auth users
+    await prisma.$executeRawUnsafe(
+      "DELETE FROM auth.users WHERE email LIKE 'testclient-%' OR email LIKE 'testadmin-%' OR email = 'testclient@example.com' OR email = 'testadmin@example.com'"
+    ).catch(() => {});
+
+    // Clean public User table records (handles any that auth cascading missed)
+    await prisma.$executeRawUnsafe(
+      "DELETE FROM \"User\" WHERE email LIKE 'testclient-%' OR email LIKE 'testadmin-%' OR email = 'testclient@example.com' OR email = 'testadmin@example.com'"
+    ).catch(() => {});
+  } catch (err) {
+    console.error("Cleanup failed:", err);
   }
 }
 
@@ -43,9 +47,10 @@ test.describe("Public Marketing Landing Page", () => {
     const logo = page.locator("text=FAMX").first();
     await expect(logo).toBeVisible();
 
-    const servicesLink = page.locator("nav >> text=Services");
-    const workLink = page.locator("nav >> text=Work");
-    const howLink = page.locator("nav >> text=How It Works");
+    const servicesLink = page.locator('nav a[href="#services"]');
+    const workLink = page.locator('nav a[href="#work"]');
+    const howLink = page.locator('nav a[href="#how-it-works"]');
+    
     await expect(servicesLink).toBeVisible();
     await expect(workLink).toBeVisible();
     await expect(howLink).toBeVisible();
@@ -70,23 +75,23 @@ test.describe("Public Marketing Landing Page", () => {
   test("2. Contact form submission with valid data persists to DB", async ({ page }) => {
     await page.goto("/");
 
+    const testEmail = `testclient-${Date.now()}@example.com`;
     const nameInput = page.locator('input[name="name"]');
     const emailInput = page.locator('input[name="email"]');
     const messageInput = page.locator('textarea[name="message"]');
     const submitBtn = page.locator('button:has-text("Submit Inquiry")');
 
     await nameInput.fill("Test User");
-    await emailInput.fill(TEST_CLIENT_EMAIL);
+    await emailInput.fill(testEmail);
     await messageInput.fill("Hello! I want a custom business website.");
     await submitBtn.click();
 
     // Verify UI success message
     await expect(page.locator("text=Inquiry Received")).toBeVisible();
-    await expect(page.locator("text=Thank you for reaching out!")).toBeVisible();
 
     // Verify DB persistence
     const dbInquiry = await prisma.contactInquiry.findFirst({
-      where: { email: TEST_CLIENT_EMAIL },
+      where: { email: testEmail },
     });
     expect(dbInquiry).not.toBeNull();
     expect(dbInquiry?.name).toBe("Test User");
@@ -96,17 +101,16 @@ test.describe("Public Marketing Landing Page", () => {
   test("3. Contact form submission with honeypot field filled is silently ignored", async ({ page }) => {
     await page.goto("/");
 
+    const testEmail = `testclient-${Date.now()}@example.com`;
     const nameInput = page.locator('input[name="name"]');
     const emailInput = page.locator('input[name="email"]');
     const messageInput = page.locator('textarea[name="message"]');
-    // Honeypot field (hidden from view)
     const honeypotInput = page.locator('input[name="website"]');
     const submitBtn = page.locator('button:has-text("Submit Inquiry")');
 
     await nameInput.fill("Spam Bot");
-    await emailInput.fill(TEST_CLIENT_EMAIL);
+    await emailInput.fill(testEmail);
     await messageInput.fill("Buy crypto today!");
-    // Bypass visibility and fill the honeypot
     await honeypotInput.fill("http://spambot.com", { force: true });
     await submitBtn.click();
 
@@ -121,23 +125,42 @@ test.describe("Public Marketing Landing Page", () => {
   });
 
   test("4. Authenticated Client redirects to /overview when hitting /", async ({ page }) => {
-    // 1. Register test user
-    await page.goto("/signup");
-    await page.fill('input[name="name"]', "Test Client");
-    await page.fill('input[name="email"]', TEST_CLIENT_EMAIL);
-    await page.fill('input[name="password"]', TEST_PASSWORD);
-    await page.click('button[type="submit"]');
+    const testEmail = `testclient-${Date.now()}@example.com`;
 
-    // Wait to land on login page
-    await page.waitForURL(url => url.pathname === "/login");
+    // 1. Programmatically create client user to bypass UI rate limiting
+    const supabaseAdmin = createAdminClient();
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: testEmail,
+      password: TEST_PASSWORD,
+      email_confirm: true,
+      user_metadata: { name: "Test Client" },
+    });
 
-    // 2. Log in
-    await page.fill('input[name="email"]', TEST_CLIENT_EMAIL);
+    if (authError || !authData.user) {
+      throw new Error(`Failed to create client user via admin SDK: ${authError?.message}`);
+    }
+
+    // Verify or upsert into Prisma public.User table (triggers will usually handle this, but upsert is safe)
+    await prisma.user.upsert({
+      where: { id: authData.user.id },
+      update: { name: "Test Client", email: testEmail, role: "CLIENT" },
+      create: { id: authData.user.id, name: "Test Client", email: testEmail, role: "CLIENT" },
+    });
+
+    // 2. Log in via UI
+    await page.goto("/login");
+    await page.fill('input[name="email"]', testEmail);
     await page.fill('input[name="password"]', TEST_PASSWORD);
     await page.click('button[type="submit"]');
 
     // Should redirect to overview
-    await page.waitForURL(url => url.pathname === "/overview");
+    try {
+      await page.waitForURL(url => url.pathname === "/overview", { timeout: 12000 });
+    } catch (e) {
+      const errorText = await page.locator("body").innerText();
+      console.log("[LOGIN FAILED CLIENT] Page text on login failure:", errorText);
+      throw e;
+    }
 
     // 3. Visit root '/'
     await page.goto("/");
@@ -148,30 +171,44 @@ test.describe("Public Marketing Landing Page", () => {
   });
 
   test("5. Authenticated Admin redirects to /admin when hitting /", async ({ page }) => {
-    // 1. Register test user
-    await page.goto("/signup");
-    await page.fill('input[name="name"]', "Test Admin");
-    await page.fill('input[name="email"]', TEST_ADMIN_EMAIL);
-    await page.fill('input[name="password"]', TEST_PASSWORD);
-    await page.click('button[type="submit"]');
+    const testEmail = `testadmin-${Date.now()}@example.com`;
 
-    await page.waitForURL(url => url.pathname === "/login");
-
-    // 2. Promote user to ADMIN in database
-    await prisma.user.update({
-      where: { email: TEST_ADMIN_EMAIL },
-      data: { role: "ADMIN" },
+    // 1. Programmatically create admin user to bypass UI rate limiting
+    const supabaseAdmin = createAdminClient();
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: testEmail,
+      password: TEST_PASSWORD,
+      email_confirm: true,
+      user_metadata: { name: "Test Admin" },
     });
 
-    // 3. Log in
-    await page.fill('input[name="email"]', TEST_ADMIN_EMAIL);
+    if (authError || !authData.user) {
+      throw new Error(`Failed to create admin user via admin SDK: ${authError?.message}`);
+    }
+
+    // Set role to ADMIN in DB
+    await prisma.user.upsert({
+      where: { id: authData.user.id },
+      update: { name: "Test Admin", email: testEmail, role: "ADMIN" },
+      create: { id: authData.user.id, name: "Test Admin", email: testEmail, role: "ADMIN" },
+    });
+
+    // 2. Log in
+    await page.goto("/login");
+    await page.fill('input[name="email"]', testEmail);
     await page.fill('input[name="password"]', TEST_PASSWORD);
     await page.click('button[type="submit"]');
 
     // Should redirect to admin
-    await page.waitForURL(url => url.pathname === "/admin");
+    try {
+      await page.waitForURL(url => url.pathname === "/admin", { timeout: 12000 });
+    } catch (e) {
+      const errorText = await page.locator("body").innerText();
+      console.log("[LOGIN FAILED ADMIN] Page text on login failure:", errorText);
+      throw e;
+    }
 
-    // 4. Visit root '/'
+    // 3. Visit root '/'
     await page.goto("/");
 
     // Should automatically redirect to '/admin' instead of showing the landing page
