@@ -135,4 +135,90 @@ test.describe("Admin Kanban Board Restyle", () => {
     await page.waitForURL(url => !url.searchParams.has("view") || url.searchParams.get("view") === "board");
     await expect(page.locator("h1:has-text('Dashboard')")).toBeVisible();
   });
+
+  test("2. Admin project detail page matches visual layout spec", async ({ page }) => {
+    // 1. Create admin user
+    const supabaseAdmin = createAdminClient();
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+      email: TEST_ADMIN_EMAIL,
+      password: TEST_PASSWORD,
+      email_confirm: true,
+      user_metadata: { name: "Test Restyle Admin" },
+    });
+
+    if (authError || !authData.user) {
+      throw new Error(`Failed to create admin user: ${authError?.message}`);
+    }
+
+    await prisma.user.upsert({
+      where: { id: authData.user.id },
+      update: { name: "Test Restyle Admin", email: TEST_ADMIN_EMAIL, role: "ADMIN" },
+      create: { id: authData.user.id, name: "Test Restyle Admin", email: TEST_ADMIN_EMAIL, role: "ADMIN" },
+    });
+
+    // Seed a test project
+    const clientUser = await prisma.user.findFirst({
+      where: { role: "CLIENT" },
+    });
+
+    if (!clientUser) {
+      throw new Error("No client user found in DB to attach project");
+    }
+
+    const testProject = await prisma.project.create({
+      data: {
+        title: "E2E Detail Restyle Test Project",
+        description: "Test description for restyled detail page",
+        requirements: "Test technical requirements",
+        status: "SUBMITTED",
+        timelineTier: "INSTANT",
+        proposedBudget: 1500.0,
+        clientId: clientUser.id,
+      },
+    });
+
+    try {
+      // Clear cookies to ensure fresh login
+      await page.context().clearCookies();
+
+      // Log in
+      await page.goto("/login");
+      await page.fill('input[name="email"]', TEST_ADMIN_EMAIL);
+      await page.fill('input[name="password"]', TEST_PASSWORD);
+      await page.click('button[type="submit"]');
+
+      await page.waitForURL(url => url.pathname === "/admin");
+
+      // Navigate to project detail page
+      await page.goto(`/admin/projects/${testProject.id}`);
+
+      // Verify Header Bar
+      await expect(page.getByText("E2E Detail Restyle Test Project", { exact: true })).toBeVisible();
+      await expect(page.locator("span:has-text('SUBMITTED')")).toBeVisible();
+      await expect(page.getByText("BUDGET", { exact: true })).toBeVisible();
+      await expect(page.getByText("FINAL DATE", { exact: true })).toBeVisible();
+      await expect(page.locator("button:has-text('Apply')")).toBeVisible();
+      await expect(page.locator("button:has-text('Send')")).toBeVisible();
+      await expect(page.locator("button:has-text('CANCEL PROJECT')")).toBeVisible();
+
+      // Verify Left Column - Project Brief
+      await expect(page.getByText("PROJECT BRIEF", { exact: true })).toBeVisible();
+      await expect(page.getByText("DESCRIPTION", { exact: true })).toBeVisible();
+      await expect(page.getByText("TECHNICAL REQUIREMENTS", { exact: true })).toBeVisible();
+      await expect(page.getByText("TARGET TIMELINE TIER", { exact: true })).toBeVisible();
+      await expect(page.getByText("ATTACHMENTS", { exact: true })).toBeVisible();
+
+      // Verify Middle Column - Control Center
+      await expect(page.getByText("CONTROL CENTER", { exact: true })).toBeVisible();
+      await expect(page.getByText("PROJECT STATUS", { exact: true })).toBeVisible();
+      await expect(page.getByText("INVOICES & PAYMENTS", { exact: true })).toBeVisible();
+
+      // Verify Right Column - Discussion
+      await expect(page.getByText("DISCUSSION", { exact: true })).toBeVisible();
+      await expect(page.getByPlaceholder("Message team...")).toBeVisible();
+    } finally {
+      // Clean test project
+      await prisma.project.delete({ where: { id: testProject.id } }).catch(() => {});
+    }
+  });
 });

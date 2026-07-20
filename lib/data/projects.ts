@@ -55,7 +55,15 @@ export async function getProjectById(session: Session, projectId: string) {
     throw new Error("Unauthorized access to project");
   }
 
-  return project;
+  return {
+    ...project,
+    proposedBudget: project.proposedBudget.toNumber(),
+    quoteAmount: project.quoteAmount ? project.quoteAmount.toNumber() : null,
+    payments: project.payments.map((p) => ({
+      ...p,
+      amount: p.amount.toNumber(),
+    })),
+  };
 }
 
 export interface CreateProjectInput {
