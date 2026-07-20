@@ -13,6 +13,7 @@ export async function submitContactInquiryAction(
 ): Promise<ContactFormState> {
   const name = (formData.get("name") as string || "").trim();
   const email = (formData.get("email") as string || "").trim();
+  const projectType = (formData.get("projectType") as string || "").trim();
   const message = (formData.get("message") as string || "").trim();
   
   // Honeypot spam protection
@@ -33,12 +34,14 @@ export async function submitContactInquiryAction(
   }
 
   try {
+    const fullMessage = projectType ? `[Project Type: ${projectType}]\n\n${message}` : message;
+
     // 1. Persist the inquiry in the database
     await prisma.contactInquiry.create({
       data: {
         name,
         email,
-        message,
+        message: fullMessage,
       },
     });
 
@@ -56,7 +59,7 @@ export async function submitContactInquiryAction(
         const adminEmails = admins.map((admin) => admin.email).filter(Boolean);
 
         if (adminEmails.length > 0) {
-          const res = await fetch("https://api.resend.com/emails", {
+          await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
               "Authorization": `Bearer ${apiKey}`,
@@ -70,26 +73,16 @@ export async function submitContactInquiryAction(
                 <h2>New Contact Form Submission</h2>
                 <p><strong>Name:</strong> ${name}</p>
                 <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Project Type:</strong> ${projectType || "N/A"}</p>
                 <p><strong>Message:</strong></p>
                 <p style="white-space: pre-wrap; background-color: #f4f4f5; padding: 12px; border-radius: 8px;">${message}</p>
               `,
             }),
           });
-
-          if (!res.ok) {
-            const errBody = await res.text();
-            console.error(`Resend API notification failed: Status ${res.status} | ${errBody}`);
-          } else {
-            console.log(`[EMAIL SEND OUT] Resend notification email sent to admins: ${adminEmails.join(", ")}`);
-          }
-        } else {
-          console.log("[CONTACT INQUIRY] No admin users found to notify.");
         }
       } catch (emailErr) {
         console.error("Failed to send contact inquiry email notification via Resend", emailErr);
       }
-    } else {
-      console.log(`[EMAIL SEND OUT] Resend is not configured (mock mode). Notification for contact from ${name} (${email}) logged.`);
     }
 
     return { success: true };

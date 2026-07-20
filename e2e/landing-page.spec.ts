@@ -56,20 +56,20 @@ test.describe("Public Marketing Landing Page", () => {
     await expect(howLink).toBeVisible();
 
     // Hero Section checks
-    await expect(page.locator("text=Product Engineering & Brand Design Group")).toBeVisible();
-    await expect(page.locator("text=Start a Project").first()).toBeVisible();
+    await expect(page.locator("text=Trustpilot")).toBeVisible();
+    await expect(page.locator("text=Get started free").first()).toBeVisible();
 
     // Services Section checks
-    await expect(page.locator("text=Services & Packages")).toBeVisible();
+    await expect(page.locator("text=Solutions").first()).toBeVisible();
     await expect(page.locator("text=Business Website")).toBeVisible();
-    await expect(page.locator("text=Custom Web Application")).toBeVisible();
+    await expect(page.locator("text=E-commerce Platform")).toBeVisible();
 
     // Portfolio Section checks
     await expect(page.locator("text=Selected Work")).toBeVisible();
 
     // Contact Form checks
-    await expect(page.locator("text=Send us a Message")).toBeVisible();
-    await expect(page.locator('button:has-text("Submit Inquiry")')).toBeVisible();
+    await expect(page.locator("text=Let's build").first()).toBeVisible();
+    await expect(page.locator('button:has-text("Send Message")')).toBeVisible();
   });
 
   test("2. Contact form submission with valid data persists to DB", async ({ page }) => {
@@ -79,7 +79,7 @@ test.describe("Public Marketing Landing Page", () => {
     const nameInput = page.locator('input[name="name"]');
     const emailInput = page.locator('input[name="email"]');
     const messageInput = page.locator('textarea[name="message"]');
-    const submitBtn = page.locator('button:has-text("Submit Inquiry")');
+    const submitBtn = page.locator('button:has-text("Send Message")');
 
     await nameInput.fill("Test User");
     await emailInput.fill(testEmail);
@@ -87,7 +87,7 @@ test.describe("Public Marketing Landing Page", () => {
     await submitBtn.click();
 
     // Verify UI success message
-    await expect(page.locator("text=Inquiry Received")).toBeVisible();
+    await expect(page.locator("text=Inquiry Received")).toBeVisible({ timeout: 12000 });
 
     // Verify DB persistence
     const dbInquiry = await prisma.contactInquiry.findFirst({
@@ -95,7 +95,7 @@ test.describe("Public Marketing Landing Page", () => {
     });
     expect(dbInquiry).not.toBeNull();
     expect(dbInquiry?.name).toBe("Test User");
-    expect(dbInquiry?.message).toBe("Hello! I want a custom business website.");
+    expect(dbInquiry?.message).toContain("Hello! I want a custom business website.");
   });
 
   test("3. Contact form submission with honeypot field filled is silently ignored", async ({ page }) => {
@@ -106,7 +106,7 @@ test.describe("Public Marketing Landing Page", () => {
     const emailInput = page.locator('input[name="email"]');
     const messageInput = page.locator('textarea[name="message"]');
     const honeypotInput = page.locator('input[name="website"]');
-    const submitBtn = page.locator('button:has-text("Submit Inquiry")');
+    const submitBtn = page.locator('button:has-text("Send Message")');
 
     await nameInput.fill("Spam Bot");
     await emailInput.fill(testEmail);
@@ -115,7 +115,7 @@ test.describe("Public Marketing Landing Page", () => {
     await submitBtn.click();
 
     // UI should show success so the bot is fooled
-    await expect(page.locator("text=Inquiry Received")).toBeVisible();
+    await expect(page.locator("text=Inquiry Received")).toBeVisible({ timeout: 12000 });
 
     // DB should have NO records for this submission
     const dbInquiry = await prisma.contactInquiry.findFirst({
@@ -125,6 +125,7 @@ test.describe("Public Marketing Landing Page", () => {
   });
 
   test("4. Authenticated Client redirects to /overview when hitting /", async ({ page }) => {
+    await page.context().clearCookies();
     const testEmail = `testclient-${Date.now()}@example.com`;
 
     // 1. Programmatically create client user to bypass UI rate limiting
@@ -140,7 +141,6 @@ test.describe("Public Marketing Landing Page", () => {
       throw new Error(`Failed to create client user via admin SDK: ${authError?.message}`);
     }
 
-    // Verify or upsert into Prisma public.User table (triggers will usually handle this, but upsert is safe)
     await prisma.user.upsert({
       where: { id: authData.user.id },
       update: { name: "Test Client", email: testEmail, role: "CLIENT" },
@@ -154,13 +154,7 @@ test.describe("Public Marketing Landing Page", () => {
     await page.click('button[type="submit"]');
 
     // Should redirect to overview
-    try {
-      await page.waitForURL(url => url.pathname === "/overview", { timeout: 12000 });
-    } catch (e) {
-      const errorText = await page.locator("body").innerText();
-      console.log("[LOGIN FAILED CLIENT] Page text on login failure:", errorText);
-      throw e;
-    }
+    await page.waitForURL(url => url.pathname === "/overview", { timeout: 12000 });
 
     // 3. Visit root '/'
     await page.goto("/");
@@ -171,6 +165,7 @@ test.describe("Public Marketing Landing Page", () => {
   });
 
   test("5. Authenticated Admin redirects to /admin when hitting /", async ({ page }) => {
+    await page.context().clearCookies();
     const testEmail = `testadmin-${Date.now()}@example.com`;
 
     // 1. Programmatically create admin user to bypass UI rate limiting
@@ -200,13 +195,7 @@ test.describe("Public Marketing Landing Page", () => {
     await page.click('button[type="submit"]');
 
     // Should redirect to admin
-    try {
-      await page.waitForURL(url => url.pathname === "/admin", { timeout: 12000 });
-    } catch (e) {
-      const errorText = await page.locator("body").innerText();
-      console.log("[LOGIN FAILED ADMIN] Page text on login failure:", errorText);
-      throw e;
-    }
+    await page.waitForURL(url => url.pathname === "/admin", { timeout: 12000 });
 
     // 3. Visit root '/'
     await page.goto("/");

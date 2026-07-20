@@ -156,10 +156,11 @@ model Notification {
 }
 
 model ContactInquiry {
-  id        String   @id @default(uuid())
-  name      String
-  email     String
-  message   String
-  createdAt DateTime @default(now())
+  id          String   @id @default(uuid())
+  name        String
+  email       String
+  projectType String?
+  message     String
+  createdAt   DateTime @default(now())
 }
 

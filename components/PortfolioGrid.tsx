@@ -1,34 +1,47 @@
 "use client";
 
 import { useState } from "react";
-import { portfolioItems, PortfolioItem } from "@/lib/content/portfolio";
+import { portfolioItems } from "@/lib/content/portfolio";
 
 export function PortfolioGrid() {
-  const [activeCategory, setActiveCategory] = useState<string>("All");
+  const [activeCategory, setActiveCategory] = useState<string>("All Project");
 
-  const categories = ["All", "Web Development", "Graphic Design", "UI/UX"];
+  const categories = ["All Project", "Web Development", "UI/UX Design", "Graphic Design"];
 
-  const filteredItems = activeCategory === "All"
+  const filteredItems = activeCategory === "All Project" || activeCategory === "All"
     ? portfolioItems
-    : portfolioItems.filter(item => item.category === activeCategory);
+    : portfolioItems.filter(item => {
+        if (activeCategory === "UI/UX Design") return item.category === "UI/UX" || item.category === "UI/UX Design";
+        return item.category === activeCategory;
+      });
+
+  const getCategoryTagStyle = (cat: string) => {
+    if (cat.includes("Web")) return "text-blue-600 bg-blue-50 border-blue-100";
+    if (cat.includes("UI") || cat.includes("UX")) return "text-purple-600 bg-purple-50 border-purple-100";
+    if (cat.includes("Graphic") || cat.includes("Design")) return "text-rose-600 bg-rose-50 border-rose-100";
+    return "text-zinc-600 bg-zinc-100 border-zinc-200";
+  };
 
   return (
     <div className="space-y-12">
       {/* Category Filter Tabs */}
       <div className="flex flex-wrap justify-center gap-2">
-        {categories.map((category) => (
-          <button
-            key={category}
-            onClick={() => setActiveCategory(category)}
-            className={`px-5 py-2 rounded-full text-xs font-semibold tracking-wide border transition-all duration-300 cursor-pointer ${
-              activeCategory === category
-                ? "bg-gradient-to-r from-violet-600 to-indigo-600 text-white border-transparent shadow-md shadow-indigo-950/40"
-                : "bg-zinc-900/60 text-zinc-400 border-zinc-800 hover:text-zinc-200 hover:border-zinc-700"
-            }`}
-          >
-            {category}
-          </button>
-        ))}
+        {categories.map((category) => {
+          const isActive = activeCategory === category;
+          return (
+            <button
+              key={category}
+              onClick={() => setActiveCategory(category)}
+              className={`px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
+                isActive
+                  ? "bg-black text-white shadow-sm"
+                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+              }`}
+            >
+              {category}
+            </button>
+          );
+        })}
       </div>
 
       {/* Selected Work Grid */}
@@ -36,12 +49,12 @@ export function PortfolioGrid() {
         {filteredItems.map((item) => (
           <div
             key={item.id}
-            className="group relative flex flex-col justify-between overflow-hidden bg-zinc-900/30 border border-zinc-800/80 rounded-2xl p-6 transition-all duration-300 hover:border-zinc-700/80 hover:shadow-xl hover:shadow-violet-950/5"
+            className="group relative flex flex-col justify-between overflow-hidden bg-white border border-zinc-200/80 rounded-3xl p-6 transition-all duration-300 hover:border-zinc-300 hover:shadow-xl hover:shadow-zinc-950/5"
           >
-            {/* Visual Header / Premium Gradient Background */}
-            <div className={`h-40 w-full bg-gradient-to-br ${item.gradient} rounded-xl mb-6 relative overflow-hidden flex items-center justify-center p-4`}>
-              <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] transition-all duration-300 group-hover:backdrop-blur-none group-hover:bg-black/0" />
-              <span className="relative z-10 text-white font-extrabold tracking-wider text-sm select-none opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300 uppercase">
+            {/* Visual Image / Gradient Box */}
+            <div className={`h-48 w-full bg-gradient-to-br ${item.gradient} rounded-2xl mb-6 relative overflow-hidden flex items-center justify-center p-4 shadow-inner`}>
+              <div className="absolute inset-0 bg-black/5 backdrop-blur-[1px] transition-all duration-300 group-hover:backdrop-blur-none group-hover:bg-black/0" />
+              <span className="relative z-10 text-white font-black tracking-wider text-sm select-none opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300 uppercase drop-shadow-sm">
                 {item.title}
               </span>
             </div>
@@ -49,22 +62,22 @@ export function PortfolioGrid() {
             <div className="flex-1 flex flex-col justify-between space-y-4">
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-zinc-800 bg-zinc-900 text-zinc-400">
-                    {item.category}
+                  <span className={`text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider border ${getCategoryTagStyle(item.category)}`}>
+                    {item.category === "UI/UX" ? "UI/UX DESIGN" : item.category.toUpperCase()}
                   </span>
                 </div>
-                <h4 className="text-base font-bold text-zinc-100 group-hover:text-violet-400 transition-colors">
+                <h4 className="text-base font-bold text-zinc-900 group-hover:text-black transition-colors">
                   {item.title}
                 </h4>
-                <p className="text-xs text-zinc-400 mt-2 leading-relaxed">
+                <p className="text-xs text-zinc-500 mt-1.5 leading-relaxed">
                   {item.description}
                 </p>
               </div>
 
               {/* Showcase Key Result metric */}
-              <div className="pt-4 border-t border-zinc-900/60 flex items-start space-x-2">
-                <span className="text-violet-400 text-xs font-bold font-mono">⚡</span>
-                <span className="text-[11px] text-zinc-500 font-medium italic">
+              <div className="pt-4 border-t border-zinc-100 flex items-start space-x-2">
+                <span className="text-zinc-400 text-xs font-bold">⚡</span>
+                <span className="text-[11px] text-zinc-500 font-semibold italic">
                   {item.result}
                 </span>
               </div>
