@@ -12,7 +12,13 @@ export async function getProjectsForUser(session: Session) {
       client: {
         select: { name: true, email: true }
       },
-      service: true
+      service: true,
+      _count: {
+        select: {
+          attachments: true,
+          messages: true,
+        },
+      },
     }
   });
 
@@ -20,6 +26,8 @@ export async function getProjectsForUser(session: Session) {
     ...project,
     proposedBudget: project.proposedBudget.toNumber(),
     quoteAmount: project.quoteAmount ? project.quoteAmount.toNumber() : null,
+    attachmentCount: project._count?.attachments || 0,
+    messageCount: project._count?.messages || 0,
   }));
 }
 

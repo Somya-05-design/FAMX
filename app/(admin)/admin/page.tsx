@@ -18,13 +18,7 @@ export default async function AdminProjectsPage() {
   ]);
 
   return (
-    <div className="space-y-8 animate-fadeIn">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-zinc-100">All Projects Board</h1>
-        <p className="text-sm text-zinc-400 mt-1">Review incoming design briefs, set quotes, request payments, and manage project lifecycles on a single Kanban board.</p>
-      </div>
-
+    <div className="animate-fadeIn">
       {/* Admin project Kanban board */}
       <KanbanBoard
         initialProjects={projects as any}

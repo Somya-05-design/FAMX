@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/Sidebar";
-import { NotificationBell } from "@/components/NotificationBell";
+import { prisma } from "@/lib/prisma";
 
 export default async function AdminLayout({
   children,
@@ -18,24 +18,24 @@ export default async function AdminLayout({
     redirect("/overview");
   }
 
+  // Fetch active services to list in sidebar filter
+  const services = await prisma.service.findMany({
+    where: { isActive: true },
+    orderBy: { name: "asc" },
+  });
+
+  const unreadNotificationsCount = await prisma.notification.count({
+    where: { userId: session.user.id, read: false },
+  });
+
   return (
-    <div className="flex min-h-screen bg-zinc-900 text-zinc-100">
+    <div className="flex min-h-screen bg-[#F5F6F8] text-zinc-900 font-sans">
       {/* Sidebar Navigation */}
-      <Sidebar user={session.user} />
+      <Sidebar user={session.user} services={services as any} initialUnreadCount={unreadNotificationsCount} />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto bg-zinc-950">
-        {/* Top Header Navbar */}
-        <header className="h-16 border-b border-zinc-900/60 px-8 flex items-center justify-between shrink-0">
-          <div className="text-xs text-zinc-500 font-semibold uppercase tracking-wider">
-            Portal / Admin Console
-          </div>
-          <div className="flex items-center space-x-4">
-            <NotificationBell userId={session.user.id} />
-          </div>
-        </header>
-
-        <div className="flex-1 p-8 max-w-7xl w-full mx-auto">
+      <main className="flex-1 flex flex-col h-screen overflow-y-auto">
+        <div className="flex-1 p-8 max-w-[1600px] w-full mx-auto">
           {children}
         </div>
       </main>

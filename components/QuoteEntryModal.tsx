@@ -51,36 +51,41 @@ export function QuoteEntryModal({ isOpen, project, onSubmit, onClose }: QuoteEnt
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-md bg-zinc-900 border border-zinc-800/80 p-6 rounded-2xl shadow-xl shadow-black/40 space-y-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/40 backdrop-blur-sm animate-fadeIn">
+      <div className="w-full max-w-md bg-white border border-zinc-200/80 p-7 rounded-3xl shadow-2xl shadow-zinc-950/10 space-y-6">
         {/* Header */}
         <div>
-          <h3 className="text-base font-bold text-zinc-100">Set Quote for Project</h3>
-          <p className="text-xs text-zinc-400 mt-1">
-            Specify the binding quote amount for <span className="font-semibold text-zinc-200">{project.title}</span>.
+          <h3 className="text-xl font-bold text-zinc-900 tracking-tight">Set Quote for Project</h3>
+          <p className="text-sm text-zinc-500 mt-1">
+            Specify the quote amount for <span className="font-bold text-zinc-900">{project.title}</span>.
           </p>
         </div>
 
-        {/* Project Info */}
-        <div className="bg-zinc-950 p-4 border border-zinc-900 rounded-xl space-y-2 text-xs">
-          <div className="flex justify-between">
-            <span className="text-zinc-500">Client:</span>
-            <span className="text-zinc-300 font-medium">{project.client.name || "Client"} ({project.client.email})</span>
+        {/* Project Info Box */}
+        <div className="bg-zinc-100/80 p-4 rounded-2xl space-y-3">
+          <div className="flex justify-between items-start">
+            <span className="text-xs text-zinc-500 font-medium pt-0.5">Client:</span>
+            <div className="text-right">
+              <span className="text-sm font-bold text-zinc-900 block">{project.client.name || "Client"}</span>
+              <span className="text-xs text-zinc-400 block mt-0.5">{project.client.email}</span>
+            </div>
           </div>
-          <div className="flex justify-between">
-            <span className="text-zinc-500">Proposed Budget:</span>
-            <span className="text-zinc-300 font-semibold">${project.proposedBudget.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+          <div className="flex justify-between items-center pt-2.5 border-t border-zinc-200/60">
+            <span className="text-xs text-zinc-500 font-medium">Proposed Budget:</span>
+            <span className="text-sm font-bold text-zinc-900">
+              ${project.proposedBudget.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </span>
           </div>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-              Quote Amount (USD)
+            <label className="block text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
+              QUOTE AMOUNT (USD)
             </label>
             <div className="relative">
-              <span className="absolute left-4 top-3 text-zinc-400 font-semibold text-sm">$</span>
+              <span className="absolute left-4 top-3.5 text-zinc-400 font-semibold text-base">$</span>
               <input
                 type="number"
                 value={quoteAmount}
@@ -90,27 +95,27 @@ export function QuoteEntryModal({ isOpen, project, onSubmit, onClose }: QuoteEnt
                 step="0.01"
                 required
                 disabled={isPending}
-                className="w-full bg-zinc-950 border border-zinc-800 focus:border-violet-500 rounded-xl pl-8 pr-4 py-2.5 text-sm text-zinc-200 outline-none transition-all"
+                className="w-full bg-white border border-zinc-200 focus:border-purple-600 focus:ring-1 focus:ring-purple-600 rounded-2xl pl-8 pr-4 py-3 text-lg font-bold text-zinc-900 outline-none transition-all shadow-sm"
                 autoFocus
               />
             </div>
-            {error && <p className="text-xs text-rose-400 font-semibold">{error}</p>}
+            {error && <p className="text-xs text-rose-500 font-semibold">{error}</p>}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex items-center justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
               disabled={isPending}
-              className="px-4 py-2 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-300 rounded-xl text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+              className="px-5 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="bg-violet-600 hover:bg-violet-500 text-white px-5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-1.5 cursor-pointer disabled:opacity-50 shadow-md shadow-violet-950/20"
+              className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-2 cursor-pointer disabled:opacity-50 shadow-md shadow-purple-600/20"
             >
               {isPending && (
                 <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
