@@ -233,7 +233,7 @@ export default async function ClientProjectDetailPage({
                   <div key={payment.id} className="flex justify-between items-center p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-xs">
                     <div>
                       <p className="font-semibold text-zinc-300">
-                        ${payment.amount.toNumber().toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        ${Number(payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </p>
                       <p className="text-[9px] text-zinc-500 mt-0.5">
                         {new Date(payment.createdAt).toLocaleDateString()}

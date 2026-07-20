@@ -555,7 +555,7 @@ export function AdminProjectDetailView({ project: initialProject, currentUserId 
               ) : (
                 <div className="space-y-2">
                   {project.payments.map((payment) => {
-                    const numAmt = typeof payment.amount === "number" ? payment.amount : payment.amount.toNumber();
+                    const numAmt = Number(payment.amount);
                     return (
                       <div key={payment.id} className="flex justify-between items-center p-3 bg-zinc-50 border border-zinc-200/60 rounded-xl text-xs">
                         <div>

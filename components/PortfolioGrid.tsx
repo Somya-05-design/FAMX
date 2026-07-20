@@ -11,7 +11,7 @@ export function PortfolioGrid() {
   const filteredItems = activeCategory === "All Project" || activeCategory === "All"
     ? portfolioItems
     : portfolioItems.filter(item => {
-        if (activeCategory === "UI/UX Design") return item.category === "UI/UX" || item.category === "UI/UX Design";
+        if (activeCategory === "UI/UX Design") return (item.category as string) === "UI/UX" || (item.category as string) === "UI/UX Design";
         return item.category === activeCategory;
       });
 

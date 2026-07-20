@@ -23,7 +23,10 @@
 - [ ] **Verify RLS from the client SDK (not the SQL editor)**: confirm a Client-role JWT cannot read another client's `Project`/`ProjectMessage` rows
 - [x] Build `lib/data/` scaffolding with the session-first pattern from `plan.md` §4 (start with `users.ts`, `projects.ts` stubs)
 - [x] Build Next.js middleware for session handling + route-group role gating (`(client)` vs `(admin)`)
+- [x] Restyle Sign In & Sign Up pages to split-screen reference UI with blue accent system (`#3B5FE0`)
+- [x] Build Forgot Password & Reset Password flow via Supabase Auth
 - [x] Build shared layout shells for Client and Admin route groups (left nav per `spec.md` §6/§7, no functional pages yet)
+
 
 ## Phase 2 — Core Project Flow
 

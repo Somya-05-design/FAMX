@@ -16,7 +16,7 @@ export default function MarketingLandingPage() {
     ? servicePackages
     : servicePackages.filter((pkg) => {
         if (activeSolutionsCategory === "UI/UX Design") {
-          return pkg.category === "UI/UX" || pkg.category === "UI/UX Design";
+          return (pkg.category as string) === "UI/UX" || (pkg.category as string) === "UI/UX Design";
         }
         return pkg.category === activeSolutionsCategory;
       });
