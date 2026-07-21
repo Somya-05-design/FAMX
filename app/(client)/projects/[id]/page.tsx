@@ -50,7 +50,7 @@ export default async function ClientProjectDetailPage({
       <div className="flex justify-between items-center">
         <Link
           href="/projects"
-          className="flex items-center space-x-2 text-xs font-semibold text-zinc-500 hover:text-zinc-300 transition-colors"
+          className="flex items-center space-x-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -63,42 +63,42 @@ export default async function ClientProjectDetailPage({
       </div>
 
       {/* Hero Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-zinc-900/20 border border-zinc-800/80 p-6 rounded-2xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white border border-zinc-200/80 p-6 rounded-2xl shadow-xs">
         <div className="space-y-1.5 max-w-xl">
           <div className="flex items-center space-x-3 flex-wrap gap-y-2">
-            <span className="text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-zinc-800 bg-zinc-900 text-zinc-400">
+            <span className="text-[10px] px-2.5 py-0.5 rounded-full font-semibold border border-zinc-200 bg-zinc-50 text-zinc-600">
               {project.service?.name || project.customServiceText || "Custom"}
             </span>
             <span
-              className={`text-[9px] px-2.5 py-0.5 rounded-full font-extrabold uppercase tracking-wider ${
+              className={`text-[9px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                 project.status === ProjectStatus.SUBMITTED
-                  ? "bg-amber-950/40 text-amber-400 border border-amber-800/30"
+                  ? "bg-amber-50 text-amber-700 border border-amber-200"
                   : project.status === ProjectStatus.QUOTED
-                  ? "bg-violet-950/40 text-violet-400 border border-violet-800/30"
+                  ? "bg-purple-50 text-purple-700 border border-purple-200"
                   : project.status === ProjectStatus.IN_PROGRESS
-                  ? "bg-blue-950/40 text-blue-400 border border-blue-800/30"
+                  ? "bg-blue-50 text-blue-700 border border-blue-200"
                   : project.status === ProjectStatus.COMPLETED
-                  ? "bg-emerald-950/40 text-emerald-400 border border-emerald-800/30"
-                  : "bg-zinc-800/40 text-zinc-400 border border-zinc-700/30"
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : "bg-zinc-100 text-zinc-600 border border-zinc-200"
               }`}
             >
               {project.status}
             </span>
             {project.isDisputed && (
-              <span className="text-[9px] px-2.5 py-0.5 rounded-full font-extrabold uppercase tracking-wider bg-rose-950/40 text-rose-400 border border-rose-800/30">
+              <span className="text-[9px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200">
                 Disputed
               </span>
             )}
           </div>
-          <h1 className="text-2xl font-bold text-zinc-100 truncate">{project.title}</h1>
+          <h1 className="text-2xl font-bold text-zinc-900 truncate">{project.title}</h1>
           <p className="text-xs text-zinc-500">Created on {new Date(project.createdAt).toLocaleDateString()}</p>
         </div>
 
-        <div className="text-right bg-zinc-950 p-4 border border-zinc-800/60 rounded-xl min-w-[150px]">
+        <div className="text-right bg-zinc-50 p-4 border border-zinc-200 rounded-xl min-w-[150px]">
           <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">
             {project.quoteAmount ? "Final Quote" : "Proposed Budget"}
           </p>
-          <p className="text-xl font-extrabold text-zinc-100 mt-1">
+          <p className="text-xl font-extrabold text-zinc-900 mt-1">
             ${parseFloat((project.quoteAmount || project.proposedBudget).toString()).toLocaleString(undefined, {
               minimumFractionDigits: 2,
             })}
@@ -108,11 +108,11 @@ export default async function ClientProjectDetailPage({
 
       {/* Progress Lifecycle Bar (Skip if Cancelled) */}
       {project.status !== ProjectStatus.CANCELLED && (
-        <div className="bg-zinc-900/20 border border-zinc-800/80 p-6 rounded-2xl">
-          <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-6">Project Progress</h3>
+        <div className="bg-white border border-zinc-200/80 p-6 rounded-2xl shadow-xs">
+          <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-6">Project Progress</h3>
           <div className="relative">
-            <div className="absolute top-1/2 left-0 right-0 h-1 bg-zinc-800 -translate-y-1/2 rounded-full" />
-            <div className={`absolute top-1/2 left-0 h-1 bg-violet-600 -translate-y-1/2 rounded-full ${getProgressWidth(project.status)} transition-all duration-500`} />
+            <div className="absolute top-1/2 left-0 right-0 h-1 bg-zinc-200 -translate-y-1/2 rounded-full" />
+            <div className={`absolute top-1/2 left-0 h-1 bg-indigo-600 -translate-y-1/2 rounded-full ${getProgressWidth(project.status)} transition-all duration-500`} />
             
             <div className="relative z-10 flex justify-between">
               {[
@@ -132,8 +132,8 @@ export default async function ClientProjectDetailPage({
                     <div
                       className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
                         isCompleted
-                          ? "bg-violet-600 border-violet-600 text-white"
-                          : "bg-zinc-950 border-zinc-800 text-zinc-600"
+                          ? "bg-indigo-600 border-indigo-600 text-white"
+                          : "bg-white border-zinc-300 text-zinc-400"
                       }`}
                     >
                       {isCompleted ? (
@@ -141,10 +141,10 @@ export default async function ClientProjectDetailPage({
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       ) : (
-                        <span className="w-1.5 h-1.5 bg-zinc-700 rounded-full" />
+                        <span className="w-1.5 h-1.5 bg-zinc-300 rounded-full" />
                       )}
                     </div>
-                    <span className={`text-[10px] font-semibold mt-2 ${isCompleted ? "text-zinc-300" : "text-zinc-600"}`}>
+                    <span className={`text-[10px] font-semibold mt-2 ${isCompleted ? "text-zinc-900" : "text-zinc-500"}`}>
                       {step.label}
                     </span>
                   </div>
@@ -160,23 +160,23 @@ export default async function ClientProjectDetailPage({
         
         {/* Project Details Panel */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-zinc-900/20 border border-zinc-800/80 rounded-2xl p-6 space-y-6">
+          <div className="bg-white border border-zinc-200/80 rounded-2xl p-6 space-y-6 shadow-xs">
             <div>
-              <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Description / Scope</h3>
-              <p className="text-xs text-zinc-300 leading-relaxed whitespace-pre-wrap">{project.description}</p>
+              <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Description / Scope</h3>
+              <p className="text-xs text-zinc-700 leading-relaxed whitespace-pre-wrap">{project.description}</p>
             </div>
 
             {project.requirements && (
               <div>
-                <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2">Additional Specifications</h3>
-                <p className="text-xs text-zinc-300 leading-relaxed whitespace-pre-wrap">{project.requirements}</p>
+                <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">Additional Specifications</h3>
+                <p className="text-xs text-zinc-700 leading-relaxed whitespace-pre-wrap">{project.requirements}</p>
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-zinc-900">
+            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-zinc-100">
               <div>
                 <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Timeline Request</h3>
-                <p className="text-xs font-semibold text-zinc-300 mt-1">
+                <p className="text-xs font-semibold text-zinc-800 mt-1">
                   {project.timelineTier === "INSTANT"
                     ? "Instant / Rush"
                     : project.timelineTier === "WITHIN_WEEK"
@@ -189,7 +189,7 @@ export default async function ClientProjectDetailPage({
               {project.customExpectedDate && (
                 <div>
                   <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Target Delivery Date</h3>
-                  <p className="text-xs font-semibold text-zinc-300 mt-1">
+                  <p className="text-xs font-semibold text-zinc-800 mt-1">
                     {new Date(project.customExpectedDate).toLocaleDateString()}
                   </p>
                 </div>
@@ -198,8 +198,8 @@ export default async function ClientProjectDetailPage({
           </div>
 
           {/* Attachments Section */}
-          <div className="bg-zinc-900/20 border border-zinc-800/80 rounded-2xl p-6">
-            <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4">Brief Attachments</h3>
+          <div className="bg-white border border-zinc-200/80 rounded-2xl p-6 shadow-xs">
+            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-4">Brief Attachments</h3>
             {project.attachments.length === 0 ? (
               <p className="text-xs text-zinc-500">No attachments uploaded for this brief.</p>
             ) : (
@@ -220,19 +220,19 @@ export default async function ClientProjectDetailPage({
         {/* Side Panel: Payments & Chat placeholder */}
         <div className="space-y-6">
           {/* Payment Section (Milestones & Invoices) */}
-          <div className="bg-zinc-900/20 border border-zinc-800/80 rounded-2xl p-6 space-y-4">
-            <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Payments & Invoices</h3>
+          <div className="bg-white border border-zinc-200/80 rounded-2xl p-6 space-y-4 shadow-xs">
+            <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Payments & Invoices</h3>
             {project.payments.length === 0 ? (
               <div className="text-center py-4">
                 <p className="text-xs text-zinc-500">No invoices generated yet.</p>
-                <p className="text-[10px] text-zinc-600 mt-1">Payments will be requested by Admin as work advances.</p>
+                <p className="text-[10px] text-zinc-400 mt-1">Payments will be requested by Admin as work advances.</p>
               </div>
             ) : (
               <div className="space-y-3">
                 {project.payments.map((payment) => (
-                  <div key={payment.id} className="flex justify-between items-center p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-xs">
+                  <div key={payment.id} className="flex justify-between items-center p-3 bg-zinc-50 border border-zinc-200 rounded-xl text-xs">
                     <div>
-                      <p className="font-semibold text-zinc-300">
+                      <p className="font-semibold text-zinc-800">
                         ${Number(payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </p>
                       <p className="text-[9px] text-zinc-500 mt-0.5">
@@ -244,12 +244,12 @@ export default async function ClientProjectDetailPage({
                         <PayNowButton paymentId={payment.id} />
                       )}
                       <span
-                        className={`text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${
+                        className={`text-[8px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                           payment.status === "SUCCEEDED"
-                            ? "bg-emerald-950/40 text-emerald-400 border border-emerald-800/20"
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             : payment.status === "PENDING"
-                            ? "bg-amber-950/40 text-amber-400 border border-amber-800/20"
-                            : "bg-rose-950/40 text-rose-400 border border-rose-800/20"
+                            ? "bg-amber-50 text-amber-700 border border-amber-200"
+                            : "bg-rose-50 text-rose-700 border border-rose-200"
                         }`}
                       >
                         {payment.status}

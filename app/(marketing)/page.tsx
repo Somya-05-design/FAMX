@@ -15,15 +15,15 @@ export default function MarketingLandingPage() {
   const filteredServicePackages = activeSolutionsCategory === "All services"
     ? servicePackages
     : servicePackages.filter((pkg) => {
-        if (activeSolutionsCategory === "UI/UX Design") {
-          return (pkg.category as string) === "UI/UX" || (pkg.category as string) === "UI/UX Design";
-        }
-        return pkg.category === activeSolutionsCategory;
-      });
+      if (activeSolutionsCategory === "UI/UX Design") {
+        return (pkg.category as string) === "UI/UX" || (pkg.category as string) === "UI/UX Design";
+      }
+      return pkg.category === activeSolutionsCategory;
+    });
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-white text-zinc-900 font-sans selection:bg-zinc-200 select-none">
-      
+    <div className="relative flex flex-col min-h-screen bg-auto bg-center bg-repeat bg-[url('/hero/bg.png')] text-zinc-900 font-sans selection:bg-zinc-200 select-none">
+
       {/* 1. Dedicated Floating Hero Section (Includes Floating Navbar, Rings, 8 Chips, CTAs, Activity Card Stack) */}
       <HeroSection />
 
@@ -66,11 +66,10 @@ export default function MarketingLandingPage() {
                 <button
                   key={cat}
                   onClick={() => setActiveSolutionsCategory(cat)}
-                  className={`px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
-                    isActive
-                      ? "bg-black text-white shadow-sm"
-                      : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-                  }`}
+                  className={`px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${isActive
+                    ? "bg-black text-white shadow-sm"
+                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                    }`}
                 >
                   {cat}
                 </button>
@@ -102,7 +101,7 @@ export default function MarketingLandingPage() {
                       {pkg.indicativePrice.replace("Starting from ", "")}
                     </span>
                   </div>
-                  
+
                   <Link
                     href={`/signup?next=/projects/new&service=${pkg.id}`}
                     className="w-full bg-black hover:bg-zinc-800 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center transition-all shadow-sm"
@@ -128,7 +127,7 @@ export default function MarketingLandingPage() {
         </section>
 
         {/* 5. How It Works Section */}
-        <section id="how-it-works" className="max-w-7xl mx-auto px-6 space-y-16 scroll-mt-28">
+        <section id="how-it-works" className="max-w-7xl mx-auto px-6 space-y-12 scroll-mt-28">
           <div className="text-center space-y-3 max-w-xl mx-auto">
             <h2 className="text-3xl font-black tracking-tight text-zinc-900">How It Works</h2>
             <p className="text-xs text-zinc-500 leading-relaxed font-medium">
@@ -136,56 +135,56 @@ export default function MarketingLandingPage() {
             </p>
           </div>
 
-          {/* 4 Step Lifecycle Columns */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-            {[
-              {
-                step: 1,
-                title: "Submit Brief",
-                icon: (
-                  <svg className="w-6 h-6 text-zinc-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                  </svg>
-                ),
-              },
-              {
-                step: 2,
-                title: "Get Quoted",
-                icon: (
-                  <svg className="w-6 h-6 text-zinc-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33" />
-                  </svg>
-                ),
-              },
-              {
-                step: 3,
-                title: "In Progress",
-                icon: (
-                  <svg className="w-6 h-6 text-zinc-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l5.654-4.654m0 0a3.003 3.003 0 01.765-1.209l3.03-2.496m-4.56 8.359l.044-.044" />
-                  </svg>
-                ),
-              },
-              {
-                step: 4,
-                title: "Get Delivered",
-                icon: (
-                  <svg className="w-6 h-6 text-zinc-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                ),
-              },
-            ].map((st) => (
-              <div key={st.step} className="flex flex-col items-center space-y-4 p-6 bg-zinc-50 border border-zinc-200/80 rounded-3xl">
-                <div className="w-14 h-14 rounded-2xl bg-white border border-zinc-200 flex items-center justify-center shadow-sm">
-                  {st.icon}
+          {/* 4 Step Connected Image Containers */}
+          <div className="relative">
+            {/* Horizontal Connecting Line (Desktop) */}
+            <div className="hidden md:block absolute top-24 left-[12%] right-[12%] border-t-2 border-dashed border-zinc-300 -z-0" />
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6 relative z-10">
+              {[
+                {
+                  step: 1,
+                  title: "Submit Brief",
+                  image: "/steps/step1.png",
+                },
+                {
+                  step: 2,
+                  title: "Get Quoted",
+                  image: "/steps/step2.png",
+                },
+                {
+                  step: 3,
+                  title: "In Progress",
+                  image: "/steps/step3.png",
+                },
+                {
+                  step: 4,
+                  title: "Get Delivered",
+                  image: "/steps/step4.png",
+                },
+              ].map((st) => (
+                <div key={st.step} className="flex flex-col items-center group">
+                  {/* Large Main Image Container */}
+                  <div className="relative w-full h-48 sm:h-52 rounded-3xl overflow-hidden border border-zinc-200/90 shadow-sm bg-white transition-all duration-300 group-hover:shadow-xl group-hover:border-zinc-300 group-hover:-translate-y-1">
+                    <img
+                      src={st.image}
+                      alt={st.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+
+                    {/* Step Number Badge */}
+                    <div className="absolute top-3.5 left-3.5 w-8 h-8 rounded-full bg-white/95 backdrop-blur-md border border-zinc-200/80 text-zinc-900 font-black text-xs flex items-center justify-center shadow-md">
+                      {st.step}
+                    </div>
+                  </div>
+
+                  {/* Step Title Below Container */}
+                  <div className="mt-4 text-center">
+                    <h3 className="text-sm font-extrabold text-zinc-900 tracking-tight">{st.title}</h3>
+                  </div>
                 </div>
-                <div className="w-7 h-7 rounded-full bg-zinc-200 text-zinc-800 font-black text-xs flex items-center justify-center">
-                  {st.step}
-                </div>
-                <h3 className="text-sm font-bold text-zinc-900">{st.title}</h3>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
 
@@ -228,7 +227,7 @@ export default function MarketingLandingPage() {
       <footer className="w-full bg-zinc-100 border-t border-zinc-200 py-16 text-zinc-600">
         <div className="max-w-7xl mx-auto px-6 space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-            
+
             {/* Left Brand Column */}
             <div className="md:col-span-4 space-y-4">
               <div className="flex items-center space-x-2">

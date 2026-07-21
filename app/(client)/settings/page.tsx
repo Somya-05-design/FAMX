@@ -20,8 +20,8 @@ export default async function ClientSettingsPage() {
     <div className="space-y-8 animate-fadeIn">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-zinc-100 font-sans">Account Settings</h1>
-        <p className="text-sm text-zinc-400 mt-1">Manage your user profile details, notifications, and invoicing methods.</p>
+        <h1 className="text-2xl font-bold text-zinc-900 font-sans">Account Settings</h1>
+        <p className="text-sm text-zinc-500 mt-1">Manage your user profile details, notifications, and invoicing methods.</p>
       </div>
 
       {/* Settings Form component wrapper */}

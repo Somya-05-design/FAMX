@@ -2,51 +2,19 @@
 
 import Link from "next/link";
 
-interface ChipProps {
-  style: "dark-icon" | "avatar" | "muted-icon" | "solid-square";
+interface ImageBoxProps {
+  src: string;
+  alt: string;
   positionClass: string;
-  avatarText?: string;
-  gradient?: string;
-  icon?: React.ReactNode;
+  sizeClass?: string;
 }
 
-function FloatingIconChip({ style, positionClass, avatarText, gradient, icon }: ChipProps) {
-  if (style === "solid-square") {
-    return (
-      <div className={`absolute ${positionClass} w-7 h-7 bg-black rounded-md shadow-md border border-white/60 pointer-events-none z-10 transition-transform duration-500 hover:scale-110`} />
-    );
-  }
-
-  if (style === "avatar") {
-    return (
-      <div className={`absolute ${positionClass} w-10 h-10 rounded-xl bg-white p-0.5 border border-zinc-200 shadow-lg shadow-zinc-950/10 pointer-events-none z-10 transition-transform duration-500 hover:scale-110 flex items-center justify-center`}>
-        <div className={`w-full h-full rounded-lg bg-gradient-to-tr ${gradient || "from-indigo-500 to-purple-600"} flex items-center justify-center text-white font-extrabold text-[10px] shadow-inner`}>
-          {avatarText || "A"}
-        </div>
-      </div>
-    );
-  }
-
-  if (style === "muted-icon") {
-    return (
-      <div className={`absolute ${positionClass} w-10 h-10 rounded-xl bg-zinc-100/90 border border-zinc-200 shadow-md shadow-zinc-950/5 pointer-events-none z-10 flex items-center justify-center text-zinc-500 transition-transform duration-500 hover:scale-110`}>
-        {icon || (
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-        )}
-      </div>
-    );
-  }
-
-  // dark-icon default
+function FloatingImageBox({ src, alt, positionClass, sizeClass = "w-12 h-12 sm:w-14 sm:h-14" }: ImageBoxProps) {
   return (
-    <div className={`absolute ${positionClass} w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 shadow-lg shadow-zinc-950/20 pointer-events-none z-10 flex items-center justify-center text-white transition-transform duration-500 hover:scale-110`}>
-      {icon || (
-        <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-        </svg>
-      )}
+    <div className={`absolute ${positionClass} ${sizeClass} p-1 bg-white rounded-2xl border border-zinc-200/90 shadow-xl shadow-zinc-950/10 pointer-events-none z-10 transition-transform duration-500 hover:scale-110 flex items-center justify-center`}>
+      <div className="w-full h-full rounded-xl overflow-hidden bg-zinc-100 relative">
+        <img src={src} alt={alt} className="w-full h-full object-cover" />
+      </div>
     </div>
   );
 }
@@ -54,11 +22,11 @@ function FloatingIconChip({ style, positionClass, avatarText, gradient, icon }: 
 export function HeroSection() {
   return (
     <section className="relative pt-6 pb-16 text-center overflow-hidden max-w-7xl mx-auto px-4 sm:px-6">
-      
+
       {/* 1. Floating Centered Pill Navbar */}
       <div className="flex justify-center mb-12 sm:mb-16">
         <header className="inline-flex items-center space-x-6 sm:space-x-8 bg-white border border-zinc-200/80 rounded-full px-5 sm:px-7 py-3 shadow-xl shadow-zinc-950/5 transition-all">
-          
+
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 shrink-0">
             <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center text-white font-black text-xs shadow-sm">
@@ -117,77 +85,40 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* 3. Floating Icon Chips (8 Total, Organcally Positioned Around Mid/Outer Rings) */}
-        {/* #1 Upper-Left */}
-        <FloatingIconChip
-          style="dark-icon"
-          positionClass="top-[2%] left-[10%] sm:left-[16%]"
-          icon={
-            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12 12 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
-            </svg>
-          }
+        {/* 3. Six Floating Image Boxes Organically Positioned Around Background Rings */}
+        {/* Box #1: Upper-Left (UI Concept) */}
+        <FloatingImageBox
+          src="/hero/box1.png"
+          alt="UI Concept Preview"
+          positionClass="top-[2%] left-[8%] sm:left-[14%]"
+          sizeClass="w-12 h-12 sm:w-16 sm:h-16"
         />
 
-        {/* #2 Upper-Right */}
-        <FloatingIconChip
-          style="avatar"
-          positionClass="top-[4%] right-[10%] sm:right-[15%]"
-          avatarText="JD"
-          gradient="from-blue-500 to-indigo-600"
+        {/* Box #2: Upper-Right (Creative Avatar) */}
+        <FloatingImageBox
+          src="/hero/box2.png"
+          alt="Creative Professional"
+          positionClass="top-[4%] right-[8%] sm:right-[13%]"
+          sizeClass="w-12 h-12 sm:w-14 sm:h-14"
         />
 
-        {/* #3 Left (Mid height) */}
-        <FloatingIconChip
-          style="avatar"
+        {/* Box #3: Mid-Left (Mobile App Interface) */}
+        <FloatingImageBox
+          src="/hero/box3.png"
+          alt="Mobile App Interface"
           positionClass="top-[38%] -left-[2%] sm:left-[2%]"
-          avatarText="MK"
-          gradient="from-emerald-500 to-teal-600"
+          sizeClass="w-12 h-12 sm:w-14 sm:h-14"
         />
 
-        {/* #4 Right (Mid height) */}
-        <FloatingIconChip
-          style="dark-icon"
+        {/* Box #4: Mid-Right (3D Abstract Visual) */}
+        <FloatingImageBox
+          src="/hero/box4.png"
+          alt="3D Visual Artwork"
           positionClass="top-[36%] -right-[2%] sm:right-[3%]"
-          icon={
-            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-            </svg>
-          }
+          sizeClass="w-12 h-12 sm:w-16 sm:h-16"
         />
 
-        {/* #5 Far Left (Mid height solid square) */}
-        <FloatingIconChip
-          style="solid-square"
-          positionClass="top-[55%] left-[6%] sm:left-[10%]"
-        />
 
-        {/* #6 Far Right (Light/muted icon) */}
-        <FloatingIconChip
-          style="muted-icon"
-          positionClass="top-[58%] right-[7%] sm:right-[11%]"
-          icon={
-            <svg className="w-4 h-4 text-zinc-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-            </svg>
-          }
-        />
-
-        {/* #7 Lower-Left */}
-        <FloatingIconChip
-          style="avatar"
-          positionClass="bottom-[8%] left-[12%] sm:left-[18%]"
-          avatarText="SL"
-          gradient="from-purple-500 to-pink-600"
-        />
-
-        {/* #8 Lower-Right */}
-        <FloatingIconChip
-          style="avatar"
-          positionClass="bottom-[10%] right-[12%] sm:right-[17%]"
-          avatarText="AR"
-          gradient="from-amber-500 to-rose-600"
-        />
 
         {/* 4. Trust Row */}
         <div className="inline-flex items-center space-x-2 bg-white/90 border border-zinc-200/80 px-4 py-1.5 rounded-full text-xs font-bold text-zinc-600 shadow-sm mb-6 z-20">
