@@ -16,16 +16,20 @@ export default async function ClientProjectsPage() {
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Header bar */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-100">My Projects</h1>
-          <p className="text-sm text-zinc-400 mt-1">Manage and track the lifecycle of your active and past requests.</p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
+            My Projects
+          </h1>
+          <p className="text-xs sm:text-sm font-medium text-zinc-500 mt-1">
+            Manage and track the lifecycle of your active and past requests.
+          </p>
         </div>
         <Link
           href="/projects/new"
-          className="bg-violet-600 hover:bg-violet-500 text-white font-semibold px-4 py-2.5 rounded-xl text-xs transition-all shadow-md shadow-indigo-950/20"
+          className="bg-black hover:bg-zinc-800 active:bg-zinc-900 text-white font-bold px-6 py-2.5 rounded-xl text-sm shadow-xs transition-all cursor-pointer shrink-0"
         >
-          New Request
+          New Project
         </Link>
       </div>
 

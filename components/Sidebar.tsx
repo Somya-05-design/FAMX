@@ -179,48 +179,36 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
   };
 
   // Theme-specific CSS classes
-  const asideClasses = isAdmin
-    ? `${isCollapsed ? "w-16" : "w-64"} bg-white text-zinc-800 flex flex-col justify-between border-r border-zinc-200 h-screen sticky top-0 transition-all duration-300 ease-in-out`
-    : `${isCollapsed ? "w-16" : "w-64"} bg-zinc-950 text-zinc-100 flex flex-col justify-between border-r border-zinc-900 h-screen sticky top-0 transition-all duration-300 ease-in-out`;
-
-  const headerBorderClass = isAdmin ? "border-zinc-200" : "border-zinc-900";
-  const sectionLabelClass = isAdmin ? "text-zinc-400 font-bold" : "text-zinc-500 font-semibold";
+  const asideClasses = `${isCollapsed ? "w-16" : "w-64"} bg-white text-zinc-900 flex flex-col justify-between border-r border-zinc-200/80 h-screen sticky top-0 transition-all duration-300 ease-in-out`;
 
   return (
     <aside className={asideClasses}>
       <div className="flex flex-col flex-1 overflow-y-auto">
         {/* Logo block */}
-        <div className={`h-16 flex items-center justify-between px-4 border-b ${headerBorderClass} overflow-hidden shrink-0`}>
+        <div className="h-16 flex items-center justify-between px-4 border-b border-zinc-200/80 overflow-hidden shrink-0">
           {!isCollapsed && (
-            <Link href={isAdmin ? "/admin" : "/overview"} className="flex items-center space-x-2 truncate">
-              {isAdmin ? (
-                // Admin Logo Box
-                <div className="flex items-center space-x-2.5">
-                  <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center shrink-0">
-                    <span className="text-white text-xs font-black select-none">F</span>
-                  </div>
-                  <span className="text-lg font-black tracking-tight text-black">
-                    FAMX
-                  </span>
-                </div>
-              ) : (
-                <>
-                  <span className="text-xl font-bold bg-gradient-to-r from-violet-400 to-indigo-500 bg-clip-text text-transparent">
-                    FAMX
-                  </span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400">
-                    Portal
-                  </span>
-                </>
-              )}
+            <Link href={isAdmin ? "/admin" : "/overview"} className="flex items-center space-x-2.5 truncate group">
+              <div className="w-8 h-8 bg-black rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm group-hover:scale-105 transition-transform duration-200">
+                <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6-6.3 4.6 2.3-7.4-6-4.6h7.6z" />
+                </svg>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-base font-extrabold tracking-tight text-zinc-900 leading-none">
+                  FAMX
+                </span>
+                <span className="text-[10px] font-medium text-zinc-400 leading-tight mt-0.5">
+                  Creative Agency
+                </span>
+              </div>
             </Link>
           )}
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`p-1.5 rounded-lg text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 border border-transparent transition-all ${
+            className={`p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 border border-transparent transition-all ${
               isCollapsed ? "mx-auto" : ""
-            } ${!isAdmin && "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900 hover:border-zinc-800"}`}
+            }`}
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           >
             {isCollapsed ? (
@@ -247,20 +235,15 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
                 ? (pathname === "/admin" && viewParam === "notifications")
                 : pathname === link.href || (pathname.startsWith(link.href + "/") && link.href !== "/admin");
             
-            const activeStyle = isAdmin
-              ? "bg-zinc-100 text-black shadow-sm"
-              : "bg-gradient-to-r from-violet-950/40 to-indigo-950/40 text-violet-400 border-l-2 border-violet-500 pl-3.5";
-
-            const inactiveStyle = isAdmin
-              ? "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
-              : "text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200";
+            const activeStyle = "bg-[#EBEBF9] text-[#4F46E5] font-bold shadow-xs";
+            const inactiveStyle = "text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-900 font-medium";
 
             return (
               <Link
                 key={link.label}
                 href={link.href}
                 title={isCollapsed ? link.label : undefined}
-                className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
                   isActive ? activeStyle : inactiveStyle
                 } ${isCollapsed ? "justify-center px-0" : ""}`}
               >
@@ -300,7 +283,7 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
         {/* Category List Sidebar Filter (ADMIN only) */}
         {isAdmin && !isCollapsed && services.length > 0 && (
           <div className="px-4 py-2 border-t border-zinc-100 flex-1 flex flex-col">
-            <span className={`text-[10px] uppercase tracking-wider ${sectionLabelClass} block mb-3 mt-2`}>
+            <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold block mb-3 mt-2">
               PROJECTS
             </span>
             <span className="text-[11px] font-bold text-zinc-400 block mb-2 select-none">
@@ -346,35 +329,24 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
       </div>
 
       {/* Footer Profile & Logout */}
-      <div className={`p-4 border-t ${isAdmin ? "border-zinc-100 bg-white" : "border-zinc-900 bg-zinc-950"} flex flex-col shrink-0`}>
+      <div className="p-4 border-t border-zinc-200/80 bg-white flex flex-col shrink-0">
         {!isCollapsed ? (
           <>
-            <div className="flex items-center space-x-3 px-2 py-1 mb-3">
-              {isAdmin ? (
-                // Abstract visual gradient initials bubble
-                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-orange-400 via-rose-400 to-indigo-400 flex items-center justify-center text-white font-black text-xs shadow-inner">
-                  {(user.name || user.email).substring(0, 2).toUpperCase()}
-                </div>
-              ) : (
-                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-violet-500 to-indigo-500 flex items-center justify-center text-white font-semibold text-sm">
-                  {(user.name || user.email).charAt(0).toUpperCase()}
-                </div>
-              )}
+            <div className="flex items-center space-x-3 px-1 py-1 mb-3">
+              <div className="w-9 h-9 rounded-full bg-zinc-200/80 border border-zinc-300/50 text-zinc-700 font-bold text-xs flex items-center justify-center shrink-0">
+                {(user.name || user.email).charAt(0).toUpperCase()}
+              </div>
               <div className="flex-1 min-w-0">
-                <p className={`text-xs font-bold truncate ${isAdmin ? "text-zinc-800" : "text-zinc-200"}`}>
+                <p className="text-xs font-bold text-zinc-900 truncate">
                   {user.name || "User"}
                 </p>
-                <p className="text-[10px] text-zinc-500 truncate">{user.email}</p>
+                <p className="text-[10px] font-medium text-zinc-500 truncate">{user.email}</p>
               </div>
             </div>
             <form action={signOut}>
               <button
                 type="submit"
-                className={`w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold border transition-all duration-150 cursor-pointer ${
-                  isAdmin
-                    ? "bg-zinc-950 border-zinc-900 text-white hover:bg-zinc-800"
-                    : "bg-zinc-900 border-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 hover:border-zinc-800"
-                }`}
+                className="w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-100 hover:bg-zinc-200/80 border border-zinc-200 text-zinc-700 transition-all duration-150 cursor-pointer shadow-xs"
               >
                 <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -386,11 +358,7 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
         ) : (
           <>
             <div
-              className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0 mb-3 mx-auto ${
-                isAdmin
-                  ? "bg-gradient-to-tr from-orange-400 via-rose-400 to-indigo-400"
-                  : "bg-gradient-to-tr from-violet-500 to-indigo-500"
-              }`}
+              className="w-9 h-9 rounded-full bg-zinc-200/80 border border-zinc-300/50 text-zinc-700 font-bold text-xs flex items-center justify-center shrink-0 mb-3 mx-auto"
               title={`${user.name || "User"} (${user.email})`}
             >
               {(user.name || user.email).charAt(0).toUpperCase()}
@@ -399,11 +367,7 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
               <button
                 type="submit"
                 title="Sign Out"
-                className={`p-2.5 rounded-xl border transition-all duration-150 cursor-pointer flex items-center justify-center shrink-0 mx-auto ${
-                  isAdmin
-                    ? "bg-zinc-950 border-zinc-900 text-white hover:bg-zinc-800"
-                    : "bg-zinc-900 border-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 hover:border-zinc-800"
-                }`}
+                className="p-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200/80 border border-zinc-200 text-zinc-700 transition-all duration-150 cursor-pointer flex items-center justify-center shrink-0 mx-auto shadow-xs"
               >
                 <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
