@@ -50,19 +50,19 @@ export function ProjectCard({ project, hasUnreadMessage }: ProjectCardProps) {
     return date.toLocaleDateString("en-US", { day: "numeric", month: "short" });
   };
 
-  // Map enum status to progress percentage mockup values per Section 4
+  // Map enum status to progress percentage mockup values per Section 2 & 3
   const getProgressDetails = (status: ProjectStatus) => {
     switch (status) {
       case "SUBMITTED":
-        return { percent: "25%", color: "text-zinc-400 bg-zinc-100", dot: "bg-zinc-400" };
+        return { percent: "25%", color: "text-on-tertiary bg-tertiary", dot: "bg-on-tertiary" };
       case "QUOTED":
-        return { percent: "50%", color: "text-orange-600 bg-orange-50", dot: "bg-orange-500" };
+        return { percent: "50%", color: "text-on-secondary-container bg-secondary-container", dot: "bg-on-secondary-container" };
       case "IN_PROGRESS":
-        return { percent: "80%", color: "text-blue-600 bg-blue-50", dot: "bg-blue-500" };
+        return { percent: "80%", color: "text-primary bg-inverse-primary font-black", dot: "bg-primary" };
       case "COMPLETED":
-        return { percent: "100%", color: "text-emerald-600 bg-emerald-50", dot: "bg-emerald-500" };
+        return { percent: "100%", color: "text-on-primary bg-primary", dot: "bg-on-primary" };
       default:
-        return { percent: "0%", color: "text-zinc-400 bg-zinc-100", dot: "bg-zinc-400" };
+        return { percent: "0%", color: "text-on-surface-variant bg-surface-container-high", dot: "bg-outline" };
     }
   };
 
@@ -77,19 +77,6 @@ export function ProjectCard({ project, hasUnreadMessage }: ProjectCardProps) {
     .substring(0, 2)
     .toUpperCase();
 
-  // Color gradient choices for abstract avatars
-  const avatarGradients = [
-    "from-orange-400 to-rose-400",
-    "from-indigo-400 to-purple-400",
-    "from-emerald-400 to-teal-400",
-    "from-pink-400 to-rose-500",
-    "from-sky-400 to-blue-500",
-  ];
-  
-  // Pick deterministic gradient index from project.id
-  const gradientIndex = project.id.charCodeAt(0) % avatarGradients.length;
-  const activeGradient = avatarGradients[gradientIndex];
-
   return (
     <div
       ref={setNodeRef}
@@ -97,17 +84,17 @@ export function ProjectCard({ project, hasUnreadMessage }: ProjectCardProps) {
       {...attributes}
       {...listeners}
       onClick={handleCardClick}
-      className={`group relative p-5 bg-white border border-zinc-200/80 hover:border-zinc-300/80 rounded-2xl shadow-sm transition-all duration-200 cursor-grab active:cursor-grabbing hover:shadow-md flex flex-col space-y-4 select-none`}
+      className={`group relative p-5 bg-surface-container-lowest border border-outline-variant hover:border-primary rounded-2xl transition-all duration-200 cursor-grab active:cursor-grabbing flex flex-col space-y-4 select-none`}
     >
       {/* Category Pill Tag at top left */}
       <div className="flex items-center justify-between">
-        <span className="text-[9px] px-2.5 py-0.5 rounded-full font-bold bg-zinc-100 text-zinc-500 border border-zinc-200/50 max-w-[70%] truncate">
+        <span className="text-[9px] px-2.5 py-0.5 rounded-full font-bold bg-surface-container-low text-on-surface-variant border border-outline-variant/60 max-w-[70%] truncate">
           {project.service?.name || project.customServiceText || "Custom"}
         </span>
 
         {/* Dispute alert indicator */}
         {project.status === "COMPLETED" && project.isDisputed && (
-          <span className="text-[9px] font-bold text-red-500 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-md shrink-0">
+          <span className="text-[9px] font-bold text-on-error bg-error px-1.5 py-0.5 rounded-md shrink-0">
             Disputed 🚩
           </span>
         )}
@@ -115,46 +102,46 @@ export function ProjectCard({ project, hasUnreadMessage }: ProjectCardProps) {
 
       {/* Card Title & Description snippet */}
       <div className="space-y-1">
-        <h4 className="text-sm font-bold text-zinc-900 group-hover:text-orange-500 transition-colors line-clamp-1">
+        <h4 className="text-sm font-bold text-on-surface group-hover:text-primary transition-colors line-clamp-1">
           {project.title}
         </h4>
-        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+        <p className="text-xs text-on-surface-variant line-clamp-2 leading-relaxed">
           {project.description}
         </p>
       </div>
 
       {/* Date & Progress Indicator Row */}
-      <div className="flex items-center justify-between text-xs font-semibold text-zinc-400 pt-1">
+      <div className="flex items-center justify-between text-xs font-semibold text-on-surface-variant pt-1">
         {/* Calendar & Date */}
         <div className="flex items-center space-x-1.5">
-          <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5 text-outline" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
           </svg>
-          <span className="text-[11px] text-zinc-500">{formatDateMock(project.updatedAt)}</span>
+          <span className="text-[11px] text-on-surface-variant">{formatDateMock(project.updatedAt)}</span>
         </div>
 
         {/* Progress Percentage Badge */}
-        <div className={`flex items-center space-x-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${progress.color}`}>
+        <div className={`flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${progress.color}`}>
           <span className={`w-1.5 h-1.5 rounded-full ${progress.dot}`} />
           <span>{progress.percent}</span>
         </div>
       </div>
 
       {/* Footer Divider */}
-      <div className="h-px bg-zinc-100" />
+      <div className="h-px bg-outline-variant/30" />
 
       {/* Card Footer Row: User avatar & counts */}
       <div className="flex items-center justify-between shrink-0">
-        {/* Client avatar (Initials with gradient) */}
+        {/* Client avatar */}
         <div
-          className={`w-7 h-7 rounded-full bg-gradient-to-tr ${activeGradient} flex items-center justify-center text-white text-[9px] font-black shadow-inner`}
+          className={`w-7 h-7 rounded-full bg-primary flex items-center justify-center text-on-primary text-[9px] font-black shadow-xs`}
           title={`Client: ${clientName}`}
         >
           {initials}
         </div>
 
         {/* Link and Chat counts */}
-        <div className="flex items-center space-x-3 text-zinc-400">
+        <div className="flex items-center space-x-3 text-outline">
           {/* Attachment count */}
           <div className="flex items-center space-x-1 text-[11px] font-semibold" title={`${project.attachmentCount || 0} Attachments`}>
             <svg className="w-3.5 h-3.5 rotate-45 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -170,11 +157,11 @@ export function ProjectCard({ project, hasUnreadMessage }: ProjectCardProps) {
             </svg>
             <span>{project.messageCount || 0}</span>
 
-            {/* Glowing red dot if unread message */}
+            {/* Glowing dot if unread message */}
             {hasUnreadMessage && (
               <span className="absolute -top-0.5 -right-1 flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-orange-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-error"></span>
               </span>
             )}
           </div>

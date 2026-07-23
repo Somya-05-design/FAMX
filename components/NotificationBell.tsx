@@ -138,7 +138,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
       {/* Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-xl bg-white hover:bg-zinc-100 border border-zinc-200 text-zinc-600 hover:text-zinc-900 shadow-xs transition-all cursor-pointer select-none"
+        className="relative p-2 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low border border-outline-variant text-on-surface-variant hover:text-on-surface shadow-xs transition-all cursor-pointer select-none"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -146,22 +146,22 @@ export function NotificationBell({ userId }: NotificationBellProps) {
 
         {unreadCount > 0 && (
           <span className="absolute top-1.5 right-1.5 flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-error"></span>
           </span>
         )}
       </button>
 
       {/* Dropdown Card */}
       {isOpen && (
-        <div className="absolute right-0 mt-2.5 w-80 bg-white border border-zinc-200 rounded-2xl shadow-xl overflow-hidden z-50 animate-fadeIn">
+        <div className="absolute right-0 mt-2.5 w-80 bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-xl overflow-hidden z-50 animate-fadeIn">
           {/* Header */}
-          <div className="px-4 py-3 border-b border-zinc-100 flex items-center justify-between bg-zinc-50">
-            <span className="text-xs font-bold text-zinc-900">Notifications</span>
+          <div className="px-4 py-3 border-b border-outline-variant/60 flex items-center justify-between bg-surface-container-low">
+            <span className="text-xs font-bold text-on-surface">Notifications</span>
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllAsRead}
-                className="text-[10px] text-indigo-600 hover:text-indigo-700 font-semibold cursor-pointer"
+                className="text-[10px] text-primary hover:underline font-semibold cursor-pointer"
               >
                 Mark all as read
               </button>
@@ -169,10 +169,10 @@ export function NotificationBell({ userId }: NotificationBellProps) {
           </div>
 
           {/* List */}
-          <div className="max-h-[300px] overflow-y-auto divide-y divide-zinc-100">
+          <div className="max-h-[300px] overflow-y-auto divide-y divide-outline-variant/40">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-zinc-400 text-xs leading-relaxed">
-                <svg className="w-6 h-6 text-zinc-300 mx-auto mb-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <div className="p-8 text-center text-outline text-xs leading-relaxed">
+                <svg className="w-6 h-6 text-outline/60 mx-auto mb-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
                 <p>No notifications yet</p>
@@ -183,8 +183,8 @@ export function NotificationBell({ userId }: NotificationBellProps) {
                 return (
                   <div
                     key={n.id}
-                    className={`p-4 transition-colors flex justify-between items-start space-x-3 hover:bg-zinc-50 ${
-                      !n.read ? "bg-orange-50/40" : ""
+                    className={`p-4 transition-colors flex justify-between items-start space-x-3 hover:bg-surface-container-low ${
+                      !n.read ? "bg-inverse-primary/10" : ""
                     }`}
                   >
                     <div className="flex-1 space-y-1">
@@ -195,16 +195,16 @@ export function NotificationBell({ userId }: NotificationBellProps) {
                             handleMarkAsRead(n.id);
                             setIsOpen(false);
                           }}
-                          className="text-xs text-zinc-800 hover:text-indigo-600 transition-colors leading-relaxed block font-medium"
+                          className="text-xs text-on-surface hover:text-primary transition-colors leading-relaxed block font-medium"
                         >
                           {message}
                         </Link>
                       ) : (
-                        <p className="text-xs text-zinc-800 leading-relaxed font-medium">
+                        <p className="text-xs text-on-surface leading-relaxed font-medium">
                           {message}
                         </p>
                       )}
-                      <span className="text-[9px] text-zinc-400 block font-semibold">
+                      <span className="text-[9px] text-on-surface-variant block font-semibold">
                         {new Date(n.createdAt).toLocaleDateString()}
                       </span>
                     </div>
@@ -212,7 +212,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
                     {!n.read && (
                       <button
                         onClick={() => handleMarkAsRead(n.id)}
-                        className="w-2 h-2 bg-orange-500 rounded-full shrink-0 mt-1 cursor-pointer"
+                        className="w-2 h-2 bg-error rounded-full shrink-0 mt-1 cursor-pointer"
                         title="Mark as read"
                       />
                     )}

@@ -30,7 +30,7 @@ export function PayNowButton({ paymentId }: PayNowButtonProps) {
     <button
       onClick={handlePay}
       disabled={isPending}
-      className="bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1 shrink-0 cursor-pointer disabled:opacity-50"
+      className="bg-primary hover:bg-primary-container text-on-primary font-bold text-[10px] px-3 py-1.5 rounded-lg transition-all flex items-center space-x-1 shrink-0 cursor-pointer disabled:opacity-50 shadow-xs"
     >
       {isPending ? (
         <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />

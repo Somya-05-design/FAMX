@@ -148,14 +148,8 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
     },
   ];
 
-  const getCategoryColorClass = (name: string) => {
-    const norm = name.toLowerCase();
-    if (norm.includes("web")) return "bg-blue-500";
-    if (norm.includes("graphic")) return "bg-sky-500";
-    if (norm.includes("ui") || norm.includes("ux")) return "bg-purple-500";
-    if (norm.includes("brand")) return "bg-emerald-500";
-    if (norm.includes("illustr")) return "bg-rose-500";
-    return "bg-zinc-400";
+  const getCategoryColorClass = () => {
+    return "bg-primary";
   };
 
   const handleCategoryClick = (categoryName: string) => {
@@ -170,25 +164,25 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
   };
 
   // Theme-specific CSS classes
-  const asideClasses = `${isCollapsed ? "w-16" : "w-64"} bg-white text-zinc-900 flex flex-col justify-between border-r border-zinc-200/80 h-screen sticky top-0 transition-all duration-300 ease-in-out`;
+  const asideClasses = `${isCollapsed ? "w-16" : "w-64"} bg-surface-container-lowest text-on-surface flex flex-col justify-between border-r border-outline-variant h-screen sticky top-0 transition-all duration-300 ease-in-out`;
 
   return (
     <aside className={asideClasses}>
       <div className="flex flex-col flex-1 overflow-y-auto">
         {/* Logo block */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-zinc-200/80 overflow-hidden shrink-0">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-outline-variant overflow-hidden shrink-0">
           {!isCollapsed && (
             <Link href={isAdmin ? "/admin" : "/overview"} className="flex items-center space-x-2.5 truncate group">
-              <div className="w-8 h-8 bg-black rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm group-hover:scale-105 transition-transform duration-200">
+              <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center text-on-primary shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-200">
                 <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
                   <path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6-6.3 4.6 2.3-7.4-6-4.6h7.6z" />
                 </svg>
               </div>
               <div className="flex flex-col">
-                <span className="text-base font-extrabold tracking-tight text-zinc-900 leading-none">
+                <span className="text-base font-extrabold tracking-tight text-on-surface leading-none">
                   FAMX
                 </span>
-                <span className="text-[10px] font-medium text-zinc-400 leading-tight mt-0.5">
+                <span className="text-[10px] font-medium text-on-surface-variant leading-tight mt-0.5">
                   Creative Agency
                 </span>
               </div>
@@ -197,7 +191,7 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
 
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 border border-transparent transition-all ${
+            className={`p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container-low border border-transparent transition-all ${
               isCollapsed ? "mx-auto" : ""
             }`}
             title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
@@ -226,8 +220,8 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
                 ? (pathname === "/admin" && viewParam === "notifications")
                 : pathname === link.href || (pathname.startsWith(link.href + "/") && link.href !== "/admin");
             
-            const activeStyle = "bg-[#EBEBF9] text-[#4F46E5] font-bold shadow-xs";
-            const inactiveStyle = "text-zinc-600 hover:bg-zinc-100/80 hover:text-zinc-900 font-medium";
+            const activeStyle = "bg-surface-container-high text-on-surface font-extrabold shadow-xs";
+            const inactiveStyle = "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-medium";
 
             return (
               <Link
@@ -245,7 +239,7 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
                 
                 {/* Dynamic Notification Count Badge */}
                 {!isCollapsed && isNotificationsTab && unreadCount > 0 && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-600 text-white font-black shrink-0 shadow-sm animate-pulse">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-error text-on-error font-black shrink-0 shadow-xs animate-pulse">
                     {unreadCount}
                   </span>
                 )}
@@ -259,7 +253,7 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
               <div
                 key={link.label}
                 title={isCollapsed ? link.label : undefined}
-                className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold text-zinc-400 opacity-60 cursor-not-allowed select-none ${
+                className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold text-outline opacity-60 cursor-not-allowed select-none ${
                   isCollapsed ? "justify-center px-0" : ""
                 }`}
               >
@@ -273,11 +267,11 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
 
         {/* Category List Sidebar Filter (ADMIN only) */}
         {isAdmin && !isCollapsed && services.length > 0 && (
-          <div className="px-4 py-2 border-t border-zinc-100 flex-1 flex flex-col">
-            <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-bold block mb-3 mt-2">
+          <div className="px-4 py-2 border-t border-outline-variant/40 flex-1 flex flex-col">
+            <span className="text-[10px] uppercase tracking-wider text-outline font-bold block mb-3 mt-2">
               PROJECTS
             </span>
-            <span className="text-[11px] font-bold text-zinc-400 block mb-2 select-none">
+            <span className="text-[11px] font-bold text-outline block mb-2 select-none">
               category
             </span>
             
@@ -287,11 +281,11 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
                 onClick={() => handleCategoryClick("ALL")}
                 className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150 text-left cursor-pointer ${
                   activeCategory === "ALL" && viewParam !== "notifications"
-                    ? "bg-orange-50 text-orange-600 border-l-2 border-orange-500 pl-3"
-                    : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+                    ? "bg-surface-container-highest text-primary border-l-2 border-primary pl-3"
+                    : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
                 }`}
               >
-                <span className="w-2.5 h-2.5 rounded-full bg-zinc-300 border border-zinc-200" />
+                <span className="w-2.5 h-2.5 rounded-full bg-outline-variant border border-outline" />
                 <span>All Projects</span>
               </button>
 
@@ -305,11 +299,11 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
                     onClick={() => handleCategoryClick(service.name)}
                     className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150 text-left cursor-pointer ${
                       isSelected
-                        ? "bg-orange-50 text-orange-600 border-l-2 border-orange-500 pl-3"
-                        : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+                        ? "bg-surface-container-highest text-primary border-l-2 border-primary pl-3"
+                        : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
                     }`}
                   >
-                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${getCategoryColorClass(service.name)}`} />
+                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${getCategoryColorClass()}`} />
                     <span className="truncate">{service.name}</span>
                   </button>
                 );
@@ -320,24 +314,24 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
       </div>
 
       {/* Footer Profile & Logout */}
-      <div className="p-4 border-t border-zinc-200/80 bg-white flex flex-col shrink-0">
+      <div className="p-4 border-t border-outline-variant bg-surface-container-lowest flex flex-col shrink-0">
         {!isCollapsed ? (
           <>
             <div className="flex items-center space-x-3 px-1 py-1 mb-3">
-              <div className="w-9 h-9 rounded-full bg-zinc-200/80 border border-zinc-300/50 text-zinc-700 font-bold text-xs flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0">
                 {(user.name || user.email).charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-zinc-900 truncate">
+                <p className="text-xs font-bold text-on-surface truncate">
                   {user.name || "User"}
                 </p>
-                <p className="text-[10px] font-medium text-zinc-500 truncate">{user.email}</p>
+                <p className="text-[10px] font-medium text-on-surface-variant truncate">{user.email}</p>
               </div>
             </div>
             <form action={signOut}>
               <button
                 type="submit"
-                className="w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-100 hover:bg-zinc-200/80 border border-zinc-200 text-zinc-700 transition-all duration-150 cursor-pointer shadow-xs"
+                className="w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold bg-surface-container-low hover:bg-surface-container-high border border-outline-variant text-on-surface transition-all duration-150 cursor-pointer shadow-xs"
               >
                 <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -349,7 +343,7 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
         ) : (
           <>
             <div
-              className="w-9 h-9 rounded-full bg-zinc-200/80 border border-zinc-300/50 text-zinc-700 font-bold text-xs flex items-center justify-center shrink-0 mb-3 mx-auto"
+              className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0 mb-3 mx-auto"
               title={`${user.name || "User"} (${user.email})`}
             >
               {(user.name || user.email).charAt(0).toUpperCase()}
@@ -358,7 +352,7 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
               <button
                 type="submit"
                 title="Sign Out"
-                className="p-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200/80 border border-zinc-200 text-zinc-700 transition-all duration-150 cursor-pointer flex items-center justify-center shrink-0 mx-auto shadow-xs"
+                className="p-2.5 rounded-xl bg-surface-container-low hover:bg-surface-container-high border border-outline-variant text-on-surface transition-all duration-150 cursor-pointer flex items-center justify-center shrink-0 mx-auto shadow-xs"
               >
                 <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

@@ -16,11 +16,8 @@ export function PortfolioGrid() {
         return item.category === activeCategory;
       });
 
-  const getCategoryTagStyle = (cat: string) => {
-    if (cat.includes("Web")) return "text-blue-600 bg-blue-50 border-blue-100";
-    if (cat.includes("UI") || cat.includes("UX")) return "text-purple-600 bg-purple-50 border-purple-100";
-    if (cat.includes("Graphic") || cat.includes("Design")) return "text-rose-600 bg-rose-50 border-rose-100";
-    return "text-zinc-600 bg-zinc-100 border-zinc-200";
+  const getCategoryTagStyle = () => {
+    return "text-on-surface-variant bg-surface-container-high border-outline-variant";
   };
 
   return (
@@ -35,8 +32,8 @@ export function PortfolioGrid() {
               onClick={() => setActiveCategory(category)}
               className={`px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
                 isActive
-                  ? "bg-black text-white shadow-sm"
-                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                  ? "bg-primary text-on-primary shadow-xs"
+                  : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest"
               }`}
             >
               {category}
@@ -50,14 +47,14 @@ export function PortfolioGrid() {
         {filteredItems.map((item) => (
           <div
             key={item.id}
-            className="group relative flex flex-col justify-between overflow-hidden bg-white border border-zinc-200/80 rounded-3xl p-5 transition-all duration-300 hover:border-zinc-300 hover:shadow-xl hover:shadow-zinc-950/5"
+            className="group relative flex flex-col justify-between overflow-hidden bg-surface-container-lowest border border-outline-variant rounded-3xl p-5 transition-all duration-300 hover:border-primary"
           >
             {/* Showcase Image Container with Overlay, Blur & Redirect Button */}
-            <div className="h-56 w-full bg-zinc-900 rounded-2xl relative overflow-hidden border border-zinc-200/80 shadow-inner">
+            <div className="h-56 w-full bg-surface-container-highest rounded-2xl relative overflow-hidden border border-outline-variant">
               <img
                 src={item.image}
                 alt={item.title}
-                className="w-full h-full object-cover group-hover:scale-105 group-hover:blur-sm transition-all duration-500"
+                className="w-full h-full object-cover group-hover:scale-105 group-hover:blur-xs transition-all duration-500"
               />
 
               {/* Gradient Dark Bottom Mask */}
@@ -65,7 +62,7 @@ export function PortfolioGrid() {
 
               {/* Title & Category Pill on Image (Visible by default) */}
               <div className="absolute bottom-4 left-4 right-4 z-10 space-y-1.5 transition-all duration-300 group-hover:opacity-0 group-hover:translate-y-2">
-                <span className={`inline-block text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider border shadow-sm ${getCategoryTagStyle(item.category)}`}>
+                <span className={`inline-block text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider border shadow-xs ${getCategoryTagStyle()}`}>
                   {item.category === "UI/UX" ? "UI/UX DESIGN" : item.category.toUpperCase()}
                 </span>
                 <h4 className="text-base font-extrabold text-white tracking-tight drop-shadow-md">
@@ -80,10 +77,10 @@ export function PortfolioGrid() {
                 </h4>
                 <Link
                   href={`/signup?next=/projects/new&work=${item.id}`}
-                  className="bg-white hover:bg-zinc-100 text-zinc-900 font-extrabold text-xs px-5 py-2.5 rounded-full shadow-xl transition-transform duration-200 hover:scale-105 flex items-center space-x-1.5"
+                  className="bg-primary hover:bg-primary-container text-on-primary font-extrabold text-xs px-5 py-2.5 rounded-full shadow-xs transition-transform duration-200 hover:scale-105 flex items-center space-x-1.5 cursor-pointer"
                 >
                   <span>View Details</span>
-                  <svg className="w-3.5 h-3.5 text-zinc-900" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 text-on-primary" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                   </svg>
                 </Link>
@@ -91,9 +88,9 @@ export function PortfolioGrid() {
             </div>
 
             {/* Showcase Key Result metric */}
-            <div className="pt-3.5 mt-3 border-t border-zinc-100 flex items-center space-x-2">
-              <span className="text-zinc-400 text-xs font-bold">⚡</span>
-              <span className="text-[11px] text-zinc-500 font-semibold italic truncate">
+            <div className="pt-3.5 mt-3 border-t border-outline-variant/40 flex items-center space-x-2">
+              <span className="text-primary text-xs font-bold">⚡</span>
+              <span className="text-[11px] text-on-surface-variant font-semibold italic truncate">
                 {item.result}
               </span>
             </div>

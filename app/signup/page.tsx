@@ -35,31 +35,31 @@ function SignupForm() {
     <div className="w-full">
       {/* Title & Subtitle */}
       <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
+        <h1 className="text-headline-lg font-extrabold text-on-surface tracking-tight">
           Create Account
         </h1>
-        <p className="text-sm font-medium text-zinc-400 mt-1.5">
+        <p className="text-label-sm font-medium text-on-surface-variant mt-1.5">
           Get started with FAMX professional services
         </p>
       </div>
 
       {/* Sign In / Sign Up Pill Switcher */}
-      <div className="inline-flex bg-zinc-100/80 p-1 rounded-full mb-8 border border-zinc-200/60">
+      <div className="inline-flex bg-surface-container-high p-1 rounded-full mb-8 border border-outline-variant">
         <Link
           href={next ? `/login?next=${encodeURIComponent(next)}` : "/login"}
-          className="text-zinc-500 hover:text-zinc-900 font-medium rounded-full px-7 py-2 text-sm transition-colors flex items-center justify-center"
+          className="text-on-surface-variant hover:text-on-surface font-medium rounded-full px-7 py-2 text-sm transition-colors flex items-center justify-center"
         >
           Sign in
         </Link>
-        <span className="bg-[#3B5FE0] text-white font-semibold rounded-full px-7 py-2 text-sm shadow-sm">
+        <span className="bg-primary text-on-primary font-semibold rounded-full px-7 py-2 text-sm shadow-xs">
           Sign Up
         </span>
       </div>
 
       {/* Error Alert */}
       {state?.error && (
-        <div className="mb-6 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs flex items-center space-x-2">
-          <svg className="w-4 h-4 shrink-0 text-rose-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <div className="mb-6 p-3.5 rounded-xl bg-error-container border border-error/30 text-on-error-container text-xs flex items-center space-x-2">
+          <svg className="w-4 h-4 shrink-0 text-error" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
           <span>{state.error}</span>
@@ -77,9 +77,9 @@ function SignupForm() {
             name="name"
             required
             placeholder="Enter your full name"
-            className="w-full bg-white border border-zinc-300 focus:border-[#3B5FE0] focus:ring-1 focus:ring-[#3B5FE0] rounded-xl px-4 py-3.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all pr-11"
+            className="w-full bg-surface-container-lowest border border-outline-variant focus:border-tertiary focus:ring-1 focus:ring-tertiary rounded-xl px-4 py-3.5 text-sm text-on-surface placeholder:text-on-surface-variant/60 outline-none transition-all pr-11"
           />
-          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none">
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
             </svg>
@@ -93,9 +93,9 @@ function SignupForm() {
             name="email"
             required
             placeholder="Enter your email"
-            className="w-full bg-white border border-zinc-300 focus:border-[#3B5FE0] focus:ring-1 focus:ring-[#3B5FE0] rounded-xl px-4 py-3.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all pr-11"
+            className="w-full bg-surface-container-lowest border border-outline-variant focus:border-tertiary focus:ring-1 focus:ring-tertiary rounded-xl px-4 py-3.5 text-sm text-on-surface placeholder:text-on-surface-variant/60 outline-none transition-all pr-11"
           />
-          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none">
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
             </svg>
@@ -109,12 +109,12 @@ function SignupForm() {
             name="password"
             required
             placeholder="Minimum 6 characters"
-            className="w-full bg-white border border-zinc-300 focus:border-[#3B5FE0] focus:ring-1 focus:ring-[#3B5FE0] rounded-xl px-4 py-3.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none transition-all pr-11"
+            className="w-full bg-surface-container-lowest border border-outline-variant focus:border-tertiary focus:ring-1 focus:ring-tertiary rounded-xl px-4 py-3.5 text-sm text-on-surface placeholder:text-on-surface-variant/60 outline-none transition-all pr-11"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors"
             tabIndex={-1}
             aria-label={showPassword ? "Hide password" : "Show password"}
           >
@@ -135,10 +135,10 @@ function SignupForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full bg-[#3B5FE0] hover:bg-blue-600 active:bg-blue-700 text-white font-semibold py-3.5 rounded-full text-sm shadow-md shadow-blue-500/20 transition-all flex items-center justify-center space-x-2 disabled:opacity-60 cursor-pointer pt-3 mt-4"
+          className="w-full bg-primary hover:bg-primary-container text-on-primary font-semibold py-3.5 rounded-full text-sm transition-all flex items-center justify-center space-x-2 disabled:opacity-60 cursor-pointer pt-3 mt-4"
         >
           {isPending ? (
-            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <span className="w-5 h-5 border-2 border-on-primary/30 border-t-on-primary rounded-full animate-spin" />
           ) : (
             <span>Create Account</span>
           )}
@@ -147,9 +147,9 @@ function SignupForm() {
 
       {/* OR Divider */}
       <div className="relative flex py-5 items-center justify-center">
-        <div className="grow border-t border-zinc-200"></div>
-        <span className="shrink mx-4 text-xs font-semibold text-zinc-400 tracking-wider">OR</span>
-        <div className="grow border-t border-zinc-200"></div>
+        <div className="grow border-t border-outline-variant"></div>
+        <span className="shrink mx-4 text-xs font-semibold text-outline tracking-wider">OR</span>
+        <div className="grow border-t border-outline-variant"></div>
       </div>
 
       {/* Google OAuth Button */}
@@ -157,10 +157,10 @@ function SignupForm() {
         type="button"
         onClick={handleGoogleSignup}
         disabled={googleLoading}
-        className="w-full border border-zinc-200 hover:border-zinc-300 bg-white hover:bg-zinc-50/80 text-zinc-800 font-semibold py-3 rounded-full text-sm flex items-center justify-center space-x-3 transition-all cursor-pointer shadow-xs disabled:opacity-60"
+        className="w-full border border-outline-variant hover:border-outline bg-surface-container-lowest hover:bg-surface-container-low text-on-surface font-semibold py-3 rounded-full text-sm flex items-center justify-center space-x-3 transition-all cursor-pointer disabled:opacity-60"
       >
         {googleLoading ? (
-          <span className="w-4 h-4 border-2 border-zinc-400 border-t-zinc-700 rounded-full animate-spin" />
+          <span className="w-4 h-4 border-2 border-outline border-t-on-surface rounded-full animate-spin" />
         ) : (
           <>
             <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -195,7 +195,7 @@ export default function SignupPage() {
       <Suspense
         fallback={
           <div className="flex flex-col items-center justify-center min-h-[300px]">
-            <span className="w-8 h-8 border-2 border-[#3B5FE0]/30 border-t-[#3B5FE0] rounded-full animate-spin" />
+            <span className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
           </div>
         }
       >
