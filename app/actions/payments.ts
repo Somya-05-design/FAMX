@@ -2,77 +2,57 @@
 
 import { getServerSession } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { createPaymentRequest, createPortalSession } from "@/lib/data/payments";
-import { prisma } from "@/lib/prisma";
+import {
+  getAdminPaymentSettings,
+  updateAdminPaymentSettings,
+  submitPaymentProof,
+  verifyPayment,
+  AdminPaymentSettingsInput,
+  SubmitPaymentProofInput,
+} from "@/lib/data/payments";
 
-export async function requestPaymentAction(projectId: string, amount: number) {
+export async function getAdminPaymentSettingsAction() {
   const session = await getServerSession();
   if (!session) {
     throw new Error("Unauthorized");
   }
-
-  const payment = await createPaymentRequest(session, projectId, amount);
-
-  // Trigger PAYMENT_REQUESTED notification to Client
-  try {
-    const project = await prisma.project.findUnique({ where: { id: projectId } });
-    if (project) {
-      const { createNotification } = await import("@/lib/data/notifications");
-      await createNotification(
-        project.clientId,
-        "PAYMENT_REQUESTED",
-        project.id
-      );
-    }
-  } catch (err) {
-    console.error("Failed to trigger payment requested notification", err);
-  }
-
-  revalidatePath(`/admin/projects/${projectId}`);
-  revalidatePath(`/projects/${projectId}`);
-
-  return { id: payment.id, stripeSessionId: payment.stripeSessionId };
+  return await getAdminPaymentSettings();
 }
 
-export async function requestBillingPortalAction() {
+export async function updateAdminPaymentSettingsAction(input: AdminPaymentSettingsInput) {
   const session = await getServerSession();
   if (!session) {
     throw new Error("Unauthorized");
   }
-
-  const url = await createPortalSession(session);
-  return { url };
+  const settings = await updateAdminPaymentSettings(session, input);
+  revalidatePath("/admin/settings");
+  revalidatePath("/admin/settings/payment");
+  return settings;
 }
 
-export async function getPaymentCheckoutUrlAction(paymentId: string) {
+export async function submitPaymentProofAction(input: SubmitPaymentProofInput) {
   const session = await getServerSession();
   if (!session) {
     throw new Error("Unauthorized");
   }
+  const payment = await submitPaymentProof(session, input);
+  revalidatePath(`/projects/${payment.projectId}`);
+  revalidatePath(`/admin/projects/${payment.projectId}`);
+  return { id: payment.id, status: payment.status };
+}
 
-  const payment = await prisma.payment.findUnique({
-    where: { id: paymentId },
-    include: { project: true },
-  });
-
-  if (!payment) {
-    throw new Error("Payment not found");
-  }
-
-  // Auth: client must own the project or user is admin
-  if (session.user.role === "CLIENT" && payment.project.clientId !== session.user.id) {
+export async function verifyPaymentAction(
+  paymentId: string,
+  action: "APPROVE" | "REJECT",
+  rejectionReason?: string
+) {
+  const session = await getServerSession();
+  if (!session) {
     throw new Error("Unauthorized");
   }
-
-  if (!payment.stripeSessionId) {
-    throw new Error("Stripe Checkout Session is not initialized");
-  }
-
-  const { stripe } = await import("@/lib/stripe");
-  const checkoutSession = await stripe.checkout.sessions.retrieve(payment.stripeSessionId);
-  if (!checkoutSession.url) {
-    throw new Error("Checkout URL is not available");
-  }
-
-  return { url: checkoutSession.url };
+  const payment = await verifyPayment(session, paymentId, action, rejectionReason);
+  revalidatePath(`/projects/${payment.projectId}`);
+  revalidatePath(`/admin/projects/${payment.projectId}`);
+  revalidatePath("/admin");
+  return { id: payment.id, status: payment.status };
 }

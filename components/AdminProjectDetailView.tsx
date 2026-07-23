@@ -7,6 +7,8 @@ import { requestPaymentAction } from "@/app/actions/payments";
 import { uploadAttachment } from "@/app/actions/attachments";
 import { AttachmentLink } from "@/components/AttachmentLink";
 import { ChatPanel } from "@/components/ChatPanel";
+import { BudgetNegotiator } from "@/components/BudgetNegotiator";
+import { AdminPaymentVerification } from "@/components/AdminPaymentVerification";
 import Link from "next/link";
 
 interface Attachment {
@@ -18,7 +20,11 @@ interface Attachment {
 interface Payment {
   id: string;
   amount: number;
-  status: string;
+  status: any;
+  paymentMethod?: string | null;
+  utrNumber?: string | null;
+  receiptPath?: string | null;
+  rejectionReason?: string | null;
   createdAt: Date | string;
 }
 
@@ -33,6 +39,9 @@ interface Project {
   proposedBudget: number;
   quoteAmount?: number | null;
   isDisputed: boolean;
+  isBudgetFinalized?: boolean;
+  lastNegotiatedBy?: "CLIENT" | "ADMIN" | null;
+  negotiationHistory?: any[];
   createdAt: Date | string;
   updatedAt: Date | string;
   service?: { name: string } | null;
@@ -248,8 +257,8 @@ export function AdminProjectDetailView({ project: initialProject, currentUserId 
 
   return (
     <div className="space-y-6 animate-fadeIn select-none">
-      {/* Back Link */}
-      <div>
+      {/* Back Link & Payment Settings Link */}
+      <div className="flex items-center justify-between">
         <Link
           href="/admin"
           className="inline-flex items-center space-x-2 text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-colors"
@@ -259,7 +268,30 @@ export function AdminProjectDetailView({ project: initialProject, currentUserId 
           </svg>
           <span>Back to Console</span>
         </Link>
+
+        <Link
+          href="/admin/settings/payment"
+          className="inline-flex items-center space-x-1.5 text-xs font-bold text-primary hover:underline bg-surface-container-low px-3 py-1.5 rounded-xl border border-outline-variant/50"
+        >
+          <span>⚙️ Payment Methods & Barcode Settings</span>
+        </Link>
       </div>
+
+      {/* Payment Verification Panel if proof submitted */}
+      {project.payments && project.payments.length > 0 && project.payments[0].status === "PENDING_VERIFICATION" && (
+        <AdminPaymentVerification payment={project.payments[0] as any} />
+      )}
+
+      {/* Budget Negotiation Thread */}
+      <BudgetNegotiator
+        projectId={project.id}
+        userRole="ADMIN"
+        currentProposedBudget={project.proposedBudget}
+        currentQuoteAmount={project.quoteAmount || null}
+        isBudgetFinalized={Boolean(project.isBudgetFinalized)}
+        lastNegotiatedBy={project.lastNegotiatedBy || null}
+        history={project.negotiationHistory || []}
+      />
 
       {/* 1. Header Bar Section */}
       <div className="bg-surface-container-lowest border border-outline-variant rounded-3xl p-5 shadow-xs flex flex-col xl:flex-row items-start xl:items-center justify-between gap-5">

@@ -1,9 +1,11 @@
 import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "@/lib/supabase/server";
 import { getProjectById } from "@/lib/data/projects";
+import { getAdminPaymentSettings } from "@/lib/data/payments";
 import { CancelProjectButton } from "@/components/CancelProjectButton";
 import { AttachmentLink } from "@/components/AttachmentLink";
-import { PayNowButton } from "@/components/PayNowButton";
+import { BudgetNegotiator } from "@/components/BudgetNegotiator";
+import { PaymentSection } from "@/components/PaymentSection";
 import { ChatPanel } from "@/components/ChatPanel";
 import { ProjectStatus } from "@prisma/client";
 import Link from "next/link";
@@ -20,13 +22,15 @@ export default async function ClientProjectDetailPage({
     redirect("/login");
   }
 
-  const project = await getProjectById(session, id);
+  const [project, settings] = await Promise.all([
+    getProjectById(session, id),
+    getAdminPaymentSettings(),
+  ]);
 
   if (!project) {
     notFound();
   }
 
-  // Calculate status indicator progress width
   const getProgressWidth = (status: ProjectStatus) => {
     switch (status) {
       case ProjectStatus.SUBMITTED:
@@ -44,9 +48,11 @@ export default async function ClientProjectDetailPage({
     }
   };
 
+  const activePayment = project.payments[0] || null;
+
   return (
     <div className="space-y-8 animate-fadeIn">
-      {/* Back to list & cancel action header */}
+      {/* Header */}
       <div className="flex justify-between items-center">
         <Link
           href="/projects"
@@ -58,7 +64,6 @@ export default async function ClientProjectDetailPage({
           <span>Back to Projects</span>
         </Link>
 
-        {/* Cancel Action Button */}
         <CancelProjectButton projectId={project.id} status={project.status} />
       </div>
 
@@ -84,9 +89,9 @@ export default async function ClientProjectDetailPage({
             >
               {project.status}
             </span>
-            {project.isDisputed && (
-              <span className="text-[9px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-error text-on-error">
-                Disputed
+            {project.isBudgetFinalized && (
+              <span className="text-[9px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                Budget Finalized
               </span>
             )}
           </div>
@@ -94,19 +99,19 @@ export default async function ClientProjectDetailPage({
           <p className="text-xs text-on-surface-variant">Created on {new Date(project.createdAt).toLocaleDateString()}</p>
         </div>
 
-        <div className="text-right bg-surface-container-low p-4 border border-outline-variant rounded-xl min-w-[150px]">
+        <div className="text-right bg-surface-container-low p-4 border border-outline-variant rounded-xl min-w-[170px]">
           <p className="text-[10px] text-on-surface-variant uppercase tracking-wider font-semibold">
-            {project.quoteAmount ? "Final Quote" : "Proposed Budget"}
+            {project.isBudgetFinalized ? "Final Agreed Budget" : "Current Quoted / Proposed"}
           </p>
           <p className="text-xl font-extrabold text-on-surface mt-1">
-            ${parseFloat((project.quoteAmount || project.proposedBudget).toString()).toLocaleString(undefined, {
+            ₹{parseFloat((project.quoteAmount || project.proposedBudget).toString()).toLocaleString("en-IN", {
               minimumFractionDigits: 2,
             })}
           </p>
         </div>
       </div>
 
-      {/* Progress Lifecycle Bar (Skip if Cancelled) */}
+      {/* Progress Lifecycle Bar */}
       {project.status !== ProjectStatus.CANCELLED && (
         <div className="bg-surface-container-lowest border border-outline-variant p-6 rounded-2xl">
           <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-6">Project Progress</h3>
@@ -117,7 +122,7 @@ export default async function ClientProjectDetailPage({
             <div className="relative z-10 flex justify-between">
               {[
                 { status: ProjectStatus.SUBMITTED, label: "Submitted" },
-                { status: ProjectStatus.QUOTED, label: "Quoted" },
+                { status: ProjectStatus.QUOTED, label: "Negotiating & Quoted" },
                 { status: ProjectStatus.IN_PROGRESS, label: "In Progress" },
                 { status: ProjectStatus.COMPLETED, label: "Completed" },
               ].map((step, idx) => {
@@ -155,11 +160,33 @@ export default async function ClientProjectDetailPage({
         </div>
       )}
 
-      {/* Main layout split: Details vs Activity (Stripe/Chat) */}
+      {/* Main layout split */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Project Details Panel */}
+        {/* Project Details Panel & Negotiation / Payment */}
         <div className="lg:col-span-2 space-y-6">
+
+          {/* Payment Section if budget is finalized */}
+          {project.isBudgetFinalized && activePayment && (
+            <PaymentSection
+              projectId={project.id}
+              payment={activePayment}
+              settings={settings}
+              userRole="CLIENT"
+            />
+          )}
+
+          {/* Budget Negotiation Section */}
+          <BudgetNegotiator
+            projectId={project.id}
+            userRole="CLIENT"
+            currentProposedBudget={project.proposedBudget}
+            currentQuoteAmount={project.quoteAmount}
+            isBudgetFinalized={project.isBudgetFinalized}
+            lastNegotiatedBy={project.lastNegotiatedBy}
+            history={project.negotiationHistory}
+          />
+
           <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 space-y-6">
             <div>
               <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Description / Scope</h3>
@@ -172,29 +199,6 @@ export default async function ClientProjectDetailPage({
                 <p className="text-xs text-on-surface leading-relaxed whitespace-pre-wrap">{project.requirements}</p>
               </div>
             )}
-
-            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-outline-variant/40">
-              <div>
-                <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Timeline Request</h3>
-                <p className="text-xs font-semibold text-on-surface mt-1">
-                  {project.timelineTier === "INSTANT"
-                    ? "Instant / Rush"
-                    : project.timelineTier === "WITHIN_WEEK"
-                    ? "Within a Week"
-                    : project.timelineTier === "WITHIN_MONTH"
-                    ? "Within a Month"
-                    : "Custom Date"}
-                </p>
-              </div>
-              {project.customExpectedDate && (
-                <div>
-                  <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Target Delivery Date</h3>
-                  <p className="text-xs font-semibold text-on-surface mt-1">
-                    {new Date(project.customExpectedDate).toLocaleDateString()}
-                  </p>
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Attachments Section */}
@@ -217,51 +221,8 @@ export default async function ClientProjectDetailPage({
           </div>
         </div>
 
-        {/* Side Panel: Payments & Chat placeholder */}
+        {/* Side Panel: Live Chat */}
         <div className="space-y-6">
-          {/* Payment Section (Milestones & Invoices) */}
-          <div className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-6 space-y-4">
-            <h3 className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Payments & Invoices</h3>
-            {project.payments.length === 0 ? (
-              <div className="text-center py-4">
-                <p className="text-xs text-on-surface-variant">No invoices generated yet.</p>
-                <p className="text-[10px] text-outline mt-1">Payments will be requested by Admin as work advances.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {project.payments.map((payment) => (
-                  <div key={payment.id} className="flex justify-between items-center p-3 bg-surface-container-low border border-outline-variant rounded-xl text-xs">
-                    <div>
-                      <p className="font-semibold text-on-surface">
-                        ${Number(payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                      </p>
-                      <p className="text-[9px] text-on-surface-variant mt-0.5">
-                        {new Date(payment.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      {payment.status === "PENDING" && (
-                        <PayNowButton paymentId={payment.id} />
-                      )}
-                      <span
-                        className={`text-[8px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                          payment.status === "SUCCEEDED"
-                            ? "bg-primary text-on-primary"
-                            : payment.status === "PENDING"
-                            ? "bg-secondary-container text-on-secondary-container"
-                            : "bg-error text-on-error"
-                        }`}
-                      >
-                        {payment.status}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Live Chat Panel */}
           <ChatPanel projectId={project.id} currentUserId={session.user.id} />
         </div>
 

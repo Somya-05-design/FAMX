@@ -1,7 +1,75 @@
 import { prisma } from "../prisma";
-import { stripe } from "../stripe";
 import { Session } from "../types";
-import { PaymentStatus, Prisma } from "@prisma/client";
+import { PaymentMethod, PaymentStatus, ProjectStatus, Prisma } from "@prisma/client";
+import { createNotification } from "./notifications";
+
+export interface AdminPaymentSettingsInput {
+  upiId?: string;
+  upiName?: string;
+  qrCodePath?: string;
+  bankName?: string;
+  accountName?: string;
+  accountNumber?: string;
+  ifscCode?: string;
+  branchName?: string;
+}
+
+export async function getAdminPaymentSettings() {
+  let settings = await prisma.adminPaymentSettings.findUnique({
+    where: { id: "default" },
+  });
+
+  if (!settings) {
+    settings = await prisma.adminPaymentSettings.create({
+      data: {
+        id: "default",
+        upiId: "agency@upi",
+        upiName: "FAMX Agency",
+        bankName: "HDFC Bank",
+        accountName: "FAMX Agency Pvt Ltd",
+        accountNumber: "50200012345678",
+        ifscCode: "HDFC0001234",
+        branchName: "Main Branch",
+      },
+    });
+  }
+
+  return settings;
+}
+
+export async function updateAdminPaymentSettings(
+  session: Session,
+  input: AdminPaymentSettingsInput
+) {
+  if (session.user.role !== "ADMIN") {
+    throw new Error("Only admins can update payment settings");
+  }
+
+  return await prisma.adminPaymentSettings.upsert({
+    where: { id: "default" },
+    update: {
+      upiId: input.upiId?.trim() || null,
+      upiName: input.upiName?.trim() || null,
+      qrCodePath: input.qrCodePath || null,
+      bankName: input.bankName?.trim() || null,
+      accountName: input.accountName?.trim() || null,
+      accountNumber: input.accountNumber?.trim() || null,
+      ifscCode: input.ifscCode?.trim() || null,
+      branchName: input.branchName?.trim() || null,
+    },
+    create: {
+      id: "default",
+      upiId: input.upiId?.trim() || null,
+      upiName: input.upiName?.trim() || null,
+      qrCodePath: input.qrCodePath || null,
+      bankName: input.bankName?.trim() || null,
+      accountName: input.accountName?.trim() || null,
+      accountNumber: input.accountNumber?.trim() || null,
+      ifscCode: input.ifscCode?.trim() || null,
+      branchName: input.branchName?.trim() || null,
+    },
+  });
+}
 
 export async function createPaymentRequest(
   session: Session,
@@ -14,7 +82,6 @@ export async function createPaymentRequest(
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
-    include: { client: true },
   });
 
   if (!project) {
@@ -26,25 +93,6 @@ export async function createPaymentRequest(
     throw new Error("Payment amount must be greater than 0");
   }
 
-  // Retrieve or create Stripe customer for the client
-  let stripeCustomerId = project.client.stripeCustomerId;
-  if (!stripeCustomerId) {
-    const customer = await stripe.customers.create({
-      email: project.client.email,
-      name: project.client.name || undefined,
-      metadata: {
-        userId: project.clientId,
-      },
-    });
-    stripeCustomerId = customer.id;
-
-    await prisma.user.update({
-      where: { id: project.clientId },
-      data: { stripeCustomerId },
-    });
-  }
-
-  // Create PENDING database payment record
   const payment = await prisma.payment.create({
     data: {
       projectId,
@@ -53,64 +101,132 @@ export async function createPaymentRequest(
     },
   });
 
-  // Calculate amount in cents for Stripe Checkout API
-  const amountInCents = Math.round(amountDecimal.toNumber() * 100);
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  await createNotification(project.clientId, "PAYMENT_REQUESTED", projectId);
 
-  // Create Stripe Checkout session
-  const checkoutSession = await stripe.checkout.sessions.create({
-    customer: stripeCustomerId,
-    payment_method_types: ["card"],
-    line_items: [
-      {
-        price_data: {
-          currency: "usd",
-          product_data: {
-            name: `Invoice for Project: ${project.title}`,
-            description: `Invoice billing request for project: ${project.title}`,
-          },
-          unit_amount: amountInCents,
-        },
-        quantity: 1,
-      },
-    ],
-    mode: "payment",
-    success_url: `${appUrl}/projects/${projectId}?payment=success`,
-    cancel_url: `${appUrl}/projects/${projectId}?payment=cancel`,
-    metadata: {
-      projectId,
-      paymentId: payment.id,
-    },
-  });
-
-  // Update payment record with Stripe session reference
-  return await prisma.payment.update({
-    where: { id: payment.id },
-    data: {
-      stripeSessionId: checkoutSession.id,
-    },
-  });
+  return payment;
 }
 
-export async function createPortalSession(session: Session) {
-  if (session.user.role !== "CLIENT") {
-    throw new Error("Only clients can access the billing portal");
-  }
+export interface SubmitPaymentProofInput {
+  paymentId: string;
+  paymentMethod: PaymentMethod;
+  utrNumber: string;
+  receiptPath?: string;
+}
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: session.user.id },
+export async function submitPaymentProof(
+  session: Session,
+  input: SubmitPaymentProofInput
+) {
+  const payment = await prisma.payment.findUnique({
+    where: { id: input.paymentId },
+    include: { project: true },
   });
 
-  if (!dbUser?.stripeCustomerId) {
-    throw new Error("No billing history found. Please complete a payment first.");
+  if (!payment) {
+    throw new Error("Payment record not found");
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  if (session.user.role === "CLIENT" && payment.project.clientId !== session.user.id) {
+    throw new Error("Unauthorized");
+  }
 
-  const portalSession = await stripe.billingPortal.sessions.create({
-    customer: dbUser.stripeCustomerId,
-    return_url: `${appUrl}/settings`,
+  if (!input.utrNumber || input.utrNumber.trim().length < 4) {
+    throw new Error("A valid Transaction Reference Number / UTR is required");
+  }
+
+  const updatedPayment = await prisma.payment.update({
+    where: { id: input.paymentId },
+    data: {
+      paymentMethod: input.paymentMethod,
+      utrNumber: input.utrNumber.trim(),
+      receiptPath: input.receiptPath || null,
+      status: PaymentStatus.PENDING_VERIFICATION,
+      rejectionReason: null,
+    },
   });
 
-  return portalSession.url;
+  // Notify admin for payment verification
+  const admin = await prisma.user.findFirst({
+    where: { role: "ADMIN" },
+    select: { id: true },
+  });
+
+  if (admin) {
+    await createNotification(
+      admin.id,
+      "PAYMENT_VERIFICATION_REQUESTED",
+      payment.projectId
+    );
+  }
+
+  return updatedPayment;
+}
+
+export async function verifyPayment(
+  session: Session,
+  paymentId: string,
+  action: "APPROVE" | "REJECT",
+  rejectionReason?: string
+) {
+  if (session.user.role !== "ADMIN") {
+    throw new Error("Only admins can verify payments");
+  }
+
+  const payment = await prisma.payment.findUnique({
+    where: { id: paymentId },
+    include: { project: true },
+  });
+
+  if (!payment) {
+    throw new Error("Payment record not found");
+  }
+
+  if (action === "APPROVE") {
+    const updatedPayment = await prisma.payment.update({
+      where: { id: paymentId },
+      data: {
+        status: PaymentStatus.SUCCEEDED,
+        verifiedAt: new Date(),
+        verifiedById: session.user.id,
+      },
+    });
+
+    // Update project status to IN_PROGRESS
+    await prisma.project.update({
+      where: { id: payment.projectId },
+      data: {
+        status: ProjectStatus.IN_PROGRESS,
+      },
+    });
+
+    await createNotification(
+      payment.project.clientId,
+      "PAYMENT_SUCCEEDED",
+      payment.projectId
+    );
+
+    return updatedPayment;
+  } else {
+    if (!rejectionReason || !rejectionReason.trim()) {
+      throw new Error("Rejection reason is required when rejecting payment proof");
+    }
+
+    const updatedPayment = await prisma.payment.update({
+      where: { id: paymentId },
+      data: {
+        status: PaymentStatus.REJECTED,
+        rejectionReason: rejectionReason.trim(),
+        verifiedAt: new Date(),
+        verifiedById: session.user.id,
+      },
+    });
+
+    await createNotification(
+      payment.project.clientId,
+      "PAYMENT_REJECTED",
+      payment.projectId
+    );
+
+    return updatedPayment;
+  }
 }

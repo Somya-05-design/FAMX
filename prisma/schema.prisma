@@ -30,9 +30,22 @@ enum TimelineTier {
   CUSTOM_DATE
 }
 
+enum BudgetNegotiationParty {
+  CLIENT
+  ADMIN
+}
+
+enum PaymentMethod {
+  UPI_QR
+  UPI_ID
+  BANK_TRANSFER
+}
+
 enum PaymentStatus {
   PENDING
+  PENDING_VERIFICATION
   SUCCEEDED
+  REJECTED
   FAILED
 }
 
@@ -41,8 +54,11 @@ enum NotificationType {
   QUOTE_RECEIVED
   PAYMENT_REQUESTED
   PAYMENT_SUCCEEDED
+  PAYMENT_REJECTED
+  PAYMENT_VERIFICATION_REQUESTED
   PROJECT_STATUS_CHANGED
   NEW_PROJECT_SUBMITTED
+  BUDGET_COUNTER_OFFER
 }
 
 model User {
@@ -51,7 +67,6 @@ model User {
   name                      String?
   role                      UserRole  @default(CLIENT)
   emailNotificationsEnabled Boolean   @default(true)
-  stripeCustomerId          String?
   createdAt                 DateTime  @default(now())
   updatedAt                 DateTime  @updatedAt
 
@@ -70,31 +85,59 @@ model Service {
 }
 
 model Project {
-  id                 String        @id @default(uuid())
+  id                 String                  @id @default(uuid())
   clientId           String
-  client             User          @relation(fields: [clientId], references: [id])
+  client             User                    @relation(fields: [clientId], references: [id])
   serviceId          String?
-  service            Service?      @relation(fields: [serviceId], references: [id])
+  service            Service?                @relation(fields: [serviceId], references: [id])
   customServiceText  String?
   title              String
   description        String
   requirements       String?
-  proposedBudget     Decimal       @db.Decimal(10, 2)
+  proposedBudget     Decimal                 @db.Decimal(10, 2)
   timelineTier       TimelineTier
   customExpectedDate DateTime?
-  quoteAmount        Decimal?      @db.Decimal(10, 2)
-  status             ProjectStatus @default(SUBMITTED)
-  isDisputed         Boolean       @default(false)
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  quoteAmount        Decimal?                @db.Decimal(10, 2)
+  status             ProjectStatus           @default(SUBMITTED)
+  isDisputed         Boolean                 @default(false)
+  isBudgetFinalized  Boolean                 @default(false)
+  lastNegotiatedBy   BudgetNegotiationParty?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
 
-  attachments   Attachment[]
-  messages      ProjectMessage[]
-  payments      Payment[]
-  notifications Notification[]
+  attachments        Attachment[]
+  messages           ProjectMessage[]
+  payments           Payment[]
+  notifications      Notification[]
+  negotiationHistory BudgetHistory[]
 
   @@index([clientId])
   @@index([status])
+}
+
+model BudgetHistory {
+  id         String                 @id @default(uuid())
+  projectId  String
+  project    Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  amount     Decimal                @db.Decimal(10, 2)
+  proposedBy BudgetNegotiationParty
+  note       String?
+  createdAt  DateTime               @default(now())
+
+  @@index([projectId, createdAt])
+}
+
+model AdminPaymentSettings {
+  id            String   @id @default("default")
+  upiId         String?
+  upiName       String?
+  qrCodePath    String?
+  bankName      String?
+  accountName   String?
+  accountNumber String?
+  ifscCode      String?
+  branchName    String?
+  updatedAt     DateTime @updatedAt
 }
 
 model Attachment {
@@ -129,15 +172,19 @@ model ProjectMessage {
 }
 
 model Payment {
-  id                    String        @id @default(uuid())
-  projectId             String
-  project               Project       @relation(fields: [projectId], references: [id])
-  stripeSessionId       String?
-  stripePaymentIntentId String?
-  amount                Decimal       @db.Decimal(10, 2)
-  status                PaymentStatus @default(PENDING)
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
+  id              String        @id @default(uuid())
+  projectId       String
+  project         Project       @relation(fields: [projectId], references: [id])
+  amount          Decimal       @db.Decimal(10, 2)
+  paymentMethod   PaymentMethod?
+  utrNumber       String?
+  receiptPath     String?
+  status          PaymentStatus @default(PENDING)
+  rejectionReason String?
+  verifiedAt      DateTime?
+  verifiedById    String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@index([projectId])
 }
@@ -163,4 +210,5 @@ model ContactInquiry {
   message     String
   createdAt   DateTime @default(now())
 }
+
 

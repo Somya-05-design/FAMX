@@ -42,6 +42,9 @@ export async function getProjectById(session: Session, projectId: string) {
       attachments: true,
       payments: {
         orderBy: { createdAt: "desc" }
+      },
+      negotiationHistory: {
+        orderBy: { createdAt: "asc" }
       }
     }
   });
@@ -62,6 +65,10 @@ export async function getProjectById(session: Session, projectId: string) {
     payments: project.payments.map((p) => ({
       ...p,
       amount: p.amount.toNumber(),
+    })),
+    negotiationHistory: project.negotiationHistory.map((n) => ({
+      ...n,
+      amount: n.amount.toNumber(),
     })),
   };
 }
@@ -95,6 +102,14 @@ export async function createProject(session: Session, input: CreateProjectInput)
       timelineTier: input.timelineTier,
       customExpectedDate: input.customExpectedDate,
       status: ProjectStatus.SUBMITTED,
+      lastNegotiatedBy: "CLIENT",
+      negotiationHistory: {
+        create: {
+          amount: new Prisma.Decimal(input.proposedBudget),
+          proposedBy: "CLIENT",
+          note: "Initial proposed budget upon request creation",
+        },
+      },
     }
   });
 
