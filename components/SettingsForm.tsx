@@ -9,7 +9,7 @@ interface SettingsFormProps {
     name: string | null;
     email: string;
     emailNotificationsEnabled: boolean;
-    stripeCustomerId: string | null;
+    stripeCustomerId?: string | null;
   };
 }
 

@@ -10,6 +10,7 @@ import {
   AdminPaymentSettingsInput,
   SubmitPaymentProofInput,
 } from "@/lib/data/payments";
+import { finalizeBudgetAction } from "./budget";
 
 export async function getAdminPaymentSettingsAction() {
   const session = await getServerSession();
@@ -55,4 +56,12 @@ export async function verifyPaymentAction(
   revalidatePath(`/admin/projects/${payment.projectId}`);
   revalidatePath("/admin");
   return { id: payment.id, status: payment.status };
+}
+
+export async function requestPaymentAction(projectId: string, amount: number) {
+  return await finalizeBudgetAction(projectId, amount);
+}
+
+export async function requestBillingPortalAction() {
+  return { url: "/admin/settings/payment" };
 }

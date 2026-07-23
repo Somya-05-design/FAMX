@@ -208,7 +208,7 @@ export default async function ClientProjectDetailPage({
               <p className="text-xs text-on-surface-variant">No attachments uploaded for this brief.</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {project.attachments.map((file) => (
+                {project.attachments.map((file: any) => (
                   <AttachmentLink
                     key={file.id}
                     id={file.id}
