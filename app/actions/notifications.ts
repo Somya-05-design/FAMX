@@ -2,7 +2,7 @@
 
 import { getServerSession } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { getNotifications, markAsRead, markAllAsRead } from "@/lib/data/notifications";
+import { getNotifications, markAsRead, markAllAsRead, deleteNotification } from "@/lib/data/notifications";
 
 export async function getNotificationsAction() {
   const session = await getServerSession();
@@ -34,3 +34,15 @@ export async function markAllAsReadAction() {
   revalidatePath("/");
   return result;
 }
+
+export async function deleteNotificationAction(notificationId: string) {
+  const session = await getServerSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  const result = await deleteNotification(session, notificationId);
+  revalidatePath("/");
+  return result;
+}
+

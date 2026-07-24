@@ -17,14 +17,11 @@ export async function createProjectAction(input: projectData.CreateProjectInput)
   // Trigger NEW_PROJECT_SUBMITTED notification to Admin(s)
   try {
     const { createNotification } = await import("@/lib/data/notifications");
-    const admins = await prisma.user.findMany({ where: { role: "ADMIN" } });
-    for (const admin of admins) {
-      await createNotification(
-        admin.id,
-        "NEW_PROJECT_SUBMITTED",
-        project.id
-      );
-    }
+    await createNotification({
+      projectId: project.id,
+      type: "NEW_PROJECT_SUBMITTED",
+      actorUserId: session.user.id,
+    });
   } catch (err) {
     console.error("Failed to trigger project submitted notification", err);
   }
@@ -63,14 +60,14 @@ export async function updateQuoteAmountAction(projectId: string, quoteAmount: nu
 
   const updated = await projectData.updateQuoteAmount(session, projectId, quoteAmount);
 
-  // Trigger PROJECT_QUOTED notification to Client
+  // Trigger QUOTE_RECEIVED notification to Client
   try {
     const { createNotification } = await import("@/lib/data/notifications");
-    await createNotification(
-      updated.clientId,
-      "QUOTE_RECEIVED",
-      updated.id
-    );
+    await createNotification({
+      projectId: updated.id,
+      type: "QUOTE_RECEIVED",
+      actorUserId: session.user.id,
+    });
   } catch (err) {
     console.error("Failed to trigger project quoted notification", err);
   }

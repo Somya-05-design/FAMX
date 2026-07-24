@@ -639,8 +639,8 @@ export function AdminProjectDetailView({ project: initialProject, currentUserId 
         </div>
 
         {/* Right Column — Discussion (4 cols) */}
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white border border-zinc-200/80 rounded-3xl p-6 shadow-sm flex flex-col h-full min-h-[550px]">
+        <div className="lg:col-span-4 space-y-6 flex flex-col min-h-0">
+          <div className="bg-white border border-zinc-200/80 rounded-3xl p-6 shadow-sm flex flex-col h-full min-h-[550px] min-h-0">
             {/* Discussion Header */}
             <div className="flex items-center justify-between pb-3 mb-2 border-b border-zinc-100 shrink-0">
               <div className="flex items-center space-x-2">
@@ -650,7 +650,7 @@ export function AdminProjectDetailView({ project: initialProject, currentUserId 
             </div>
 
             {/* Live Chat Panel Component with Light Theme */}
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 flex flex-col">
               <ChatPanel projectId={project.id} currentUserId={currentUserId} theme="light" />
             </div>
           </div>

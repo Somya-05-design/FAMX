@@ -222,7 +222,7 @@ export default async function ClientProjectDetailPage({
         </div>
 
         {/* Side Panel: Live Chat */}
-        <div className="space-y-6">
+        <div className="space-y-6 flex flex-col min-h-0">
           <ChatPanel projectId={project.id} currentUserId={session.user.id} />
         </div>
 

@@ -132,14 +132,14 @@ export function ChatPanel({ projectId, currentUserId, theme = "dark" }: ChatPane
   };
 
   const containerClasses = isLight
-    ? "flex flex-col bg-surface-container-lowest border border-outline-variant rounded-3xl h-full min-h-[500px] overflow-hidden"
-    : "flex flex-col bg-surface-container-lowest border border-outline-variant rounded-2xl h-[550px] overflow-hidden";
+    ? "flex flex-col bg-surface-container-lowest border border-outline-variant rounded-3xl h-full min-h-0 overflow-hidden"
+    : "flex flex-col bg-surface-container-lowest border border-outline-variant rounded-2xl h-[550px] min-h-0 overflow-hidden";
 
   return (
     <div className={containerClasses}>
       {/* Header */}
       {!isLight && (
-        <div className="px-6 py-4 border-b border-outline-variant/60 flex items-center justify-between bg-surface-container-low">
+        <div className="px-6 py-4 border-b border-outline-variant/60 flex items-center justify-between bg-surface-container-low shrink-0">
           <div>
             <h3 className="text-sm font-bold text-on-surface">Project Discussion</h3>
             <p className="text-[10px] text-on-surface-variant mt-0.5">Live updates enabled via Supabase Realtime</p>
@@ -148,7 +148,7 @@ export function ChatPanel({ projectId, currentUserId, theme = "dark" }: ChatPane
       )}
 
       {/* Messages List Area */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col justify-center items-center text-center text-outline py-12 select-none">
             <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3 bg-inverse-primary/20 text-primary">
@@ -214,7 +214,7 @@ export function ChatPanel({ projectId, currentUserId, theme = "dark" }: ChatPane
       </div>
 
       {/* Input Footer Area */}
-      <div className="p-4 border-t border-outline-variant/60 bg-surface-container-low">
+      <div className="p-4 border-t border-outline-variant/60 bg-surface-container-low shrink-0">
         <form onSubmit={handleSend} className="flex items-center space-x-2.5">
           {/* File Upload Button */}
           <input

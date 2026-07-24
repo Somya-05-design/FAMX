@@ -101,7 +101,11 @@ export async function createPaymentRequest(
     },
   });
 
-  await createNotification(project.clientId, "PAYMENT_REQUESTED", projectId);
+  await createNotification({
+    projectId,
+    type: "PAYMENT_REQUESTED",
+    actorUserId: session.user.id,
+  });
 
   return payment;
 }
@@ -145,19 +149,11 @@ export async function submitPaymentProof(
     },
   });
 
-  // Notify admin for payment verification
-  const admin = await prisma.user.findFirst({
-    where: { role: "ADMIN" },
-    select: { id: true },
+  await createNotification({
+    projectId: payment.projectId,
+    type: "PAYMENT_VERIFICATION_REQUESTED",
+    actorUserId: session.user.id,
   });
-
-  if (admin) {
-    await createNotification(
-      admin.id,
-      "PAYMENT_VERIFICATION_REQUESTED",
-      payment.projectId
-    );
-  }
 
   return updatedPayment;
 }
@@ -199,11 +195,11 @@ export async function verifyPayment(
       },
     });
 
-    await createNotification(
-      payment.project.clientId,
-      "PAYMENT_SUCCEEDED",
-      payment.projectId
-    );
+    await createNotification({
+      projectId: payment.projectId,
+      type: "PAYMENT_SUCCEEDED",
+      actorUserId: session.user.id,
+    });
 
     return updatedPayment;
   } else {
@@ -221,11 +217,11 @@ export async function verifyPayment(
       },
     });
 
-    await createNotification(
-      payment.project.clientId,
-      "PAYMENT_REJECTED",
-      payment.projectId
-    );
+    await createNotification({
+      projectId: payment.projectId,
+      type: "PAYMENT_REJECTED",
+      actorUserId: session.user.id,
+    });
 
     return updatedPayment;
   }

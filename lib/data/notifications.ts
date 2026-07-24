@@ -34,24 +34,110 @@ export async function markAllAsRead(session: Session) {
   });
 }
 
-export async function createNotification(
-  userId: string,
-  type: NotificationType,
-  projectId?: string
-) {
-  const notification = await prisma.notification.create({
-    data: {
-      userId,
-      type,
-      projectId: projectId || null,
-      read: false,
-    },
+export async function deleteNotification(session: Session, notificationId: string) {
+  const notification = await prisma.notification.findUnique({
+    where: { id: notificationId },
   });
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (user && user.emailNotificationsEnabled) {
-    console.log(`[EMAIL SEND OUT] To: ${user.email} | Type: ${type} | Project ID: ${projectId || "N/A"}`);
+  if (!notification || notification.userId !== session.user.id) {
+    throw new Error("Unauthorized to delete this notification");
   }
 
-  return notification;
+  return await prisma.notification.delete({
+    where: { id: notificationId },
+  });
 }
+
+export async function getProjectParticipants(
+  projectIdOrProject: string | { id: string; clientId: string }
+): Promise<string[]> {
+  let clientId: string;
+  if (typeof projectIdOrProject === "string") {
+    const project = await prisma.project.findUnique({
+      where: { id: projectIdOrProject },
+      select: { clientId: true },
+    });
+    if (!project) return [];
+    clientId = project.clientId;
+  } else {
+    clientId = projectIdOrProject.clientId;
+  }
+
+  const admins = await prisma.user.findMany({
+    where: { role: "ADMIN" },
+    select: { id: true },
+  });
+
+  const allIds = [clientId, ...admins.map((a) => a.id)];
+  return Array.from(new Set(allIds));
+}
+
+export async function getNotificationRecipients(
+  projectIdOrProject: string | { id: string; clientId: string },
+  actorUserId: string
+): Promise<string[]> {
+  const participants = await getProjectParticipants(projectIdOrProject);
+  return participants.filter((id) => id !== actorUserId);
+}
+
+export interface CreateNotificationParams {
+  projectId: string;
+  type: NotificationType;
+  actorUserId: string;
+}
+
+export async function createNotification(
+  paramsOrActor: CreateNotificationParams | string,
+  typeArg?: NotificationType,
+  projectIdArg?: string
+) {
+  let actorUserId: string;
+  let type: NotificationType;
+  let projectId: string | undefined;
+
+  if (typeof paramsOrActor === "object") {
+    actorUserId = paramsOrActor.actorUserId;
+    type = paramsOrActor.type;
+    projectId = paramsOrActor.projectId;
+  } else {
+    actorUserId = paramsOrActor;
+    type = typeArg!;
+    projectId = projectIdArg;
+  }
+
+  if (!actorUserId) {
+    throw new Error("actorUserId is required when creating a notification");
+  }
+
+  if (!projectId) {
+    throw new Error("projectId is required when creating a notification");
+  }
+
+  const recipientUserIds = await getNotificationRecipients(projectId, actorUserId);
+
+  const notifications = await Promise.all(
+    recipientUserIds.map(async (userId) => {
+      const notification = await prisma.notification.create({
+        data: {
+          userId,
+          type,
+          projectId,
+          read: false,
+        },
+      });
+
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, emailNotificationsEnabled: true },
+      });
+      if (user && user.emailNotificationsEnabled) {
+        console.log(`[EMAIL SEND OUT] To: ${user.email} | Type: ${type} | Project ID: ${projectId}`);
+      }
+
+      return notification;
+    })
+  );
+
+  return notifications;
+}
+

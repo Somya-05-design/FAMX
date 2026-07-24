@@ -56,14 +56,11 @@ export async function proposeBudget(
   });
 
   // Notify counter party
-  const recipientId = isClient ? (await getAdminUserId()) : project.clientId;
-  if (recipientId) {
-    await createNotification(
-      recipientId,
-      "BUDGET_COUNTER_OFFER",
-      projectId
-    );
-  }
+  await createNotification({
+    projectId,
+    type: "BUDGET_COUNTER_OFFER",
+    actorUserId: session.user.id,
+  });
 
   return updatedProject;
 }
@@ -142,7 +139,11 @@ export async function finalizeBudget(
   }
 
   // Notify client that budget is finalized and ready for payment
-  await createNotification(project.clientId, "PAYMENT_REQUESTED", projectId);
+  await createNotification({
+    projectId,
+    type: "PAYMENT_REQUESTED",
+    actorUserId: session.user.id,
+  });
 
   return updatedProject;
 }

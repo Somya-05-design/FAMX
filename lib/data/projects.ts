@@ -209,11 +209,11 @@ export async function updateProjectStatus(
   try {
     const { createNotification } = await import("./notifications");
     const notificationType = newStatus === ProjectStatus.QUOTED ? "QUOTE_RECEIVED" : "PROJECT_STATUS_CHANGED";
-    await createNotification(
-      updatedProject.clientId,
-      notificationType,
-      updatedProject.id
-    );
+    await createNotification({
+      projectId: updatedProject.id,
+      type: notificationType,
+      actorUserId: session.user.id,
+    });
   } catch (err) {
     console.error("Failed to trigger project status notification", err);
   }

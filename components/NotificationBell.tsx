@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { getNotificationsAction, markAsReadAction, markAllAsReadAction } from "@/app/actions/notifications";
+import { getNotificationsAction, markAsReadAction, markAllAsReadAction, deleteNotificationAction } from "@/app/actions/notifications";
 import Link from "next/link";
 
 interface NotificationBellProps {
@@ -90,6 +90,18 @@ export function NotificationBell({ userId }: NotificationBellProps) {
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     } catch (err) {
       console.error("Failed to mark all notifications as read", err);
+    }
+  };
+
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    try {
+      await deleteNotificationAction(id);
+    } catch (err) {
+      console.error("Failed to delete notification", err);
+      await loadNotifications();
     }
   };
 
@@ -209,13 +221,24 @@ export function NotificationBell({ userId }: NotificationBellProps) {
                       </span>
                     </div>
 
-                    {!n.read && (
+                    <div className="flex items-center space-x-2 shrink-0">
+                      {!n.read && (
+                        <button
+                          onClick={() => handleMarkAsRead(n.id)}
+                          className="w-2 h-2 bg-error rounded-full shrink-0 cursor-pointer"
+                          title="Mark as read"
+                        />
+                      )}
                       <button
-                        onClick={() => handleMarkAsRead(n.id)}
-                        className="w-2 h-2 bg-error rounded-full shrink-0 mt-1 cursor-pointer"
-                        title="Mark as read"
-                      />
-                    )}
+                        onClick={(e) => handleDelete(n.id, e)}
+                        className="p-1 text-outline hover:text-error transition-colors rounded-lg hover:bg-surface-container-high cursor-pointer shrink-0"
+                        title="Delete notification"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 );
               })
