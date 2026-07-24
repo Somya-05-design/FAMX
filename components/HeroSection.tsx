@@ -29,8 +29,36 @@ export function HeroSection() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 shrink-0">
-            <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center text-on-primary font-black text-xs shadow-xs">
-              ⊕
+            <div className="w-7 h-7 rounded-lg overflow-hidden shadow-xs bg-white flex items-center justify-center">
+              <svg viewBox="0 0 1040 580" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="hgF" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#1565C0"/>
+                    <stop offset="100%" stopColor="#0D47A1"/>
+                  </linearGradient>
+                  <linearGradient id="hgX" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#0288D1"/>
+                    <stop offset="100%" stopColor="#01579B"/>
+                  </linearGradient>
+                  <linearGradient id="hgSwoop" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#29B6F6"/>
+                    <stop offset="100%" stopColor="#0277BD"/>
+                  </linearGradient>
+                </defs>
+                <g fill="#1a3a7a" opacity="0.85">
+                  <rect x="60" y="270" width="18" height="18"/><rect x="85" y="255" width="14" height="14"/>
+                  <rect x="110" y="262" width="14" height="14"/><rect x="135" y="270" width="16" height="16"/>
+                  <rect x="162" y="275" width="18" height="18"/><rect x="190" y="282" width="20" height="20"/>
+                </g>
+                <path d="M230 120 L230 460 L295 460 L295 320 L430 320 L430 265 L295 265 L295 175 L460 175 L460 120 Z" fill="url(#hgF)"/>
+                <polygon points="280,460 340,460 490,120 430,120" fill="#1976D2" opacity="0.55"/>
+                <polygon points="480,120 560,120 680,290 600,290" fill="url(#hgX)"/>
+                <polygon points="480,460 560,460 680,290 600,290" fill="#1a3a7a" opacity="0.8"/>
+                <polygon points="760,120 840,120 680,290 600,290" fill="#1a3a7a" opacity="0.7"/>
+                <polygon points="760,460 840,460 680,290 600,290" fill="url(#hgX)"/>
+                <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="url(#hgSwoop)" strokeWidth="28" strokeLinecap="round" opacity="0.9"/>
+                <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" opacity="0.35"/>
+              </svg>
             </div>
             <span className="text-base font-black tracking-tight text-on-surface">
               FAMX

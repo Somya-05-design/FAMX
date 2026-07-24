@@ -173,9 +173,49 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
         <div className="h-16 flex items-center justify-between px-4 border-b border-outline-variant overflow-hidden shrink-0">
           {!isCollapsed && (
             <Link href={isAdmin ? "/admin" : "/overview"} className="flex items-center space-x-2.5 truncate group">
-              <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center text-on-primary shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-200">
-                <svg className="w-4.5 h-4.5 fill-current" viewBox="0 0 24 24">
-                  <path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6-6.3 4.6 2.3-7.4-6-4.6h7.6z" />
+              <div className="w-8 h-8 rounded-xl shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-200 overflow-hidden bg-white flex items-center justify-center">
+                <svg viewBox="0 0 1040 580" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                  {/* Pixel scatter left */}
+                  <g fill="#1a3a7a" opacity="0.85">
+                    <rect x="60" y="270" width="18" height="18"/><rect x="85" y="255" width="14" height="14"/>
+                    <rect x="105" y="240" width="12" height="12"/><rect x="85" y="278" width="16" height="16"/>
+                    <rect x="110" y="262" width="14" height="14"/><rect x="130" y="248" width="12" height="12"/>
+                    <rect x="110" y="285" width="18" height="18"/><rect x="135" y="270" width="16" height="16"/>
+                    <rect x="158" y="255" width="14" height="14"/><rect x="135" y="290" width="20" height="20"/>
+                    <rect x="162" y="275" width="18" height="18"/><rect x="188" y="260" width="16" height="16"/>
+                    <rect x="162" y="298" width="22" height="22"/><rect x="190" y="282" width="20" height="20"/>
+                    <rect x="215" y="267" width="18" height="18"/>
+                  </g>
+                  {/* F letter — deep navy-to-blue gradient */}
+                  <defs>
+                    <linearGradient id="gF" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#1565C0"/>
+                      <stop offset="100%" stopColor="#0D47A1"/>
+                    </linearGradient>
+                    <linearGradient id="gX" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor="#0288D1"/>
+                      <stop offset="100%" stopColor="#01579B"/>
+                    </linearGradient>
+                    <linearGradient id="gSwoop" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#29B6F6"/>
+                      <stop offset="100%" stopColor="#0277BD"/>
+                    </linearGradient>
+                  </defs>
+                  {/* F body */}
+                  <path d="M230 120 L230 460 L295 460 L295 320 L430 320 L430 265 L295 265 L295 175 L460 175 L460 120 Z" fill="url(#gF)"/>
+                  {/* Diagonal slash through F — lighter */}
+                  <polygon points="280,460 340,460 490,120 430,120" fill="#1976D2" opacity="0.55"/>
+                  {/* X left stroke */}
+                  <polygon points="480,120 560,120 680,290 600,290" fill="url(#gX)"/>
+                  <polygon points="480,460 560,460 680,290 600,290" fill="#1a3a7a" opacity="0.8"/>
+                  {/* X right stroke */}
+                  <polygon points="760,120 840,120 680,290 600,290" fill="#1a3a7a" opacity="0.7"/>
+                  <polygon points="760,460 840,460 680,290 600,290" fill="url(#gX)"/>
+                  {/* Orbit swoosh */}
+                  <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="url(#gSwoop)" strokeWidth="28" strokeLinecap="round" opacity="0.9"/>
+                  <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" opacity="0.35"/>
+                  {/* Ghost swoosh echo */}
+                  <path d="M370 100 Q610 -10 835 195 Q960 300 830 435 Q760 492 675 470" fill="none" stroke="#90CAF9" strokeWidth="10" strokeLinecap="round" opacity="0.25"/>
                 </svg>
               </div>
               <div className="flex flex-col">
