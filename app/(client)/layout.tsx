@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/Sidebar";
-import { NotificationBell } from "@/components/NotificationBell";
 
 export default async function ClientLayout({
   children,
@@ -29,9 +28,6 @@ export default async function ClientLayout({
         <header className="h-16 border-b border-zinc-200/60 px-6 sm:px-10 flex items-center justify-between shrink-0 bg-[#FDF9F7]">
           <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
             PORTAL / CLIENT CONSOLE
-          </div>
-          <div className="flex items-center space-x-4">
-            <NotificationBell userId={session.user.id} />
           </div>
         </header>
 

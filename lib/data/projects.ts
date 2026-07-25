@@ -6,7 +6,7 @@ import { ProjectStatus, TimelineTier, Prisma } from "@prisma/client";
 
 export async function getProjectsForUser(session: Session) {
   const projects = await prisma.project.findMany({
-    where: session.user.role === "ADMIN" ? {} : { clientId: session.user.id },
+    where: session.user.role === "ADMIN" ? { deletedAt: null } : { clientId: session.user.id, deletedAt: null },
     orderBy: { updatedAt: "desc" },
     include: {
       client: {
@@ -49,7 +49,7 @@ export async function getProjectById(session: Session, projectId: string) {
     }
   });
 
-  if (!project) {
+  if (!project || project.deletedAt !== null) {
     return null;
   }
 
@@ -272,3 +272,29 @@ export async function toggleDispute(session: Session, projectId: string, isDispu
     data: { isDisputed }
   });
 }
+
+export async function deleteProject(session: Session, projectId: string) {
+  if (session.user.role !== "ADMIN") {
+    throw new Error("Only admins can delete cancelled projects");
+  }
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+  });
+
+  if (!project || project.deletedAt !== null) {
+    throw new Error("Project not found");
+  }
+
+  if (project.status !== ProjectStatus.CANCELLED) {
+    throw new Error("Only cancelled projects can be deleted");
+  }
+
+  return await prisma.project.update({
+    where: { id: projectId },
+    data: {
+      deletedAt: new Date(),
+    },
+  });
+}
+

@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { ProjectStatus, TimelineTier } from "@prisma/client";
-import { updateProjectStatusAction, updateQuoteAmountAction, toggleDisputeAction } from "@/app/actions/projects";
+import { updateProjectStatusAction, updateQuoteAmountAction, toggleDisputeAction, deleteProjectAction } from "@/app/actions/projects";
 import { requestPaymentAction } from "@/app/actions/payments";
 import { uploadAttachment } from "@/app/actions/attachments";
 import { AttachmentLink } from "@/components/AttachmentLink";
@@ -10,6 +10,7 @@ import { ChatPanel } from "@/components/ChatPanel";
 import { BudgetNegotiator } from "@/components/BudgetNegotiator";
 import { AdminPaymentVerification } from "@/components/AdminPaymentVerification";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Attachment {
   id: string;
@@ -74,8 +75,10 @@ export function AdminProjectDetailView({ project: initialProject, currentUserId 
   const [isInvoicePending, setIsInvoicePending] = useState(false);
   const [isDisputePending, setIsDisputePending] = useState(false);
   const [isCancelPending, setIsCancelPending] = useState(false);
+  const [isDeletePending, setIsDeletePending] = useState(false);
   const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
 
+  const router = useRouter();
   const invoiceInputRef = useRef<HTMLInputElement>(null);
   const attachmentInputRef = useRef<HTMLInputElement>(null);
 
@@ -159,6 +162,19 @@ export function AdminProjectDetailView({ project: initialProject, currentUserId 
       alert(err.message || "Failed to cancel project");
     } finally {
       setIsCancelPending(false);
+    }
+  };
+
+  // Delete Cancelled Project Handler
+  const handleDeleteProject = async () => {
+    if (!confirm("Are you sure you want to permanently delete this cancelled project? This action cannot be undone.")) return;
+    setIsDeletePending(true);
+    try {
+      await deleteProjectAction(project.id);
+      router.push("/admin");
+    } catch (err: any) {
+      alert(err.message || "Failed to delete project");
+      setIsDeletePending(false);
     }
   };
 
@@ -371,8 +387,8 @@ export function AdminProjectDetailView({ project: initialProject, currentUserId 
             </button>
           </form>
 
-          {/* Cancel Project Button */}
-          {status !== ProjectStatus.CANCELLED && (
+          {/* Cancel or Delete Project Button */}
+          {status !== ProjectStatus.CANCELLED ? (
             <button
               onClick={handleCancelProject}
               disabled={isCancelPending}
@@ -382,6 +398,17 @@ export function AdminProjectDetailView({ project: initialProject, currentUserId 
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>CANCEL PROJECT</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleDeleteProject}
+              disabled={isDeletePending}
+              className="bg-error/10 border border-error/30 text-error hover:bg-error hover:text-on-error font-bold text-xs px-4 py-2.5 rounded-2xl transition-all flex items-center space-x-1.5 cursor-pointer disabled:opacity-50 shadow-xs"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>{isDeletePending ? "DELETING..." : "DELETE CANCELLED PROJECT"}</span>
             </button>
           )}
         </div>

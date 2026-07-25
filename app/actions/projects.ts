@@ -93,3 +93,19 @@ export async function toggleDisputeAction(projectId: string, isDisputed: boolean
 
   return { isDisputed: updated.isDisputed };
 }
+
+export async function deleteProjectAction(projectId: string) {
+  const session = await getServerSession();
+  if (!session) {
+    throw new Error("Unauthorized");
+  }
+
+  await projectData.deleteProject(session, projectId);
+
+  revalidatePath("/admin");
+  revalidatePath("/projects");
+  revalidatePath("/overview");
+
+  return { success: true };
+}
+

@@ -37,7 +37,17 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
 
   // Real-time unread notification badge updates
   useEffect(() => {
-    if (!isAdmin) return;
+    const fetchUnread = async () => {
+      try {
+        const data = await getNotificationsAction();
+        const count = data.filter((n) => !n.read).length;
+        setUnreadCount(count);
+      } catch (err) {
+        console.error("Failed to load notifications count in Sidebar", err);
+      }
+    };
+
+    fetchUnread();
 
     const supabase = createClient();
     const channel = supabase
@@ -51,13 +61,7 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
           filter: `userId=eq.${user.id}`,
         },
         async () => {
-          try {
-            const data = await getNotificationsAction();
-            const count = data.filter((n) => !n.read).length;
-            setUnreadCount(count);
-          } catch (err) {
-            console.error("Failed to load notifications count in Sidebar", err);
-          }
+          await fetchUnread();
         }
       )
       .subscribe();
@@ -65,7 +69,7 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user.id, isAdmin]);
+  }, [user.id]);
 
   const clientLinks = [
     {
@@ -83,6 +87,15 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        </svg>
+      ),
+    },
+    {
+      label: "Messages",
+      href: "/messages",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
       ),
     },
@@ -251,7 +264,7 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
         {/* Navigation Section */}
         <nav className="p-4 space-y-1 shrink-0">
           {(isAdmin ? adminLinks : clientLinks).map((link) => {
-            const isNotificationsTab = link.label === "Notifications";
+            const isNotificationsTab = link.label === "Notifications" || link.label === "Messages";
             const isBoardTab = link.label === "Board";
 
             const isActive = isBoardTab

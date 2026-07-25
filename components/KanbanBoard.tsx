@@ -11,7 +11,7 @@ import {
 import { ProjectStatus } from "@prisma/client";
 import { KanbanColumn } from "./KanbanColumn";
 import { QuoteEntryModal } from "./QuoteEntryModal";
-import { updateProjectStatusAction } from "@/app/actions/projects";
+import { updateProjectStatusAction, deleteProjectAction } from "@/app/actions/projects";
 import { getNotificationsAction, markAsReadAction, markAllAsReadAction, deleteNotificationAction } from "@/app/actions/notifications";
 import { createClient } from "@/lib/supabase/client";
 import { useSearchParams } from "next/navigation";
@@ -38,6 +38,7 @@ interface Notification {
   id: string;
   type: string;
   projectId: string | null;
+  message?: string | null;
   read: boolean;
   createdAt: Date | string;
 }
@@ -262,13 +263,23 @@ export function KanbanBoard({
   };
 
   const handleDeleteNotification = async (id: string) => {
-    const original = [...notifications];
     setNotifications((prev) => prev.filter((n) => n.id !== id));
     try {
       await deleteNotificationAction(id);
     } catch (err) {
       console.error("Failed to delete notification", err);
-      setNotifications(original);
+    }
+  };
+
+  const handleDeleteProject = async (projectId: string) => {
+    if (!confirm("Are you sure you want to permanently delete this cancelled project? This action cannot be undone.")) {
+      return;
+    }
+    try {
+      await deleteProjectAction(projectId);
+      setProjects((prev) => prev.filter((p) => p.id !== projectId));
+    } catch (err: any) {
+      alert(err.message || "Failed to delete project");
     }
   };
 
@@ -409,12 +420,7 @@ export function KanbanBoard({
 
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-on-surface">
-                        {notification.type === "NEW_MESSAGE" ? "New Project Message" : "Project Status Update"}
-                      </p>
-                      <p className="text-xs text-on-surface-variant mt-1 leading-relaxed truncate max-w-[280px] sm:max-w-md md:max-w-xl xl:max-w-4xl">
-                        {notification.type === "NEW_MESSAGE"
-                          ? "A new message was posted in the project workspace by the client."
-                          : "A project status state transition occurred."}
+                        {notification.message || (notification.type === "NEW_MESSAGE" ? "New Project Message" : "Project Status Update")}
                       </p>
                       <span className="text-[10px] text-outline block mt-1.5">
                         {new Date(notification.createdAt).toLocaleDateString(undefined, {
@@ -513,15 +519,23 @@ export function KanbanBoard({
                         {new Date(project.updatedAt).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <Link
-                          href={`/admin/projects/${project.id}`}
-                          className="inline-flex items-center space-x-1 text-xs font-bold text-primary hover:underline transition-colors"
-                        >
-                          <span>Manage</span>
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                          </svg>
-                        </Link>
+                        <div className="flex items-center justify-end space-x-3">
+                          <Link
+                            href={`/admin/projects/${project.id}`}
+                            className="inline-flex items-center space-x-1 text-xs font-bold text-primary hover:underline transition-colors"
+                          >
+                            <span>Manage</span>
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteProject(project.id)}
+                            className="px-2.5 py-1 text-xs font-bold text-error hover:bg-error/10 border border-error/20 rounded-lg transition-colors cursor-pointer"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
