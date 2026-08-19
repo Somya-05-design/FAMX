@@ -2,26 +2,9 @@
 
 import Link from "next/link";
 
-interface ImageBoxProps {
-  src: string;
-  alt: string;
-  positionClass: string;
-  sizeClass?: string;
-}
-
-function FloatingImageBox({ src, alt, positionClass, sizeClass = "w-12 h-12 sm:w-14 sm:h-14" }: ImageBoxProps) {
-  return (
-    <div className={`absolute ${positionClass} ${sizeClass} p-1 bg-surface-container-lowest rounded-2xl border border-outline-variant pointer-events-none z-10 transition-transform duration-500 hover:scale-110 flex items-center justify-center`}>
-      <div className="w-full h-full rounded-xl overflow-hidden bg-surface-container-low relative">
-        <img src={src} alt={alt} className="w-full h-full object-cover" />
-      </div>
-    </div>
-  );
-}
-
 export function HeroSection() {
   return (
-    <section className="relative pt-6 pb-16 text-center overflow-hidden max-w-7xl mx-auto px-4 sm:px-6">
+    <section className="relative pt-6 pb-16 overflow-hidden max-w-7xl mx-auto px-4 sm:px-6">
 
       {/* 1. Floating Centered Pill Navbar */}
       <div className="flex justify-center mb-12 sm:mb-16">
@@ -33,31 +16,31 @@ export function HeroSection() {
               <svg viewBox="0 0 1040 580" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                   <linearGradient id="hgF" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#1565C0"/>
-                    <stop offset="100%" stopColor="#0D47A1"/>
+                    <stop offset="0%" stopColor="#1565C0" />
+                    <stop offset="100%" stopColor="#0D47A1" />
                   </linearGradient>
                   <linearGradient id="hgX" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#0288D1"/>
-                    <stop offset="100%" stopColor="#01579B"/>
+                    <stop offset="0%" stopColor="#0288D1" />
+                    <stop offset="100%" stopColor="#01579B" />
                   </linearGradient>
                   <linearGradient id="hgSwoop" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#29B6F6"/>
-                    <stop offset="100%" stopColor="#0277BD"/>
+                    <stop offset="0%" stopColor="#29B6F6" />
+                    <stop offset="100%" stopColor="#0277BD" />
                   </linearGradient>
                 </defs>
                 <g fill="#1a3a7a" opacity="0.85">
-                  <rect x="60" y="270" width="18" height="18"/><rect x="85" y="255" width="14" height="14"/>
-                  <rect x="110" y="262" width="14" height="14"/><rect x="135" y="270" width="16" height="16"/>
-                  <rect x="162" y="275" width="18" height="18"/><rect x="190" y="282" width="20" height="20"/>
+                  <rect x="60" y="270" width="18" height="18" /><rect x="85" y="255" width="14" height="14" />
+                  <rect x="110" y="262" width="14" height="14" /><rect x="135" y="270" width="16" height="16" />
+                  <rect x="162" y="275" width="18" height="18" /><rect x="190" y="282" width="20" height="20" />
                 </g>
-                <path d="M230 120 L230 460 L295 460 L295 320 L430 320 L430 265 L295 265 L295 175 L460 175 L460 120 Z" fill="url(#hgF)"/>
-                <polygon points="280,460 340,460 490,120 430,120" fill="#1976D2" opacity="0.55"/>
-                <polygon points="480,120 560,120 680,290 600,290" fill="url(#hgX)"/>
-                <polygon points="480,460 560,460 680,290 600,290" fill="#1a3a7a" opacity="0.8"/>
-                <polygon points="760,120 840,120 680,290 600,290" fill="#1a3a7a" opacity="0.7"/>
-                <polygon points="760,460 840,460 680,290 600,290" fill="url(#hgX)"/>
-                <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="url(#hgSwoop)" strokeWidth="28" strokeLinecap="round" opacity="0.9"/>
-                <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" opacity="0.35"/>
+                <path d="M230 120 L230 460 L295 460 L295 320 L430 320 L430 265 L295 265 L295 175 L460 175 L460 120 Z" fill="url(#hgF)" />
+                <polygon points="280,460 340,460 490,120 430,120" fill="#1976D2" opacity="0.55" />
+                <polygon points="480,120 560,120 680,290 600,290" fill="url(#hgX)" />
+                <polygon points="480,460 560,460 680,290 600,290" fill="#1a3a7a" opacity="0.8" />
+                <polygon points="760,120 840,120 680,290 600,290" fill="#1a3a7a" opacity="0.7" />
+                <polygon points="760,460 840,460 680,290 600,290" fill="url(#hgX)" />
+                <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="url(#hgSwoop)" strokeWidth="28" strokeLinecap="round" opacity="0.9" />
+                <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" opacity="0.35" />
               </svg>
             </div>
             <span className="text-base font-black tracking-tight text-on-surface">
@@ -95,121 +78,104 @@ export function HeroSection() {
         </header>
       </div>
 
-      {/* Hero Visual Container */}
-      <div className="relative py-8 md:py-12 max-w-4xl mx-auto flex flex-col items-center">
-
-        {/* 2. Concentric Ring Background (Bleeds out) */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10 overflow-visible">
-          {/* Ring 4 (Outermost) */}
-          <div className="w-[850px] h-[850px] rounded-full border border-outline-variant/40 flex items-center justify-center shrink-0">
-            {/* Ring 3 */}
-            <div className="w-[650px] h-[650px] rounded-full border border-outline-variant/50 flex items-center justify-center">
-              {/* Ring 2 */}
-              <div className="w-[470px] h-[470px] rounded-full border border-outline-variant/60 flex items-center justify-center">
-                {/* Ring 1 (Innermost) */}
-                <div className="w-[300px] h-[300px] rounded-full border border-outline-variant/40" />
-              </div>
-            </div>
+      {/* 2. Rebuilt Hero Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center text-left">
+        {/* Left Column: Copy & Actions */}
+        <div className="lg:col-span-7 space-y-6 sm:space-y-8">
+          {/* Eyebrow Badge */}
+          <div className="inline-flex items-center space-x-2 bg-surface-container-high/60 border border-outline-variant/30 px-3.5 py-1.5 rounded-full text-xs font-bold text-primary">
+            <span className="w-2 h-2 rounded-full bg-primary" />
+            <span>Product Engineering & Brand Design Studio</span>
           </div>
-        </div>
 
-        {/* 3. Floating Image Boxes */}
-        <FloatingImageBox
-          src="/hero/box1.png"
-          alt="UI Concept Preview"
-          positionClass="top-[2%] left-[8%] sm:left-[14%]"
-          sizeClass="w-12 h-12 sm:w-16 sm:h-16"
-        />
-
-        <FloatingImageBox
-          src="/hero/box2.png"
-          alt="Creative Professional"
-          positionClass="top-[4%] right-[8%] sm:right-[13%]"
-          sizeClass="w-12 h-12 sm:w-14 sm:h-14"
-        />
-
-        <FloatingImageBox
-          src="/hero/box3.png"
-          alt="Mobile App Interface"
-          positionClass="top-[38%] -left-[2%] sm:left-[2%]"
-          sizeClass="w-12 h-12 sm:w-14 sm:h-14"
-        />
-
-        <FloatingImageBox
-          src="/hero/box4.png"
-          alt="3D Visual Artwork"
-          positionClass="top-[36%] -right-[2%] sm:right-[3%]"
-          sizeClass="w-12 h-12 sm:w-16 sm:h-16"
-        />
-
-        {/* 4. Trust Row */}
-        <div className="inline-flex items-center space-x-2 bg-surface-container-lowest border border-outline-variant px-4 py-1.5 rounded-full text-xs font-bold text-on-surface-variant shadow-xs mb-6 z-20">
-          <span className="flex items-center space-x-1">
-            <span className="w-4 h-4 rounded-full bg-surface-container-high text-primary font-black flex items-center justify-center text-[10px]">G</span>
-            <span><strong className="text-on-surface">4.6</strong> Google</span>
-          </span>
-          <span className="text-outline">•</span>
-          <span className="flex items-center space-x-1">
-            <span className="text-primary text-xs">★</span>
-            <span><strong className="text-on-surface">4.9</strong> Trustpilot</span>
-          </span>
-        </div>
-
-        {/* 5. Headline, Subheading, CTAs */}
-        <div className="space-y-6 max-w-3xl mx-auto z-20">
-          <h1 className="text-headline-xl sm:text-6xl md:text-7xl font-black tracking-tight text-on-surface leading-[1.1]">
+          {/* Headline */}
+          <h1 className="text-4xl sm:text-5xl lg:text-[56px] font-black tracking-tight text-on-surface leading-[1.1]">
             We design and build <br />
-            premium digital products
+            premium <em className="italic text-primary font-serif font-normal lowercase">digital</em> products
           </h1>
 
-          <p className="text-body-lg text-on-surface-variant font-semibold max-w-lg mx-auto leading-relaxed">
-            Product Engineering & Brand Design Group
+          {/* Subheading */}
+          <p className="text-body-md sm:text-body-lg text-on-surface-variant max-w-lg leading-relaxed font-semibold">
+            Product Engineering & Brand Design Group to make your Product more Effective
           </p>
 
-          <div className="flex flex-wrap justify-center gap-3.5 pt-2">
+          {/* CTA Buttons */}
+          <div className="flex flex-wrap items-center gap-4">
             <Link
               href="/signup?next=/projects/new"
-              className="bg-primary hover:bg-primary-container text-on-primary font-bold px-8 py-3.5 rounded-full text-xs transition-all duration-200 shadow-xs cursor-pointer"
+              className="bg-primary hover:bg-primary/95 text-on-primary font-bold px-6 py-3.5 rounded-xl text-xs transition-all duration-200 flex items-center space-x-1.5"
             >
-              Get started free
+              <span>Start Now</span>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
             </Link>
             <a
               href="#work"
-              className="bg-tertiary hover:bg-tertiary-container text-on-tertiary border border-transparent font-bold px-8 py-3.5 rounded-full text-xs transition-all duration-200 shadow-xs"
+              className="border border-outline-variant hover:border-outline text-on-surface font-bold px-6 py-3.5 rounded-xl text-xs transition-all duration-200"
             >
-              See Work
+              See our Work
             </a>
           </div>
+
+          {/* Stat Row */}
+          <div className="pt-6 sm:pt-8 border-t border-outline-variant/40 grid grid-cols-3 gap-4 sm:gap-6">
+            <div className="space-y-1">
+              <div className="text-2xl sm:text-3xl font-black text-on-surface">
+                1200+
+              </div>
+              <div className="text-[10px] sm:text-xs font-bold text-on-surface-variant uppercase tracking-wider leading-tight">
+                Products Delivered
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-2xl sm:text-3xl font-black text-on-surface">
+                98%
+              </div>
+              <div className="text-[10px] sm:text-xs font-bold text-on-surface-variant uppercase tracking-wider leading-tight">
+                Positive Review
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-2xl sm:text-3xl font-black text-on-surface">
+                40+
+              </div>
+              <div className="text-[10px] sm:text-xs font-bold text-on-surface-variant uppercase tracking-wider leading-tight">
+                Clients Covered
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* 6. Floating Activity Card Stack */}
-        <div className="pt-12 sm:pt-14 w-full max-w-md mx-auto z-20 relative">
-          <div className="absolute top-8 left-4 right-4 bg-surface-container-lowest/50 border border-outline-variant/50 p-3 rounded-2xl opacity-60 scale-95 transform -translate-y-2 pointer-events-none flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-full bg-surface-container-high shrink-0" />
-            <div className="h-3 bg-surface-container-high rounded w-1/2" />
-          </div>
+        {/* Right Column: Illustration Panel */}
+        <div className="lg:col-span-5 relative flex items-center justify-center">
+          <div className="w-full relative max-w-md sm:max-w-lg aspect-square bg-surface-container-low rounded-3xl p-4 sm:p-6 border border-outline-variant/50 overflow-visible flex items-center justify-center">
+            <img
+              src="/hero/collaboration.jpg"
+              alt="Product Collaboration Illustration"
+              className="w-full h-full object-cover rounded-2xl"
+            />
 
-          <div className="relative bg-surface-container-lowest border border-outline-variant p-4.5 rounded-2xl shadow-xs flex items-center space-x-3.5 text-left">
-            <div className="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-xs shrink-0">
-              CS
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center space-x-1.5">
-                <p className="text-xs font-extrabold text-on-surface truncate">Chandni Singh</p>
-                <span className="text-[10px] text-on-surface-variant font-medium">joined to</span>
-                <a href="#work" className="text-xs font-bold text-primary hover:underline truncate">Final Presentation</a>
-                <svg className="w-3.5 h-3.5 text-primary shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            {/* Floating Callout Card */}
+            <div className="absolute -top-4 right-2 sm:-top-6 sm:right-6 bg-surface-container-lowest border border-outline-variant p-3 sm:p-4 rounded-2xl shadow-md max-w-[220px] sm:max-w-[250px] flex items-start space-x-3 z-20 transition-all duration-300 hover:scale-105">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                 </svg>
               </div>
-              <p className="text-[10px] text-outline font-semibold mt-0.5 truncate">
-                8 min ago · Onlcreative Dribble
-              </p>
+              <div className="min-w-0 text-left">
+                <p className="text-xs font-extrabold text-on-surface leading-tight">
+                  Your Project is Under Process
+                </p>
+                <p className="text-[10px] text-on-surface-variant font-medium mt-0.5 leading-tight">
+                  Design phase Going
+                </p>
+              </div>
             </div>
           </div>
         </div>
-
       </div>
+
     </section>
   );
 }
