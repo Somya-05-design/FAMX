@@ -8,18 +8,7 @@ import { ContactForm } from "@/components/ContactForm";
 import { HeroSection } from "@/components/HeroSection";
 
 export default function MarketingLandingPage() {
-  const [activeSolutionsCategory, setActiveSolutionsCategory] = useState<string>("All services");
-
-  const solutionsCategories = ["All services", "Web Development", "UI/UX Design", "Graphic Design"];
-
-  const filteredServicePackages = activeSolutionsCategory === "All services"
-    ? servicePackages
-    : servicePackages.filter((pkg) => {
-      if (activeSolutionsCategory === "UI/UX Design") {
-        return (pkg.category as string) === "UI/UX" || (pkg.category as string) === "UI/UX Design";
-      }
-      return pkg.category === activeSolutionsCategory;
-    });
+  const displayedServicePackages = servicePackages.slice(0, 4);
 
   return (
     <div className="relative flex flex-col min-h-screen bg-surface text-on-surface font-sans selection:bg-surface-container-high select-none">
@@ -49,68 +38,141 @@ export default function MarketingLandingPage() {
           </div>
         </section>
 
-        {/* 3. Solutions Section */}
+        {/* 3. Services Section */}
         <section id="services" className="max-w-7xl mx-auto px-6 space-y-12 scroll-mt-28">
-          <div className="text-center space-y-3 max-w-xl mx-auto">
-            <h2 className="text-headline-lg font-extrabold tracking-tight text-on-surface">Solutions</h2>
-            <p className="text-body-md text-on-surface-variant leading-relaxed font-medium">
-              Explore our standard capabilities. Choose a starting package or request custom product development.
-            </p>
+          <div className="flex items-end justify-between gap-4 border-b border-outline-variant/20 pb-5">
+            <div className="space-y-1 text-left">
+              <span className="text-[10px] uppercase tracking-widest font-black text-[var(--surface-tint)] block">
+                HAVE A LOOK AT
+              </span>
+              <h2 className="text-3xl font-black tracking-tight text-on-surface">
+                Our Key Services
+              </h2>
+            </div>
+            <Link
+              href="/signup?next=/projects/new"
+              className="text-xs font-extrabold text-on-surface hover:text-[var(--surface-tint)] transition-colors flex items-center gap-1 shrink-0"
+            >
+              Browse all {servicePackages.length} <span className="text-[10px]">→</span>
+            </Link>
           </div>
 
-          {/* Solutions Category Filter Pills */}
-          <div className="flex flex-wrap justify-center gap-2">
-            {solutionsCategories.map((cat) => {
-              const isActive = activeSolutionsCategory === cat;
+          {/* Dynamic Package Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {displayedServicePackages.map((pkg, index) => {
+              // Calculate badge
+              const getBadgeText = (pkgId: string, deliveryTimeframe: string) => {
+                if (pkgId === "business-website") return "POPULAR";
+                const days = deliveryTimeframe.match(/\d+/g);
+                if (days) {
+                  const maxDays = Math.max(...days.map(Number));
+                  if (maxDays <= 5) return "FAST";
+                }
+                return null;
+              };
+              const badge = getBadgeText(pkg.id, pkg.deliveryTimeframe);
+
+              // SVG illustration placeholder helper
+              const getCategorySvg = (category: string) => {
+                if (category === "Web Development") {
+                  return (
+                    <svg className="w-12 h-12 text-[var(--surface-tint)]/60" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                    </svg>
+                  );
+                }
+                if (category === "Graphic Design") {
+                  return (
+                    <svg className="w-12 h-12 text-[var(--surface-tint)]/60" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122l.138.365a1.875 1.875 0 002.662.925l2.347-1.173a1.875 1.875 0 001.034-1.678V10.75m-6.181 5.372l-.138-.365a1.875 1.875 0 01.077-1.748l1.472-2.58a1.875 1.875 0 013.25 0l1.38 2.42a1.875 1.875 0 01.07 1.708l-.138.365M9.53 16.122a3 3 0 00-1.078-3.99L5.433 10.37a3.375 3.375 0 116.147-3.327l1.007 1.74M9.53 16.122H14.25" />
+                    </svg>
+                  );
+                }
+                if (category === "UI/UX" || category === "UI/UX Design") {
+                  return (
+                    <svg className="w-12 h-12 text-[var(--surface-tint)]/60" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-6 18.75h12" />
+                    </svg>
+                  );
+                }
+                return (
+                  <svg className="w-12 h-12 text-[var(--surface-tint)]/60" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                );
+              };
+
+              // Pricing string formatting helper
+              const formatPrice = (price: string) => {
+                if (price.startsWith("Starting from $")) {
+                  return price;
+                }
+                if (price.startsWith("$")) {
+                  return `Starting from ${price}`;
+                }
+                return `Starting from $${price}`;
+              };
+
               return (
-                <button
-                  key={cat}
-                  onClick={() => setActiveSolutionsCategory(cat)}
-                  className={`px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${isActive
-                    ? "bg-primary text-on-primary shadow-xs"
-                    : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest"
-                    }`}
+                <div
+                  key={pkg.id}
+                  className="bg-white border border-outline-variant/60 rounded-xl p-5 flex flex-col justify-between transition-all duration-300 relative group text-left"
                 >
-                  {cat}
-                </button>
+                  <div className="space-y-4">
+                    {/* Badge & Illustration Area */}
+                    <div
+                      className={`relative h-60 w-full rounded-lg overflow-hidden flex items-center justify-center border border-outline-variant/30 transition-colors ${
+                        index % 2 === 0 ? "bg-[#f4eee4]" : "bg-white"
+                      }`}
+                    >
+                      {badge && (
+                        <span className="absolute top-3.5 left-3.5 text-[8px] font-black tracking-wider uppercase bg-white text-on-surface px-2.5 py-1 rounded shadow-xs z-10 border border-outline-variant/10">
+                          {badge}
+                        </span>
+                      )}
+                      
+                      {/* SVG Category Icon inside container */}
+                      <div className="absolute inset-0 flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+                        {getCategorySvg(pkg.category)}
+                      </div>
+
+                      {/* Custom illustration overlay from user local */}
+                      <img
+                        src={`/services/${pkg.id}.png`}
+                        alt={pkg.name}
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = "none";
+                        }}
+                        className="absolute inset-0 w-full h-full object-contain z-5 p-4"
+                      />
+                    </div>
+
+                    {/* Package Info */}
+                    <div className="space-y-1">
+                      <h3 className="font-extrabold text-on-surface text-base tracking-tight leading-snug">{pkg.name}</h3>
+                      <p className="text-xs text-on-surface-variant/80 font-medium">
+                        {pkg.deliveryTimeframe}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Bottom section with starting price and see more link */}
+                  <div className="mt-8 flex justify-between items-center">
+                    <span className="text-[11px] font-bold text-on-surface-variant">
+                      {formatPrice(pkg.indicativePrice)}
+                    </span>
+
+                    <Link
+                      href={`/signup?next=/projects/new&service=${pkg.id}`}
+                      className="text-xs font-black text-[var(--surface-tint)] hover:text-primary transition-colors flex items-center gap-0.5 shrink-0"
+                    >
+                      <span>See more</span>
+                      <span className="text-xs">→</span>
+                    </Link>
+                  </div>
+                </div>
               );
             })}
-          </div>
-
-          {/* 6 Package Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredServicePackages.map((pkg) => (
-              <div
-                key={pkg.id}
-                className="bg-surface-container-lowest border border-outline-variant hover:border-primary rounded-3xl p-7 flex flex-col justify-between space-y-6 transition-all duration-200"
-              >
-                <div className="space-y-4">
-                  <div className="flex justify-between items-start gap-2">
-                    <h3 className="font-bold text-on-surface text-base tracking-tight">{pkg.name}</h3>
-                    <span className="text-[10px] font-extrabold text-primary bg-inverse-primary/20 border border-primary/20 px-2.5 py-1 rounded-full shrink-0">
-                      {pkg.deliveryTimeframe}
-                    </span>
-                  </div>
-                  <p className="text-xs text-on-surface-variant leading-relaxed font-medium">{pkg.description}</p>
-                </div>
-
-                <div className="space-y-4 pt-4 border-t border-outline-variant/40">
-                  <div>
-                    <span className="text-[10px] font-bold text-outline uppercase tracking-wider block">Starting from</span>
-                    <span className="text-lg font-black text-on-surface">
-                      {pkg.indicativePrice.replace("Starting from ", "")}
-                    </span>
-                  </div>
-
-                  <Link
-                    href={`/signup?next=/projects/new&service=${pkg.id}`}
-                    className="w-full bg-primary hover:bg-primary-container text-on-primary font-bold text-xs py-3 rounded-xl flex items-center justify-center transition-all shadow-xs cursor-pointer"
-                  >
-                    Get Started
-                  </Link>
-                </div>
-              </div>
-            ))}
           </div>
         </section>
 
@@ -135,56 +197,48 @@ export default function MarketingLandingPage() {
             </p>
           </div>
 
-          {/* 4 Step Connected Image Containers */}
-          <div className="relative">
-            {/* Horizontal Connecting Line (Desktop) */}
-            <div className="hidden md:block absolute top-24 left-[12%] right-[12%] border-t-2 border-dashed border-outline-variant -z-0" />
+          {/* 4 Columns step indicators */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
+            {[
+              {
+                num: "01",
+                title: "Submit Brief",
+                desc: "Share your project details, budget, and timeline.",
+              },
+              {
+                num: "02",
+                title: "Get Quoted",
+                desc: "We review your request and provide a quote for your project.",
+              },
+              {
+                num: "03",
+                title: "In Progress",
+                desc: "Our team gets to work on your project.",
+              },
+              {
+                num: "04",
+                title: "Get Delivered",
+                desc: "Final delivery, reviewed and handed off.",
+              },
+            ].map((st) => (
+              <div key={st.num} className="relative flex flex-col pt-12 group border-t border-outline-variant/30">
+                {/* Pale numerical step behind the header */}
+                <span className="absolute top-0 left-0 text-7xl font-black text-on-surface/[0.04] select-none pointer-events-none transition-colors duration-300 group-hover:text-[var(--surface-tint)]/[0.07]">
+                  {st.num}
+                </span>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6 relative z-10">
-              {[
-                {
-                  step: 1,
-                  title: "Submit Brief",
-                  image: "/steps/step1.png",
-                },
-                {
-                  step: 2,
-                  title: "Get Quoted",
-                  image: "/steps/step2.png",
-                },
-                {
-                  step: 3,
-                  title: "In Progress",
-                  image: "/steps/step3.png",
-                },
-                {
-                  step: 4,
-                  title: "Get Delivered",
-                  image: "/steps/step4.png",
-                },
-              ].map((st) => (
-                <div key={st.step} className="flex flex-col items-center group">
-                  {/* Large Main Image Container */}
-                  <div className="relative w-full h-48 sm:h-52 rounded-3xl overflow-hidden border border-outline-variant bg-surface-container-lowest transition-all duration-300 group-hover:border-primary">
-                    <img
-                      src={st.image}
-                      alt={st.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-
-                    {/* Step Number Badge */}
-                    <div className="absolute top-3.5 left-3.5 w-8 h-8 rounded-full bg-surface-container-lowest/95 backdrop-blur-md border border-outline-variant text-on-surface font-black text-xs flex items-center justify-center shadow-xs">
-                      {st.step}
-                    </div>
-                  </div>
-
-                  {/* Step Title Below Container */}
-                  <div className="mt-4 text-center">
-                    <h3 className="text-sm font-extrabold text-on-surface tracking-tight">{st.title}</h3>
-                  </div>
+                {/* Step Title & Details */}
+                <div className="space-y-2 relative z-10 text-left">
+                  <h3 className="text-sm font-extrabold text-on-surface tracking-tight flex items-center gap-1.5">
+                    <span className="text-[10px] font-black text-[var(--surface-tint)]">{st.num}.</span>
+                    <span>{st.title}</span>
+                  </h3>
+                  <p className="text-xs text-on-surface-variant font-medium leading-relaxed">
+                    {st.desc}
+                  </p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </section>
 
