@@ -8,7 +8,7 @@ export function HeroSection() {
 
       {/* 1. Floating Centered Pill Navbar */}
       <div className="flex justify-center mb-12 sm:mb-16">
-        <header className="inline-flex items-center space-x-6 sm:space-x-8 bg-surface-container-lowest border border-outline-variant rounded-full px-5 sm:px-7 py-3 transition-all">
+        <header className="inline-flex items-center space-x-6 sm:space-x-8 bg-surface-container-lowest/70 backdrop-blur-md border border-outline-variant rounded-full px-5 sm:px-7 py-3 transition-all">
 
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 shrink-0">
@@ -149,12 +149,11 @@ export function HeroSection() {
 
         {/* Right Column: Illustration Panel */}
         <div className="lg:col-span-5 relative flex items-center justify-center">
-          <div className="w-full relative max-w-md sm:max-w-lg aspect-square bg-surface-container-low rounded-3xl p-4 sm:p-6 border border-outline-variant/50 overflow-visible flex items-center justify-center">
-            <img
-              src="/hero/collaboration.jpg"
-              alt="Product Collaboration Illustration"
-              className="w-full h-full object-cover rounded-2xl"
-            />
+          <div className="w-full relative max-w-md sm:max-w-lg aspect-square bg-surface-container-low rounded-3xl border border-outline-variant/50 overflow-visible flex items-center justify-center">  <img
+            src="/hero/collaboration.jpg"
+            alt="Product Collaboration Illustration"
+            className="w-full h-full object-cover rounded-2xl"
+          />
 
             {/* Floating Callout Card */}
             <div className="absolute -top-4 right-2 sm:-top-6 sm:right-6 bg-surface-container-lowest border border-outline-variant p-3 sm:p-4 rounded-2xl shadow-md max-w-[220px] sm:max-w-[250px] flex items-start space-x-3 z-20 transition-all duration-300 hover:scale-105">

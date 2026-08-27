@@ -6,12 +6,19 @@ import { servicePackages } from "@/lib/content/service-packages";
 import { PortfolioGrid } from "@/components/PortfolioGrid";
 import { ContactForm } from "@/components/ContactForm";
 import { HeroSection } from "@/components/HeroSection";
+import { DotPattern } from "@/components/ui/dot-pattern";
 
 export default function MarketingLandingPage() {
   const displayedServicePackages = servicePackages.slice(0, 4);
 
   return (
-    <div className="relative flex flex-col min-h-screen bg-surface text-on-surface font-sans selection:bg-surface-container-high select-none">
+    <div className="relative flex flex-col min-h-screen bg-transparent text-on-surface font-sans selection:bg-surface-container-high select-none">
+      <DotPattern
+        baseColor="#cbd5e1"
+        glowColor="#36693c"
+        proximity={140}
+        glowIntensity={1.2}
+      />
 
       {/* 1. Dedicated Floating Hero Section (Includes Floating Navbar, Rings, 8 Chips, CTAs, Activity Card Stack) */}
       <HeroSection />
