@@ -68,7 +68,10 @@ export function DotPattern({
     const rect = container.getBoundingClientRect()
     const dpr = window.devicePixelRatio || 1
 
-  
+    canvas.width = rect.width * dpr
+    canvas.height = rect.height * dpr
+    canvas.style.width = `${rect.width}px`
+    canvas.style.height = `${rect.height}px`
 
     const ctx = canvas.getContext("2d")
     if (ctx) ctx.scale(dpr, dpr)
