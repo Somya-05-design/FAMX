@@ -44,7 +44,7 @@ export function DotPattern({
   children,
   dotSize = 2,
   gap = 24,
-  baseColor = "#404040",
+  baseColor = "#1e0f0f",
   glowColor = "#22d3ee",
   proximity = 120,
   glowIntensity = 1,
@@ -71,7 +71,7 @@ export function DotPattern({
     canvas.width = rect.width * dpr
     canvas.height = rect.height * dpr
     canvas.style.width = `${rect.width}px`
-    canvas.style.height = `${rect.height}px`
+    
 
     const ctx = canvas.getContext("2d")
     if (ctx) ctx.scale(dpr, dpr)
