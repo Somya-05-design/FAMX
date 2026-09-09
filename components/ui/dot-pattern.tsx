@@ -70,7 +70,6 @@ export function DotPattern({
 
     canvas.width = rect.width * dpr
     canvas.height = rect.height * dpr
-    canvas.style.width = `${rect.width}px`
     
 
     const ctx = canvas.getContext("2d")
