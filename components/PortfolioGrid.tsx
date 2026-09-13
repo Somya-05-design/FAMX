@@ -13,8 +13,8 @@ export function PortfolioGrid() {
     // Detect touch capability
     setIsTouchDevice(
       "ontouchstart" in window ||
-        navigator.maxTouchPoints > 0 ||
-        (window.matchMedia && window.matchMedia("(pointer: coarse)").matches)
+      navigator.maxTouchPoints > 0 ||
+      (window.matchMedia && window.matchMedia("(pointer: coarse)").matches)
     );
   }, []);
 
@@ -35,9 +35,9 @@ export function PortfolioGrid() {
   const filteredItems = activeCategory === "All Project" || activeCategory === "All"
     ? portfolioItems
     : portfolioItems.filter(item => {
-        if (activeCategory === "UI/UX Design") return (item.category as string) === "UI/UX" || (item.category as string) === "UI/UX Design";
-        return item.category === activeCategory;
-      });
+      if (activeCategory === "UI/UX Design") return (item.category as string) === "UI/UX" || (item.category as string) === "UI/UX Design";
+      return item.category === activeCategory;
+    });
 
   const getBentoColSpan = (index: number) => {
     const idx = index % 6;
@@ -66,11 +66,10 @@ export function PortfolioGrid() {
                 setActiveCategory(category);
                 setActiveTappedId(null); // Clear active card on category switch
               }}
-              className={`px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
-                isActive
+              className={`px-5 py-2 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${isActive
                   ? "bg-primary text-on-primary shadow-xs"
                   : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest"
-              }`}
+                }`}
             >
               {category}
             </button>
@@ -99,33 +98,29 @@ export function PortfolioGrid() {
               <img
                 src={item.image}
                 alt={item.title}
-                className={`w-full h-full object-cover transition-all duration-300 ${
-                  isCardActive ? "blur-[10px] scale-105" : "group-hover:blur-[10px] group-hover:scale-105"
-                }`}
+                className={`w-full h-full object-cover transition-all duration-300 ${isCardActive ? "blur-[10px] scale-105" : "group-hover:blur-[10px] group-hover:scale-105"
+                  }`}
               />
 
               {/* Scrim for default title legibility */}
               <div
-                className={`absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent transition-opacity duration-300 pointer-events-none ${
-                  isCardActive ? "opacity-0" : "group-hover:opacity-0"
-                }`}
+                className={`absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent transition-opacity duration-300 pointer-events-none ${isCardActive ? "opacity-0" : "group-hover:opacity-0"
+                  }`}
               />
 
               {/* Default Bottom Project Title Label */}
               <div
-                className={`absolute bottom-4 left-4 right-4 z-10 space-y-1.5 transition-all duration-300 pointer-events-none ${
-                  isCardActive
+                className={`absolute bottom-4 left-4 right-4 z-10 space-y-1.5 transition-all duration-300 pointer-events-none ${isCardActive
                     ? "opacity-0 translate-y-2"
                     : "opacity-100 translate-y-0 group-hover:opacity-0 group-hover:translate-y-2"
-                }`}
+                  }`}
               />
               {/* Actually render label content safely */}
               <div
-                className={`absolute bottom-5 left-5 right-5 z-10 flex flex-col items-start gap-1.5 transition-all duration-300 pointer-events-none ${
-                  isCardActive
+                className={`absolute bottom-5 left-5 right-5 z-10 flex flex-col items-start gap-1.5 transition-all duration-300 pointer-events-none ${isCardActive
                     ? "opacity-0 translate-y-2"
                     : "opacity-100 translate-y-0 group-hover:opacity-0 group-hover:translate-y-2"
-                }`}
+                  }`}
               >
                 <span className={`inline-block text-[9px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider border shadow-xs ${getCategoryTagStyle()}`}>
                   {item.category === "UI/UX" ? "UI/UX DESIGN" : item.category.toUpperCase()}
@@ -137,11 +132,10 @@ export function PortfolioGrid() {
 
               {/* Hover / Tap State Overlay (Fades in) */}
               <div
-                className={`absolute inset-0 bg-black/75 transition-opacity duration-300 flex flex-col justify-between p-6 z-20 ${
-                  isCardActive
+                className={`absolute inset-0 bg-black/75 transition-opacity duration-300 flex flex-col justify-between p-6 z-20 ${isCardActive
                     ? "opacity-100 pointer-events-auto"
                     : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
-                }`}
+                  }`}
               >
                 <div className="space-y-4">
                   <div className="flex flex-col gap-1">
@@ -196,3 +190,5 @@ export function PortfolioGrid() {
     </div>
   );
 }
+
+//UPDATED code for the grid UI
