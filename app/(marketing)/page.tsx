@@ -6,6 +6,7 @@ import { servicePackages } from "@/lib/content/service-packages";
 import { PortfolioGrid } from "@/components/PortfolioGrid";
 import { ContactForm } from "@/components/ContactForm";
 import { HeroSection } from "@/components/HeroSection";
+import { Navbar } from "@/components/Navbar";
 import { DotPattern } from "@/components/ui/dot-pattern";
 
 export default function MarketingLandingPage() {
@@ -20,7 +21,10 @@ export default function MarketingLandingPage() {
         glowIntensity={1.2}
       />
 
-      {/* 1. Dedicated Floating Hero Section (Includes Floating Navbar, Rings, 8 Chips, CTAs, Activity Card Stack) */}
+      {/* 1. Sticky Floating Pill Navbar */}
+      <Navbar />
+
+      {/* 2. Hero Section */}
       <HeroSection />
 
       {/* Main Content Sections */}

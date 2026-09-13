@@ -4,81 +4,8 @@ import Link from "next/link";
 
 export function HeroSection() {
   return (
-    <section className="relative pt-6 pb-16 overflow-hidden max-w-7xl mx-auto px-4 sm:px-6">
-
-      {/* 1. Floating Centered Pill Navbar */}
-      <div className="flex justify-center mb-12 sm:mb-16">
-        <header className="inline-flex items-center space-x-6 sm:space-x-8 bg-surface-container-lowest/70 backdrop-blur-md border border-outline-variant rounded-full px-5 sm:px-7 py-3 transition-all">
-
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 shrink-0">
-            <div className="w-7 h-7 rounded-lg overflow-hidden shadow-xs bg-white flex items-center justify-center">
-              <svg viewBox="0 0 1040 580" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="hgF" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#1565C0" />
-                    <stop offset="100%" stopColor="#0D47A1" />
-                  </linearGradient>
-                  <linearGradient id="hgX" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#0288D1" />
-                    <stop offset="100%" stopColor="#01579B" />
-                  </linearGradient>
-                  <linearGradient id="hgSwoop" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#29B6F6" />
-                    <stop offset="100%" stopColor="#0277BD" />
-                  </linearGradient>
-                </defs>
-                <g fill="#1a3a7a" opacity="0.85">
-                  <rect x="60" y="270" width="18" height="18" /><rect x="85" y="255" width="14" height="14" />
-                  <rect x="110" y="262" width="14" height="14" /><rect x="135" y="270" width="16" height="16" />
-                  <rect x="162" y="275" width="18" height="18" /><rect x="190" y="282" width="20" height="20" />
-                </g>
-                <path d="M230 120 L230 460 L295 460 L295 320 L430 320 L430 265 L295 265 L295 175 L460 175 L460 120 Z" fill="url(#hgF)" />
-                <polygon points="280,460 340,460 490,120 430,120" fill="#1976D2" opacity="0.55" />
-                <polygon points="480,120 560,120 680,290 600,290" fill="url(#hgX)" />
-                <polygon points="480,460 560,460 680,290 600,290" fill="#1a3a7a" opacity="0.8" />
-                <polygon points="760,120 840,120 680,290 600,290" fill="#1a3a7a" opacity="0.7" />
-                <polygon points="760,460 840,460 680,290 600,290" fill="url(#hgX)" />
-                <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="url(#hgSwoop)" strokeWidth="28" strokeLinecap="round" opacity="0.9" />
-                <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" opacity="0.35" />
-              </svg>
-            </div>
-            <span className="text-base font-black tracking-tight text-on-surface">
-              FAMX
-            </span>
-          </Link>
-
-          {/* Nav Links */}
-          <nav className="hidden md:flex items-center space-x-6 text-xs font-bold text-on-surface-variant">
-            <a href="#services" className="hover:text-on-surface transition-colors flex items-center space-x-1">
-              <span>Solutions</span>
-              <svg className="w-3 h-3 text-outline" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </a>
-            <a href="#work" className="hover:text-on-surface transition-colors">Work</a>
-            <a href="#how-it-works" className="hover:text-on-surface transition-colors">Process</a>
-          </nav>
-
-          {/* Action Buttons */}
-          <div className="flex items-center space-x-2.5 shrink-0">
-            <Link
-              href="/login"
-              className="text-xs font-bold text-on-surface-variant hover:text-on-surface px-4 py-2 border border-outline-variant hover:border-outline rounded-full transition-all shadow-xs"
-            >
-              Sign in
-            </Link>
-            <a
-              href="#contact"
-              className="bg-primary hover:bg-primary-container text-on-primary text-xs font-bold px-4.5 py-2 rounded-full transition-all duration-200 shadow-xs cursor-pointer"
-            >
-              Contact
-            </a>
-          </div>
-        </header>
-      </div>
-
-      {/* 2. Rebuilt Hero Grid */}
+    <section className="relative pt-6 sm:pt-10 pb-16 max-w-7xl mx-auto px-4 sm:px-6">
+      {/* Rebuilt Hero Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center text-left">
         {/* Left Column: Copy & Actions */}
         <div className="lg:col-span-7 space-y-6 sm:space-y-8">

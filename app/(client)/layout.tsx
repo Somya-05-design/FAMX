@@ -25,7 +25,7 @@ export default async function ClientLayout({
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-screen overflow-y-auto bg-[#FDF9F7]">
         {/* Top Header Navbar */}
-        <header className="h-16 border-b border-zinc-200/60 px-6 sm:px-10 flex items-center justify-between shrink-0 bg-[#FDF9F7]">
+        <header className="sticky top-0 z-40 h-16 border-b border-zinc-200/60 px-6 sm:px-10 flex items-center justify-between shrink-0 bg-[#FDF9F7]/50 backdrop-blur-md">
           <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
             PORTAL / CLIENT CONSOLE
           </div>
