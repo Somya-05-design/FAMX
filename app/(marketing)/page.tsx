@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { servicePackages } from "@/lib/content/service-packages";
 import { PortfolioGrid } from "@/components/PortfolioGrid";
@@ -10,7 +10,64 @@ import { Navbar } from "@/components/Navbar";
 import { DotPattern } from "@/components/ui/dot-pattern";
 
 export default function MarketingLandingPage() {
-  const displayedServicePackages = servicePackages.slice(0, 4);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isMouseDownRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftStartRef = useRef(0);
+  const isDraggingRef = useRef(false);
+
+  // Triple packages list for infinite seamless loop
+  const infinitePackages = [...servicePackages, ...servicePackages, ...servicePackages];
+
+  // Initialize scroll position to the middle set for seamless infinite loop
+  useEffect(() => {
+    if (scrollRef.current) {
+      const singleSetWidth = scrollRef.current.scrollWidth / 3;
+      scrollRef.current.scrollLeft = singleSetWidth;
+    }
+  }, []);
+
+  const handleScrollLoop = () => {
+    if (!scrollRef.current) return;
+    const el = scrollRef.current;
+    const singleSetWidth = el.scrollWidth / 3;
+    if (el.scrollLeft <= 10) {
+      el.scrollLeft += singleSetWidth;
+    } else if (el.scrollLeft >= singleSetWidth * 2 - 10) {
+      el.scrollLeft -= singleSetWidth;
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    isMouseDownRef.current = true;
+    isDraggingRef.current = false;
+    startXRef.current = e.pageX - scrollRef.current.offsetLeft;
+    scrollLeftStartRef.current = scrollRef.current.scrollLeft;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isMouseDownRef.current || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startXRef.current) * 1.5;
+    if (Math.abs(walk) > 4) {
+      isDraggingRef.current = true;
+    }
+    scrollRef.current.scrollLeft = scrollLeftStartRef.current - walk;
+    handleScrollLoop();
+  };
+
+  const handleMouseUpOrLeave = () => {
+    isMouseDownRef.current = false;
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (isDraggingRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
 
   return (
     <div className="relative flex flex-col min-h-screen bg-transparent text-on-surface font-sans selection:bg-surface-container-high select-none">
@@ -60,17 +117,24 @@ export default function MarketingLandingPage() {
                 Our Key Services
               </h2>
             </div>
-            <Link
-              href="/signup?next=/projects/new"
-              className="text-xs font-extrabold text-on-surface hover:text-[var(--surface-tint)] transition-colors flex items-center gap-1 shrink-0"
-            >
-              Browse all {servicePackages.length} <span className="text-[10px]">→</span>
-            </Link>
+            
+            {/* Visual Drag Hint */}
+            <div className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold text-on-surface-variant/70 uppercase tracking-wider">
+              <span>← Drag to explore →</span>
+            </div>
           </div>
 
-          {/* Dynamic Package Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {displayedServicePackages.map((pkg, index) => {
+          {/* Side-Scrollable Package Cards with Drag & Infinite Loop */}
+          <div
+            ref={scrollRef}
+            onScroll={handleScrollLoop}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUpOrLeave}
+            onMouseLeave={handleMouseUpOrLeave}
+            className="flex gap-6 overflow-x-auto select-none cursor-grab active:cursor-grabbing pb-4 [::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          >
+            {infinitePackages.map((pkg, index) => {
               // Calculate badge
               const getBadgeText = (pkgId: string, deliveryTimeframe: string) => {
                 if (pkgId === "business-website") return "POPULAR";
@@ -126,8 +190,9 @@ export default function MarketingLandingPage() {
 
               return (
                 <div
-                  key={pkg.id}
-                  className="bg-white border border-outline-variant/60 rounded-xl p-5 flex flex-col justify-between transition-all duration-300 relative group text-left"
+                  key={`${pkg.id}-${index}`}
+                  onClickCapture={handleCardClick}
+                  className="w-[280px] sm:w-[320px] md:w-[340px] shrink-0 bg-white border border-outline-variant/60 rounded-xl p-5 flex flex-col justify-between transition-all duration-300 relative group text-left"
                 >
                   <div className="space-y-4">
                     {/* Badge & Illustration Area */}
