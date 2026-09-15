@@ -1,66 +1,45 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 
-export interface DotPatternProps {
+export interface MagneticDotGridProps {
   className?: string
   children?: React.ReactNode
-  /** Dot diameter in pixels */
-  dotSize?: number
-  /** Gap between dots in pixels */
   gap?: number
-  /** Base dot color (hex) */
+  dotSize?: number
   baseColor?: string
-  /** Glow color on hover (hex) */
-  glowColor?: string
-  /** Mouse proximity radius for highlighting */
-  proximity?: number
-  /** Glow intensity multiplier */
-  glowIntensity?: number
-  /** Wave animation speed (0 to disable) */
-  waveSpeed?: number
+  radius?: number
+  strength?: number
 }
 
-function hexToRgb(hex: string): { r: number; g: number; b: number } {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-  return result
-    ? {
-        r: Number.parseInt(result[1], 16),
-        g: Number.parseInt(result[2], 16),
-        b: Number.parseInt(result[3], 16),
-      }
-    : { r: 0, g: 0, b: 0 }
+interface DotNode {
+  homeX: number
+  homeY: number
+  currX: number
+  currY: number
 }
 
-interface Dot {
-  x: number
-  y: number
-  baseOpacity: number
-}
-
-export function DotPattern({
+/**
+ * A magnetic dot grid component that smoothly diverges (repels) dots away from the cursor
+ * without changing dot colors.
+ */
+export function DotField({
   className,
   children,
-  dotSize = 2,
   gap = 24,
-  baseColor = "#1e0f0f",
-  glowColor = "#22d3ee",
-  proximity = 120,
-  glowIntensity = 1,
-  waveSpeed = 0.5,
-}: DotPatternProps) {
+  dotSize = 1.5,
+  baseColor = "rgba(100, 116, 139, 0.4)",
+  radius = 150,
+  strength = 28,
+}: MagneticDotGridProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const dotsRef = useRef<Dot[]>([])
+  const dotsRef = useRef<DotNode[]>([])
   const mouseRef = useRef({ x: -1000, y: -1000 })
-  const animationRef = useRef<number | undefined>(undefined)
-  const startTimeRef = useRef(Date.now())
+  const animFrameRef = useRef<number | null>(null)
 
-  const baseRgb = useMemo(() => hexToRgb(baseColor), [baseColor])
-  const glowRgb = useMemo(() => hexToRgb(glowColor), [glowColor])
-
-  const buildGrid = useCallback(() => {
+  const initGrid = useCallback(() => {
     const canvas = canvasRef.current
     const container = containerRef.current
     if (!canvas || !container) return
@@ -73,124 +52,43 @@ export function DotPattern({
     canvas.style.width = `${rect.width}px`
     canvas.style.height = `${rect.height}px`
 
-    const ctx = canvas.getContext("2d")
-    if (ctx) ctx.scale(dpr, dpr)
+    const cols = Math.ceil(rect.width / gap) + 1
+    const rows = Math.ceil(rect.height / gap) + 1
 
-    const cellSize = dotSize + gap
-    const cols = Math.ceil(rect.width / cellSize) + 1
-    const rows = Math.ceil(rect.height / cellSize) + 1
+    const offsetX = (rect.width - (cols - 1) * gap) / 2
+    const offsetY = (rect.height - (rows - 1) * gap) / 2
 
-    const offsetX = (rect.width - (cols - 1) * cellSize) / 2
-    const offsetY = (rect.height - (rows - 1) * cellSize) / 2
-
-    const dots: Dot[] = []
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        dots.push({
-          x: offsetX + col * cellSize,
-          y: offsetY + row * cellSize,
-          baseOpacity: 0.3 + Math.random() * 0.2,
+    const newDots: DotNode[] = []
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const x = offsetX + c * gap
+        const y = offsetY + r * gap
+        newDots.push({
+          homeX: x,
+          homeY: y,
+          currX: x,
+          currY: y,
         })
       }
     }
-    dotsRef.current = dots
-  }, [dotSize, gap])
-
-  const draw = useCallback(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext("2d")
-    if (!ctx) return
-
-    const dpr = window.devicePixelRatio || 1
-    ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr)
-
-    const { x: mx, y: my } = mouseRef.current
-    const proxSq = proximity * proximity
-    const time = (Date.now() - startTimeRef.current) * 0.001 * waveSpeed
-
-    for (const dot of dotsRef.current) {
-      const dx = dot.x - mx
-      const dy = dot.y - my
-      const distSq = dx * dx + dy * dy
-
-      // Wave animation
-      const wave = Math.sin(dot.x * 0.02 + dot.y * 0.02 + time) * 0.5 + 0.5
-      const waveOpacity = dot.baseOpacity + wave * 0.15
-      const waveScale = 1 + wave * 0.2
-
-      let opacity = waveOpacity
-      let scale = waveScale
-      let r = baseRgb.r
-      let g = baseRgb.g
-      let b = baseRgb.b
-      let glow = 0
-
-      // Mouse proximity effect
-      if (distSq < proxSq) {
-        const dist = Math.sqrt(distSq)
-        const t = 1 - dist / proximity
-        const easedT = t * t * (3 - 2 * t) // smoothstep
-
-        // Interpolate color
-        r = Math.round(baseRgb.r + (glowRgb.r - baseRgb.r) * easedT)
-        g = Math.round(baseRgb.g + (glowRgb.g - baseRgb.g) * easedT)
-        b = Math.round(baseRgb.b + (glowRgb.b - baseRgb.b) * easedT)
-
-        opacity = Math.min(1, waveOpacity + easedT * 0.7)
-        scale = waveScale + easedT * 0.8
-        glow = easedT * glowIntensity
-      }
-
-      const radius = (dotSize / 2) * scale
-
-      // Draw glow
-      if (glow > 0) {
-        const gradient = ctx.createRadialGradient(dot.x, dot.y, 0, dot.x, dot.y, radius * 4)
-        gradient.addColorStop(0, `rgba(${glowRgb.r}, ${glowRgb.g}, ${glowRgb.b}, ${glow * 0.4})`)
-        gradient.addColorStop(0.5, `rgba(${glowRgb.r}, ${glowRgb.g}, ${glowRgb.b}, ${glow * 0.1})`)
-        gradient.addColorStop(1, `rgba(${glowRgb.r}, ${glowRgb.g}, ${glowRgb.b}, 0)`)
-        ctx.beginPath()
-        ctx.arc(dot.x, dot.y, radius * 4, 0, Math.PI * 2)
-        ctx.fillStyle = gradient
-        ctx.fill()
-      }
-
-      // Draw dot
-      ctx.beginPath()
-      ctx.arc(dot.x, dot.y, radius, 0, Math.PI * 2)
-      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`
-      ctx.fill()
-    }
-
-    animationRef.current = requestAnimationFrame(draw)
-  }, [proximity, baseRgb, glowRgb, dotSize, glowIntensity, waveSpeed])
+    dotsRef.current = newDots
+  }, [gap])
 
   useEffect(() => {
-    buildGrid()
-
+    initGrid()
     const container = containerRef.current
     if (!container) return
 
-    const ro = new ResizeObserver(buildGrid)
+    const ro = new ResizeObserver(initGrid)
     ro.observe(container)
-
     return () => ro.disconnect()
-  }, [buildGrid])
-
-  useEffect(() => {
-    animationRef.current = requestAnimationFrame(draw)
-    return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current)
-    }
-  }, [draw])
+  }, [initGrid])
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      const canvas = canvasRef.current
-      if (!canvas) return
-      const rect = canvas.getBoundingClientRect()
+      const container = containerRef.current
+      if (!container) return
+      const rect = container.getBoundingClientRect()
       mouseRef.current = {
         x: e.clientX - rect.left,
         y: e.clientY - rect.top,
@@ -210,28 +108,89 @@ export function DotPattern({
     }
   }, [])
 
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    const draw = () => {
+      const dpr = window.devicePixelRatio || 1
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+      const mx = mouseRef.current.x
+      const my = mouseRef.current.y
+      const radSq = radius * radius
+
+      ctx.fillStyle = baseColor
+
+      for (let i = 0; i < dotsRef.current.length; i++) {
+        const dot = dotsRef.current[i]
+        const dx = mx - dot.homeX
+        const dy = my - dot.homeY
+        const distSq = dx * dx + dy * dy
+
+        let targetX = dot.homeX
+        let targetY = dot.homeY
+
+        if (distSq < radSq && distSq > 0) {
+          const dist = Math.sqrt(distSq)
+          const activeRatio = 1 - dist / radius
+          // Diverging / repelling push away from cursor
+          const push = activeRatio * strength
+          targetX = dot.homeX - (dx / dist) * push
+          targetY = dot.homeY - (dy / dist) * push
+        }
+
+        // Smooth spring movement (lerp)
+        dot.currX += (targetX - dot.currX) * 0.18
+        dot.currY += (targetY - dot.currY) * 0.18
+
+        // Draw dot maintaining exact original color and size
+        ctx.beginPath()
+        ctx.arc(dot.currX * dpr, dot.currY * dpr, dotSize * dpr, 0, Math.PI * 2)
+        ctx.fill()
+      }
+
+      animFrameRef.current = requestAnimationFrame(draw)
+    }
+
+    animFrameRef.current = requestAnimationFrame(draw)
+    return () => {
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
+    }
+  }, [dotSize, baseColor, radius, strength])
+
   return (
-    <div
-      ref={containerRef}
-      className={cn("fixed inset-0 -z-10 overflow-hidden pointer-events-none", className)}
-    >
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-
-      {/* Vignette overlay */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, transparent 0%, transparent 40%, var(--background, #f9f9ff) 100%)",
-        }}
-      />
-
-      {/* Content layer */}
-      {children && <div className="relative z-10 h-full w-full">{children}</div>}
+    <div ref={containerRef} className={cn("relative w-full h-full min-h-full overflow-hidden", className)}>
+      <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none block" />
+      {children && <div className="relative z-10">{children}</div>}
     </div>
   )
 }
 
-export default function DotPatternDemo() {
-  return <DotPattern />
+export function DotPattern({
+  className,
+  baseColor,
+  proximity,
+}: {
+  className?: string
+  baseColor?: string
+  glowColor?: string
+  proximity?: number
+  glowIntensity?: number
+  waveSpeed?: number
+}) {
+  return (
+    <div className={cn("fixed inset-0 z-0 pointer-events-none overflow-hidden w-full h-full", className)}>
+      <DotField
+        baseColor={baseColor || "rgba(100, 116, 139, 0.4)"}
+        radius={proximity || 150}
+        strength={28}
+        className="h-full w-full"
+      />
+    </div>
+  )
 }
+
+export default DotField
