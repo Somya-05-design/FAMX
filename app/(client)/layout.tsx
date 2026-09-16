@@ -18,20 +18,20 @@ export default async function ClientLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-[#FDF9F7] text-zinc-900 selection:bg-indigo-100">
+    <div className="flex flex-col md:flex-row min-h-screen bg-[#FDF9F7] text-zinc-900 selection:bg-indigo-100">
       {/* Sidebar Navigation */}
       <Sidebar user={session.user} />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto bg-[#FDF9F7]">
+      <main className="flex-1 flex flex-col min-h-screen md:h-screen overflow-y-auto bg-[#FDF9F7]">
         {/* Top Header Navbar */}
-        <header className="sticky top-0 z-40 h-16 border-b border-zinc-200/60 px-6 sm:px-10 flex items-center justify-between shrink-0 bg-[#FDF9F7]/50 backdrop-blur-md">
+        <header className="hidden md:flex sticky top-0 z-40 h-16 border-b border-zinc-200/60 px-6 sm:px-10 items-center justify-between shrink-0 bg-[#FDF9F7]/50 backdrop-blur-md">
           <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">
             PORTAL / CLIENT CONSOLE
           </div>
         </header>
 
-        <div className="flex-1 p-6 sm:p-10 max-w-7xl w-full mx-auto flex flex-col justify-between">
+        <div className="flex-1 p-4 sm:p-10 max-w-7xl w-full mx-auto flex flex-col justify-between">
           <div className="flex-1">
             {children}
           </div>

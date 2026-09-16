@@ -29,13 +29,13 @@ export default async function AdminLayout({
   });
 
   return (
-    <div className="flex min-h-screen bg-[#F5F6F8] text-zinc-900 font-sans">
+    <div className="flex flex-col md:flex-row min-h-screen bg-[#F5F6F8] text-zinc-900 font-sans">
       {/* Sidebar Navigation */}
       <Sidebar user={session.user} services={services as any} initialUnreadCount={unreadNotificationsCount} />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col h-screen overflow-y-auto">
-        <div className="flex-1 p-8 max-w-[1600px] w-full mx-auto">
+      <main className="flex-1 flex flex-col min-h-screen md:h-screen overflow-y-auto">
+        <div className="flex-1 p-4 sm:p-8 max-w-[1600px] w-full mx-auto">
           {children}
         </div>
       </main>
