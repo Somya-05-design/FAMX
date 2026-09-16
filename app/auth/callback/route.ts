@@ -13,21 +13,37 @@ export async function GET(request: Request) {
       try {
         const { prisma } = await import("@/lib/prisma");
         const user = data.user;
-        const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split("@")[0] || "User";
+        const userEmail = user.email?.trim().toLowerCase() ?? "";
+        const userName = user.user_metadata?.full_name || user.user_metadata?.name || userEmail.split("@")[0] || "User";
 
-        await prisma.user.upsert({
-          where: { id: user.id },
-          update: {
-            email: user.email ?? "",
-            name: userName,
-          },
-          create: {
-            id: user.id,
-            email: user.email ?? "",
-            name: userName,
-            role: "CLIENT",
+        let existing = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { id: user.id },
+              ...(userEmail ? [{ email: userEmail }] : []),
+            ],
           },
         });
+
+        if (existing) {
+          await prisma.user.update({
+            where: { id: existing.id },
+            data: {
+              id: user.id,
+              email: userEmail || existing.email,
+              name: existing.name || userName,
+            },
+          });
+        } else {
+          await prisma.user.create({
+            data: {
+              id: user.id,
+              email: userEmail,
+              name: userName,
+              role: "CLIENT",
+            },
+          });
+        }
       } catch (dbErr) {
         console.error("Failed to upsert OAuth user in DB:", dbErr);
       }

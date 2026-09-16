@@ -54,21 +54,37 @@ export async function getServerSession() {
   // Fallback for new OAuth users
   try {
     const { prisma } = await import("@/lib/prisma");
-    const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split("@")[0] || "User";
+    const userEmail = user.email?.trim().toLowerCase() ?? "";
+    const userName = user.user_metadata?.full_name || user.user_metadata?.name || userEmail.split("@")[0] || "User";
 
-    const pUser = await prisma.user.upsert({
-      where: { id: user.id },
-      update: {
-        email: user.email ?? "",
-        name: userName,
-      },
-      create: {
-        id: user.id,
-        email: user.email ?? "",
-        name: userName,
-        role: "CLIENT",
+    let pUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: user.id },
+          ...(userEmail ? [{ email: userEmail }] : []),
+        ],
       },
     });
+
+    if (pUser) {
+      pUser = await prisma.user.update({
+        where: { id: pUser.id },
+        data: {
+          id: user.id,
+          email: userEmail || pUser.email,
+          name: pUser.name || userName,
+        },
+      });
+    } else {
+      pUser = await prisma.user.create({
+        data: {
+          id: user.id,
+          email: userEmail,
+          name: userName,
+          role: "CLIENT",
+        },
+      });
+    }
 
     return {
       user: {
