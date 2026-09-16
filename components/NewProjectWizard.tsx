@@ -177,8 +177,11 @@ export function NewProjectWizard({ services }: NewProjectWizardProps) {
             {services.map((service) => {
               const getCategoryImg = (name: string) => {
                 const lower = name.toLowerCase();
+                if (lower.includes("mobile")) return "/services/mobile-app.png";
+                if (lower.includes("ui") || lower.includes("ux")) return "/services/ui-ux.png";
                 if (lower.includes("web") || lower.includes("code") || lower.includes("dev")) return "/services/web-development.png";
-                if (lower.includes("design") || lower.includes("ui") || lower.includes("ux") || lower.includes("graphic")) return "/services/graphic-design.png";
+                if (lower.includes("logo")) return "/services/logo-design.png";
+                if (lower.includes("brand") || lower.includes("graphic") || lower.includes("design")) return "/services/brand-identity.png";
                 return "/services/custom-request.png";
               };
               return (

@@ -11,7 +11,7 @@ export interface ServicePackage {
 export const servicePackages: ServicePackage[] = [
   {
     id: "business-website",
-    name: "Web App Development",
+    name: "Business Website",
     category: "Web Development",
     description: "A professional, fast, and SEO-optimized website to represent your business or brand online.",
     requirements: "Company profile, logo, brand assets, copywriting, and page outline.",
@@ -20,7 +20,7 @@ export const servicePackages: ServicePackage[] = [
   },
   {
     id: "e-commerce",
-    name: "UI/UX Design",
+    name: "E-commerce Platform",
     category: "Web Development",
     description: "Fully featured online store equipped with payment gateway integration, cart, and inventory management.",
     requirements: "Product list, pricing, high-quality product images, shipping parameters, Stripe/PayPal credentials.",
@@ -29,7 +29,7 @@ export const servicePackages: ServicePackage[] = [
   },
   {
     id: "web-app",
-    name: "Mobile App Design",
+    name: "Web App Development",
     category: "Web Development",
     description: "Tailor-made cloud platform or SaaS MVP built with React, Next.js, and modern backends.",
     requirements: "Detailed product spec document, user flows, database design hints, and API specifications (if any).",
@@ -38,7 +38,7 @@ export const servicePackages: ServicePackage[] = [
   },
   {
     id: "mobile-app",
-    name: "Custom Request",
+    name: "Mobile App Design",
     category: "Web Development",
     description: "Cross-platform iOS and Android mobile app designed for App Store and Google Play publication.",
     requirements: "Figma designs, feature list, push notification requirements, third-party integration specs.",
