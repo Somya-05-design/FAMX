@@ -24,11 +24,17 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
   const router = useRouter();
   
   const isAdmin = user.role === "ADMIN";
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(!isAdmin);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
 
   const activeCategory = searchParams.get("category") || "ALL";
   const viewParam = searchParams.get("view") || "board";
+
+  // Auto-close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname, searchParams]);
 
   // Sync initial unread count prop changes
   useEffect(() => {
@@ -177,244 +183,358 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
   };
 
   // Theme-specific CSS classes
-  const asideClasses = `${isCollapsed ? "w-16" : "w-64"} bg-surface-container-lowest text-on-surface flex flex-col justify-between border-r border-outline-variant h-screen sticky top-0 transition-all duration-300 ease-in-out`;
+  const asideClasses = `${isCollapsed ? "w-16" : "w-64"} hidden md:flex bg-surface-container-lowest text-on-surface flex-col justify-between border-r border-outline-variant h-screen sticky top-0 transition-all duration-300 ease-in-out`;
 
   return (
-    <aside className={asideClasses}>
-      <div className="flex flex-col flex-1 overflow-y-auto">
-        {/* Logo block */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-outline-variant overflow-hidden shrink-0">
-          {!isCollapsed && (
-            <Link href={isAdmin ? "/admin" : "/overview"} className="flex items-center space-x-2.5 truncate group">
-              <div className="w-8 h-8 rounded-xl shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-200 overflow-hidden bg-white flex items-center justify-center">
-                <svg viewBox="0 0 1040 580" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                  {/* Pixel scatter left */}
-                  <g fill="#1a3a7a" opacity="0.85">
-                    <rect x="60" y="270" width="18" height="18"/><rect x="85" y="255" width="14" height="14"/>
-                    <rect x="105" y="240" width="12" height="12"/><rect x="85" y="278" width="16" height="16"/>
-                    <rect x="110" y="262" width="14" height="14"/><rect x="130" y="248" width="12" height="12"/>
-                    <rect x="110" y="285" width="18" height="18"/><rect x="135" y="270" width="16" height="16"/>
-                    <rect x="158" y="255" width="14" height="14"/><rect x="135" y="290" width="20" height="20"/>
-                    <rect x="162" y="275" width="18" height="18"/><rect x="188" y="260" width="16" height="16"/>
-                    <rect x="162" y="298" width="22" height="22"/><rect x="190" y="282" width="20" height="20"/>
-                    <rect x="215" y="267" width="18" height="18"/>
-                  </g>
-                  {/* F letter — deep navy-to-blue gradient */}
-                  <defs>
-                    <linearGradient id="gF" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#1565C0"/>
-                      <stop offset="100%" stopColor="#0D47A1"/>
-                    </linearGradient>
-                    <linearGradient id="gX" x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="#0288D1"/>
-                      <stop offset="100%" stopColor="#01579B"/>
-                    </linearGradient>
-                    <linearGradient id="gSwoop" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#29B6F6"/>
-                      <stop offset="100%" stopColor="#0277BD"/>
-                    </linearGradient>
-                  </defs>
-                  {/* F body */}
-                  <path d="M230 120 L230 460 L295 460 L295 320 L430 320 L430 265 L295 265 L295 175 L460 175 L460 120 Z" fill="url(#gF)"/>
-                  {/* Diagonal slash through F — lighter */}
-                  <polygon points="280,460 340,460 490,120 430,120" fill="#1976D2" opacity="0.55"/>
-                  {/* X left stroke */}
-                  <polygon points="480,120 560,120 680,290 600,290" fill="url(#gX)"/>
-                  <polygon points="480,460 560,460 680,290 600,290" fill="#1a3a7a" opacity="0.8"/>
-                  {/* X right stroke */}
-                  <polygon points="760,120 840,120 680,290 600,290" fill="#1a3a7a" opacity="0.7"/>
-                  <polygon points="760,460 840,460 680,290 600,290" fill="url(#gX)"/>
-                  {/* Orbit swoosh */}
-                  <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="url(#gSwoop)" strokeWidth="28" strokeLinecap="round" opacity="0.9"/>
-                  <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" opacity="0.35"/>
-                  {/* Ghost swoosh echo */}
-                  <path d="M370 100 Q610 -10 835 195 Q960 300 830 435 Q760 492 675 470" fill="none" stroke="#90CAF9" strokeWidth="10" strokeLinecap="round" opacity="0.25"/>
-                </svg>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-base font-extrabold tracking-tight text-on-surface leading-none">
-                  FAMX
-                </span>
-                <span className="text-[10px] font-medium text-on-surface-variant leading-tight mt-0.5">
-                  Creative Agency
-                </span>
-              </div>
-            </Link>
-          )}
+    <>
+      {/* Mobile Top Navigation Bar */}
+      <div className="md:hidden sticky top-0 z-50 bg-surface-container-lowest border-b border-outline-variant w-full shrink-0">
+        <div className="h-14 px-4 flex items-center justify-between">
+          <Link href={isAdmin ? "/admin" : "/overview"} className="flex items-center space-x-2.5">
+            <div className="w-7 h-7 rounded-lg shadow-xs overflow-hidden bg-white flex items-center justify-center">
+              <svg viewBox="0 0 1040 580" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                <g fill="#1a3a7a" opacity="0.85">
+                  <rect x="60" y="270" width="18" height="18"/><rect x="85" y="255" width="14" height="14"/>
+                  <rect x="105" y="240" width="12" height="12"/><rect x="85" y="278" width="16" height="16"/>
+                </g>
+                <path d="M230 120 L230 460 L295 460 L295 320 L430 320 L430 265 L295 265 L295 175 L460 175 L460 120 Z" fill="#0D47A1"/>
+                <polygon points="480,120 560,120 680,290 600,290" fill="#0288D1"/>
+              </svg>
+            </div>
+            <span className="text-sm font-extrabold text-on-surface tracking-tight">FAMX</span>
+          </Link>
 
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container-low border border-transparent transition-all ${
-              isCollapsed ? "mx-auto" : ""
-            }`}
-            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-          >
-            {isCollapsed ? (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            ) : (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
+          <div className="flex items-center space-x-2">
+            {unreadCount > 0 && (
+              <Link
+                href={isAdmin ? "/admin?view=notifications" : "/messages"}
+                className="p-1.5 text-on-surface relative"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-error animate-pulse" />
+              </Link>
             )}
-          </button>
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl text-on-surface hover:bg-surface-container-low transition-colors"
+              aria-label="Toggle Navigation Menu"
+            >
+              {mobileMenuOpen ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
 
-        {/* Navigation Section */}
-        <nav className="p-4 space-y-1 shrink-0">
-          {(isAdmin ? adminLinks : clientLinks).map((link) => {
-            const isNotificationsTab = link.label === "Notifications" || link.label === "Messages";
-            const isBoardTab = link.label === "Board";
+        {/* Mobile Navigation Dropdown Drawer */}
+        {mobileMenuOpen && (
+          <div className="border-t border-outline-variant bg-surface-container-lowest p-4 space-y-3 shadow-lg animate-fadeIn">
+            <nav className="space-y-1">
+              {(isAdmin ? adminLinks : clientLinks).map((link) => {
+                const isNotificationsTab = link.label === "Notifications" || link.label === "Messages";
+                const isBoardTab = link.label === "Board";
 
-            const isActive = isBoardTab
-              ? (pathname === "/admin" && viewParam !== "notifications")
-              : isNotificationsTab
-                ? (pathname === "/admin" && viewParam === "notifications")
-                : pathname === link.href || (pathname.startsWith(link.href + "/") && link.href !== "/admin");
-            
-            const activeStyle = "bg-surface-container-high text-on-surface font-extrabold shadow-xs";
-            const inactiveStyle = "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-medium";
+                const isActive = isBoardTab
+                  ? (pathname === "/admin" && viewParam !== "notifications")
+                  : isNotificationsTab
+                    ? (pathname === "/admin" && viewParam === "notifications")
+                    : pathname === link.href || (pathname.startsWith(link.href + "/") && link.href !== "/admin");
 
-            return (
-              <Link
-                key={link.label}
-                href={link.href}
-                title={isCollapsed ? link.label : undefined}
-                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
-                  isActive ? activeStyle : inactiveStyle
-                } ${isCollapsed ? "justify-center px-0" : ""}`}
-              >
-                <div className={`flex items-center space-x-3 ${isCollapsed ? "justify-center w-full" : ""}`}>
-                  <span className="shrink-0">{link.icon}</span>
-                  {!isCollapsed && <span>{link.label}</span>}
-                </div>
-                
-                {/* Dynamic Notification Count Badge */}
-                {!isCollapsed && isNotificationsTab && unreadCount > 0 && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-error text-on-error font-black shrink-0 shadow-xs animate-pulse">
-                    {unreadCount}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-
-          {/* Placeholders for ADMIN role to match mockup visual */}
-          {isAdmin &&
-            adminPlaceholders.map((link) => (
-              <div
-                key={link.label}
-                title={isCollapsed ? link.label : undefined}
-                className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold text-outline opacity-60 cursor-not-allowed select-none ${
-                  isCollapsed ? "justify-center px-0" : ""
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <span className="shrink-0">{link.icon}</span>
-                  {!isCollapsed && <span>{link.label}</span>}
-                </div>
-              </div>
-            ))}
-        </nav>
-
-        {/* Category List Sidebar Filter (ADMIN only) */}
-        {isAdmin && !isCollapsed && services.length > 0 && (
-          <div className="px-4 py-2 border-t border-outline-variant/40 flex-1 flex flex-col">
-            <span className="text-[10px] uppercase tracking-wider text-outline font-bold block mb-3 mt-2">
-              PROJECTS
-            </span>
-            <span className="text-[11px] font-bold text-outline block mb-2 select-none">
-              category
-            </span>
-            
-            <div className="space-y-1 flex-1 overflow-y-auto max-h-[300px]">
-              {/* ALL filter selection */}
-              <button
-                onClick={() => handleCategoryClick("ALL")}
-                className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150 text-left cursor-pointer ${
-                  activeCategory === "ALL" && viewParam !== "notifications"
-                    ? "bg-surface-container-highest text-primary border-l-2 border-primary pl-3"
-                    : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
-                }`}
-              >
-                <span className="w-2.5 h-2.5 rounded-full bg-outline-variant border border-outline" />
-                <span>All Projects</span>
-              </button>
-
-              {/* Individual categories dynamically mapped from DB active services */}
-              {services.map((service) => {
-                const isSelected = activeCategory === service.name && viewParam !== "notifications";
-                
                 return (
-                  <button
-                    key={service.id}
-                    onClick={() => handleCategoryClick(service.name)}
-                    className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150 text-left cursor-pointer ${
-                      isSelected
-                        ? "bg-surface-container-highest text-primary border-l-2 border-primary pl-3"
-                        : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all ${
+                      isActive
+                        ? "bg-surface-container-high text-on-surface font-extrabold shadow-xs"
+                        : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-medium"
                     }`}
                   >
-                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${getCategoryColorClass()}`} />
-                    <span className="truncate">{service.name}</span>
-                  </button>
+                    <div className="flex items-center space-x-3">
+                      <span className="shrink-0">{link.icon}</span>
+                      <span>{link.label}</span>
+                    </div>
+                    {isNotificationsTab && unreadCount > 0 && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-error text-on-error font-black shrink-0">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Link>
                 );
               })}
+            </nav>
+
+            <div className="pt-3 border-t border-outline-variant flex items-center justify-between">
+              <div className="flex items-center space-x-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0">
+                  {(user.name || user.email).charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-on-surface truncate">{user.name || "User"}</p>
+                  <p className="text-[10px] text-on-surface-variant truncate">{user.email}</p>
+                </div>
+              </div>
+
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-surface-container-low hover:bg-surface-container-high border border-outline-variant text-on-surface transition-all shrink-0"
+                >
+                  Sign Out
+                </button>
+              </form>
             </div>
           </div>
         )}
       </div>
 
-      {/* Footer Profile & Logout */}
-      <div className="p-4 border-t border-outline-variant bg-surface-container-lowest flex flex-col shrink-0">
-        {!isCollapsed ? (
-          <>
-            <div className="flex items-center space-x-3 px-1 py-1 mb-3">
-              <div className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0">
+      {/* Desktop Sidebar */}
+      <aside className={asideClasses}>
+        <div className="flex flex-col flex-1 overflow-y-auto">
+          {/* Logo block */}
+          <div className="h-16 flex items-center justify-between px-4 border-b border-outline-variant overflow-hidden shrink-0">
+            {!isCollapsed && (
+              <Link href={isAdmin ? "/admin" : "/overview"} className="flex items-center space-x-2.5 truncate group">
+                <div className="w-8 h-8 rounded-xl shrink-0 shadow-xs group-hover:scale-105 transition-transform duration-200 overflow-hidden bg-white flex items-center justify-center">
+                  <svg viewBox="0 0 1040 580" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                    {/* Pixel scatter left */}
+                    <g fill="#1a3a7a" opacity="0.85">
+                      <rect x="60" y="270" width="18" height="18"/><rect x="85" y="255" width="14" height="14"/>
+                      <rect x="105" y="240" width="12" height="12"/><rect x="85" y="278" width="16" height="16"/>
+                      <rect x="110" y="262" width="14" height="14"/><rect x="130" y="248" width="12" height="12"/>
+                      <rect x="110" y="285" width="18" height="18"/><rect x="135" y="270" width="16" height="16"/>
+                      <rect x="158" y="255" width="14" height="14"/><rect x="135" y="290" width="20" height="20"/>
+                      <rect x="162" y="275" width="18" height="18"/><rect x="188" y="260" width="16" height="16"/>
+                      <rect x="162" y="298" width="22" height="22"/><rect x="190" y="282" width="20" height="20"/>
+                      <rect x="215" y="267" width="18" height="18"/>
+                    </g>
+                    {/* F letter — deep navy-to-blue gradient */}
+                    <defs>
+                      <linearGradient id="gF" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#1565C0"/>
+                        <stop offset="100%" stopColor="#0D47A1"/>
+                      </linearGradient>
+                      <linearGradient id="gX" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#0288D1"/>
+                        <stop offset="100%" stopColor="#01579B"/>
+                      </linearGradient>
+                      <linearGradient id="gSwoop" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#29B6F6"/>
+                        <stop offset="100%" stopColor="#0277BD"/>
+                      </linearGradient>
+                    </defs>
+                    {/* F body */}
+                    <path d="M230 120 L230 460 L295 460 L295 320 L430 320 L430 265 L295 265 L295 175 L460 175 L460 120 Z" fill="url(#gF)"/>
+                    {/* Diagonal slash through F — lighter */}
+                    <polygon points="280,460 340,460 490,120 430,120" fill="#1976D2" opacity="0.55"/>
+                    {/* X left stroke */}
+                    <polygon points="480,120 560,120 680,290 600,290" fill="url(#gX)"/>
+                    <polygon points="480,460 560,460 680,290 600,290" fill="#1a3a7a" opacity="0.8"/>
+                    {/* X right stroke */}
+                    <polygon points="760,120 840,120 680,290 600,290" fill="#1a3a7a" opacity="0.7"/>
+                    <polygon points="760,460 840,460 680,290 600,290" fill="url(#gX)"/>
+                    {/* Orbit swoosh */}
+                    <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="url(#gSwoop)" strokeWidth="28" strokeLinecap="round" opacity="0.9"/>
+                    <path d="M350 80 Q600 -30 820 180 Q950 280 820 420 Q750 480 660 460" fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" opacity="0.35"/>
+                    {/* Ghost swoosh echo */}
+                    <path d="M370 100 Q610 -10 835 195 Q960 300 830 435 Q760 492 675 470" fill="none" stroke="#90CAF9" strokeWidth="10" strokeLinecap="round" opacity="0.25"/>
+                  </svg>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-base font-extrabold tracking-tight text-on-surface leading-none">
+                    FAMX
+                  </span>
+                  <span className="text-[10px] font-medium text-on-surface-variant leading-tight mt-0.5">
+                    Creative Agency
+                  </span>
+                </div>
+              </Link>
+            )}
+
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className={`p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container-low border border-transparent transition-all ${
+                isCollapsed ? "mx-auto" : ""
+              }`}
+              title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            >
+              {isCollapsed ? (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              )}
+            </button>
+          </div>
+
+          {/* Navigation Section */}
+          <nav className="p-4 space-y-1 shrink-0">
+            {(isAdmin ? adminLinks : clientLinks).map((link) => {
+              const isNotificationsTab = link.label === "Notifications" || link.label === "Messages";
+              const isBoardTab = link.label === "Board";
+
+              const isActive = isBoardTab
+                ? (pathname === "/admin" && viewParam !== "notifications")
+                : isNotificationsTab
+                  ? (pathname === "/admin" && viewParam === "notifications")
+                  : pathname === link.href || (pathname.startsWith(link.href + "/") && link.href !== "/admin");
+              
+              const activeStyle = "bg-surface-container-high text-on-surface font-extrabold shadow-xs";
+              const inactiveStyle = "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface font-medium";
+
+              return (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  title={isCollapsed ? link.label : undefined}
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all duration-150 ${
+                    isActive ? activeStyle : inactiveStyle
+                  } ${isCollapsed ? "justify-center px-0" : ""}`}
+                >
+                  <div className={`flex items-center space-x-3 ${isCollapsed ? "justify-center w-full" : ""}`}>
+                    <span className="shrink-0">{link.icon}</span>
+                    {!isCollapsed && <span>{link.label}</span>}
+                  </div>
+                  
+                  {/* Dynamic Notification Count Badge */}
+                  {!isCollapsed && isNotificationsTab && unreadCount > 0 && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-error text-on-error font-black shrink-0 shadow-xs animate-pulse">
+                      {unreadCount}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+
+            {/* Placeholders for ADMIN role to match mockup visual */}
+            {isAdmin &&
+              adminPlaceholders.map((link) => (
+                <div
+                  key={link.label}
+                  title={isCollapsed ? link.label : undefined}
+                  className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-semibold text-outline opacity-60 cursor-not-allowed select-none ${
+                    isCollapsed ? "justify-center px-0" : ""
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <span className="shrink-0">{link.icon}</span>
+                    {!isCollapsed && <span>{link.label}</span>}
+                  </div>
+                </div>
+              ))}
+          </nav>
+
+          {/* Category List Sidebar Filter (ADMIN only) */}
+          {isAdmin && !isCollapsed && services.length > 0 && (
+            <div className="px-4 py-2 border-t border-outline-variant/40 flex-1 flex flex-col">
+              <span className="text-[10px] uppercase tracking-wider text-outline font-bold block mb-3 mt-2">
+                PROJECTS
+              </span>
+              <span className="text-[11px] font-bold text-outline block mb-2 select-none">
+                category
+              </span>
+              
+              <div className="space-y-1 flex-1 overflow-y-auto max-h-[300px]">
+                {/* ALL filter selection */}
+                <button
+                  onClick={() => handleCategoryClick("ALL")}
+                  className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150 text-left cursor-pointer ${
+                    activeCategory === "ALL" && viewParam !== "notifications"
+                      ? "bg-surface-container-highest text-primary border-l-2 border-primary pl-3"
+                      : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
+                  }`}
+                >
+                  <span className="w-2.5 h-2.5 rounded-full bg-outline-variant border border-outline" />
+                  <span>All Projects</span>
+                </button>
+
+                {/* Individual categories dynamically mapped from DB active services */}
+                {services.map((service) => {
+                  const isSelected = activeCategory === service.name && viewParam !== "notifications";
+                  
+                  return (
+                    <button
+                      key={service.id}
+                      onClick={() => handleCategoryClick(service.name)}
+                      className={`w-full flex items-center space-x-3 px-4 py-2 rounded-xl text-xs font-semibold tracking-wide transition-all duration-150 text-left cursor-pointer ${
+                        isSelected
+                          ? "bg-surface-container-highest text-primary border-l-2 border-primary pl-3"
+                          : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
+                      }`}
+                    >
+                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${getCategoryColorClass()}`} />
+                      <span className="truncate">{service.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer Profile & Logout */}
+        <div className="p-4 border-t border-outline-variant bg-surface-container-lowest flex flex-col shrink-0">
+          {!isCollapsed ? (
+            <>
+              <div className="flex items-center space-x-3 px-1 py-1 mb-3">
+                <div className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0">
+                  {(user.name || user.email).charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-on-surface truncate">
+                    {user.name || "User"}
+                  </p>
+                  <p className="text-[10px] font-medium text-on-surface-variant truncate">{user.email}</p>
+                </div>
+              </div>
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold bg-surface-container-low hover:bg-surface-container-high border border-outline-variant text-on-surface transition-all duration-150 cursor-pointer shadow-xs"
+                >
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  <span>Sign Out</span>
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              <div
+                className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0 mb-3 mx-auto"
+                title={`${user.name || "User"} (${user.email})`}
+              >
                 {(user.name || user.email).charAt(0).toUpperCase()}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-on-surface truncate">
-                  {user.name || "User"}
-                </p>
-                <p className="text-[10px] font-medium text-on-surface-variant truncate">{user.email}</p>
-              </div>
-            </div>
-            <form action={signOut}>
-              <button
-                type="submit"
-                className="w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold bg-surface-container-low hover:bg-surface-container-high border border-outline-variant text-on-surface transition-all duration-150 cursor-pointer shadow-xs"
-              >
-                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                <span>Sign Out</span>
-              </button>
-            </form>
-          </>
-        ) : (
-          <>
-            <div
-              className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0 mb-3 mx-auto"
-              title={`${user.name || "User"} (${user.email})`}
-            >
-              {(user.name || user.email).charAt(0).toUpperCase()}
-            </div>
-            <form action={signOut}>
-              <button
-                type="submit"
-                title="Sign Out"
-                className="p-2.5 rounded-xl bg-surface-container-low hover:bg-surface-container-high border border-outline-variant text-on-surface transition-all duration-150 cursor-pointer flex items-center justify-center shrink-0 mx-auto shadow-xs"
-              >
-                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-              </button>
-            </form>
-          </>
-        )}
-      </div>
-    </aside>
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  title="Sign Out"
+                  className="p-2.5 rounded-xl bg-surface-container-low hover:bg-surface-container-high border border-outline-variant text-on-surface transition-all duration-150 cursor-pointer flex items-center justify-center shrink-0 mx-auto shadow-xs"
+                >
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+      </aside>
+    </>
   );
 }
