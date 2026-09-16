@@ -67,14 +67,7 @@ export async function updateSession(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    if (!dbUser) {
-      await supabase.auth.signOut();
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      return NextResponse.redirect(url);
-    }
-
-    const role = dbUser.role;
+    const role = dbUser?.role || "CLIENT";
 
     // Gate Client pages from Admin
     if (isClientRoute && role === "ADMIN") {

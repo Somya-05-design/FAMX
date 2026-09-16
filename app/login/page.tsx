@@ -16,19 +16,26 @@ function LoginForm() {
   const [state, formAction, isPending] = useActionState(signInWithEmail, null);
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState<string | null>(null);
 
   const handleGoogleLogin = async () => {
     try {
+      setGoogleError(null);
       setGoogleLoading(true);
       const supabase = createClient();
-      await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
         },
       });
-    } catch (err) {
+      if (error) {
+        setGoogleError(error.message);
+        setGoogleLoading(false);
+      }
+    } catch (err: any) {
       console.error("Google sign in error:", err);
+      setGoogleError(err.message || "Failed to initiate Google sign in");
       setGoogleLoading(false);
     }
   };
@@ -77,12 +84,12 @@ function LoginForm() {
         </div>
       )}
 
-      {state?.error && (
+      {(state?.error || googleError) && (
         <div className="mb-6 p-3.5 rounded-xl bg-error-container border border-error/30 text-on-error-container text-xs flex items-center space-x-2">
           <svg className="w-4 h-4 shrink-0 text-error" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <span>{state.error}</span>
+          <span>{state?.error || googleError}</span>
         </div>
       )}
 

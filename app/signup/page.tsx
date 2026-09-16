@@ -14,19 +14,26 @@ function SignupForm() {
   const [state, formAction, isPending] = useActionState(signUpWithEmail, null);
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState<string | null>(null);
 
   const handleGoogleSignup = async () => {
     try {
+      setGoogleError(null);
       setGoogleLoading(true);
       const supabase = createClient();
-      await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next || "/overview")}`,
         },
       });
-    } catch (err) {
+      if (error) {
+        setGoogleError(error.message);
+        setGoogleLoading(false);
+      }
+    } catch (err: any) {
       console.error("Google sign up error:", err);
+      setGoogleError(err.message || "Failed to initiate Google sign up");
       setGoogleLoading(false);
     }
   };
@@ -57,12 +64,12 @@ function SignupForm() {
       </div>
 
       {/* Error Alert */}
-      {state?.error && (
+      {(state?.error || googleError) && (
         <div className="mb-6 p-3.5 rounded-xl bg-error-container border border-error/30 text-on-error-container text-xs flex items-center space-x-2">
           <svg className="w-4 h-4 shrink-0 text-error" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <span>{state.error}</span>
+          <span>{state?.error || googleError}</span>
         </div>
       )}
 
@@ -181,7 +188,7 @@ function SignupForm() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
               />
             </svg>
-            <span>Log in with Google</span>
+            <span>Sign up with Google</span>
           </>
         )}
       </button>

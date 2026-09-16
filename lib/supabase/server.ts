@@ -40,14 +40,53 @@ export async function getServerSession() {
     .eq("id", user.id)
     .single();
 
-  if (!dbUser) return null;
+  if (dbUser) {
+    return {
+      user: {
+        id: user.id,
+        email: dbUser.email,
+        role: dbUser.role as "CLIENT" | "ADMIN",
+        name: dbUser.name,
+      },
+    };
+  }
 
-  return {
-    user: {
-      id: user.id,
-      email: dbUser.email,
-      role: dbUser.role as "CLIENT" | "ADMIN",
-      name: dbUser.name,
-    },
-  };
+  // Fallback for new OAuth users
+  try {
+    const { prisma } = await import("@/lib/prisma");
+    const userName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split("@")[0] || "User";
+
+    const pUser = await prisma.user.upsert({
+      where: { id: user.id },
+      update: {
+        email: user.email ?? "",
+        name: userName,
+      },
+      create: {
+        id: user.id,
+        email: user.email ?? "",
+        name: userName,
+        role: "CLIENT",
+      },
+    });
+
+    return {
+      user: {
+        id: user.id,
+        email: pUser.email,
+        role: pUser.role as "CLIENT" | "ADMIN",
+        name: pUser.name,
+      },
+    };
+  } catch (err) {
+    console.error("getServerSession fallback error:", err);
+    return {
+      user: {
+        id: user.id,
+        email: user.email ?? "",
+        role: "CLIENT" as const,
+        name: user.user_metadata?.full_name || user.user_metadata?.name || "User",
+      },
+    };
+  }
 }
