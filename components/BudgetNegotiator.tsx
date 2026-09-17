@@ -41,9 +41,16 @@ export function BudgetNegotiator({
   const isClient = userRole === "CLIENT";
   const isAdmin = userRole === "ADMIN";
 
+  // Calculate the last quoted budget figure from any side (most recent proposal in negotiation history or fallback)
+  const lastQuotedAmount = history && history.length > 0
+    ? history[history.length - 1].amount
+    : (lastNegotiatedBy === "CLIENT"
+        ? currentProposedBudget
+        : (currentQuoteAmount || currentProposedBudget));
+
   const currentDisplayAmount = isBudgetFinalized
-    ? (currentQuoteAmount || currentProposedBudget)
-    : (isAdmin ? (currentQuoteAmount || currentProposedBudget) : currentProposedBudget);
+    ? (currentQuoteAmount || lastQuotedAmount)
+    : lastQuotedAmount;
 
   const handleProposeCounter = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,8 +77,12 @@ export function BudgetNegotiator({
   };
 
   const handleFinalizeBudget = async () => {
-    const finalVal = currentQuoteAmount || currentProposedBudget;
-    if (!confirm(`Are you sure you want to finalize the budget at ₹${finalVal.toLocaleString("en-IN")}? Once finalized, the client will be asked to pay this amount.`)) {
+    const finalVal = lastQuotedAmount;
+    const lastProposer = history && history.length > 0
+      ? (history[history.length - 1].proposedBy === "CLIENT" ? "Client" : "Admin")
+      : (lastNegotiatedBy === "CLIENT" ? "Client" : "Admin");
+
+    if (!confirm(`Are you sure you want to finalize the budget at ₹${finalVal.toLocaleString("en-IN", { minimumFractionDigits: 2 })} (last quoted by ${lastProposer})? Once finalized, the client will be requested to pay this amount.`)) {
       return;
     }
 
