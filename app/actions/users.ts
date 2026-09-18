@@ -13,7 +13,10 @@ export async function updateProfileAction(name: string, emailNotificationsEnable
   await updateProfile(session, name, emailNotificationsEnabled);
 
   revalidatePath("/settings");
+  revalidatePath("/profile");
+  revalidatePath("/admin/profile");
   revalidatePath("/overview");
+  revalidatePath("/admin");
 
   return { success: true };
 }

@@ -24,6 +24,7 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
   const router = useRouter();
   
   const isAdmin = user.role === "ADMIN";
+  const profileHref = isAdmin ? "/admin/profile" : "/profile";
   const [isCollapsed, setIsCollapsed] = useState(!isAdmin);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
@@ -275,15 +276,19 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
             </nav>
 
             <div className="pt-3 border-t border-outline-variant flex items-center justify-between">
-              <div className="flex items-center space-x-2.5 min-w-0">
+              <Link
+                href={profileHref}
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center space-x-2.5 min-w-0 group hover:opacity-90 transition-all p-1 rounded-xl hover:bg-surface-container-low"
+              >
                 <div className="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0">
                   {(user.name || user.email).charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-on-surface truncate">Profile</p>
+                  <p className="text-xs font-bold text-on-surface truncate group-hover:text-primary transition-colors">Profile</p>
                   <p className="text-[10px] text-on-surface-variant truncate">{user.name || "User"}</p>
                 </div>
-              </div>
+              </Link>
 
               <form action={signOut}>
                 <button
@@ -489,17 +494,20 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
         <div className="p-4 border-t border-outline-variant bg-surface-container-lowest flex flex-col shrink-0">
           {!isCollapsed ? (
             <>
-              <div className="flex items-center space-x-3 px-1 py-1 mb-3">
+              <Link
+                href={profileHref}
+                className="flex items-center space-x-3 px-2 py-1.5 mb-3 rounded-xl hover:bg-surface-container-low border border-transparent hover:border-outline-variant/50 transition-all group"
+              >
                 <div className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0">
                   {(user.name || user.email).charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-on-surface truncate">
+                  <p className="text-xs font-bold text-on-surface truncate group-hover:text-primary transition-colors">
                     Profile
                   </p>
                   <p className="text-[10px] font-medium text-on-surface-variant truncate">{user.name || "User"}</p>
                 </div>
-              </div>
+              </Link>
               <form action={signOut}>
                 <button
                   type="submit"
@@ -514,12 +522,13 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
             </>
           ) : (
             <>
-              <div
-                className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0 mb-3 mx-auto"
+              <Link
+                href={profileHref}
+                className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0 mb-3 mx-auto hover:border-primary hover:bg-surface-container-highest transition-all"
                 title={`Profile (${user.name || "User"})`}
               >
                 {(user.name || user.email).charAt(0).toUpperCase()}
-              </div>
+              </Link>
               <form action={signOut}>
                 <button
                   type="submit"
