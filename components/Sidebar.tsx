@@ -280,8 +280,8 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
                   {(user.name || user.email).charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-on-surface truncate">{user.name || "User"}</p>
-                  <p className="text-[10px] text-on-surface-variant truncate">{user.email}</p>
+                  <p className="text-xs font-bold text-on-surface truncate">Profile</p>
+                  <p className="text-[10px] text-on-surface-variant truncate">{user.name || "User"}</p>
                 </div>
               </div>
 
@@ -495,9 +495,9 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-on-surface truncate">
-                    {user.name || "User"}
+                    Profile
                   </p>
-                  <p className="text-[10px] font-medium text-on-surface-variant truncate">{user.email}</p>
+                  <p className="text-[10px] font-medium text-on-surface-variant truncate">{user.name || "User"}</p>
                 </div>
               </div>
               <form action={signOut}>
@@ -516,7 +516,7 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
             <>
               <div
                 className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0 mb-3 mx-auto"
-                title={`${user.name || "User"} (${user.email})`}
+                title={`Profile (${user.name || "User"})`}
               >
                 {(user.name || user.email).charAt(0).toUpperCase()}
               </div>
