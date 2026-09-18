@@ -65,6 +65,7 @@ model User {
   id                        String    @id // matches Supabase auth.users.id
   email                     String    @unique
   name                      String?
+  avatarUrl                 String?
   role                      UserRole  @default(CLIENT)
   emailNotificationsEnabled Boolean   @default(true)
   createdAt                 DateTime  @default(now())

@@ -13,9 +13,32 @@ interface SidebarProps {
     email: string;
     role: string;
     id: string;
+    avatarUrl?: string | null;
   };
   services?: { id: string; name: string }[];
   initialUnreadCount?: number;
+}
+
+function SidebarAvatar({ name, email, avatarUrl }: { name?: string | null; email: string; avatarUrl?: string | null }) {
+  const [hasError, setHasError] = useState(false);
+  const initial = (name || email).charAt(0).toUpperCase();
+
+  useEffect(() => {
+    setHasError(false);
+  }, [avatarUrl]);
+
+  if (avatarUrl && !hasError) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={name || "Avatar"}
+        className="w-full h-full object-cover"
+        onError={() => setHasError(true)}
+      />
+    );
+  }
+
+  return <span>{initial}</span>;
 }
 
 export function Sidebar({ user, services = [], initialUnreadCount = 0 }: SidebarProps) {
@@ -281,8 +304,8 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center space-x-2.5 min-w-0 group hover:opacity-90 transition-all p-1 rounded-xl hover:bg-surface-container-low"
               >
-                <div className="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0">
-                  {(user.name || user.email).charAt(0).toUpperCase()}
+                <div className="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
+                  <SidebarAvatar name={user.name} email={user.email} avatarUrl={user.avatarUrl} />
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-on-surface truncate group-hover:text-primary transition-colors">Profile</p>
@@ -498,8 +521,8 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
                 href={profileHref}
                 className="flex items-center space-x-3 px-2 py-1.5 mb-3 rounded-xl hover:bg-surface-container-low border border-transparent hover:border-outline-variant/50 transition-all group"
               >
-                <div className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0">
-                  {(user.name || user.email).charAt(0).toUpperCase()}
+                <div className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden">
+                  <SidebarAvatar name={user.name} email={user.email} avatarUrl={user.avatarUrl} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-on-surface truncate group-hover:text-primary transition-colors">
@@ -524,10 +547,10 @@ export function Sidebar({ user, services = [], initialUnreadCount = 0 }: Sidebar
             <>
               <Link
                 href={profileHref}
-                className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0 mb-3 mx-auto hover:border-primary hover:bg-surface-container-highest transition-all"
+                className="w-9 h-9 rounded-full bg-surface-container-high border border-outline-variant text-on-surface font-bold text-xs flex items-center justify-center shrink-0 mb-3 mx-auto hover:border-primary hover:bg-surface-container-highest transition-all overflow-hidden"
                 title={`Profile (${user.name || "User"})`}
               >
-                {(user.name || user.email).charAt(0).toUpperCase()}
+                <SidebarAvatar name={user.name} email={user.email} avatarUrl={user.avatarUrl} />
               </Link>
               <form action={signOut}>
                 <button

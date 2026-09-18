@@ -36,7 +36,7 @@ export async function getServerSession() {
 
   const { data: dbUser } = await supabase
     .from("User")
-    .select("role, email, name")
+    .select("role, email, name, avatarUrl")
     .eq("id", user.id)
     .single();
 
@@ -47,6 +47,7 @@ export async function getServerSession() {
         email: dbUser.email,
         role: dbUser.role as "CLIENT" | "ADMIN",
         name: dbUser.name,
+        avatarUrl: dbUser.avatarUrl,
       },
     };
   }
@@ -92,6 +93,7 @@ export async function getServerSession() {
         email: pUser.email,
         role: pUser.role as "CLIENT" | "ADMIN",
         name: pUser.name,
+        avatarUrl: pUser.avatarUrl,
       },
     };
   } catch (err) {
@@ -102,6 +104,7 @@ export async function getServerSession() {
         email: user.email ?? "",
         role: "CLIENT" as const,
         name: user.user_metadata?.full_name || user.user_metadata?.name || "User",
+        avatarUrl: null,
       },
     };
   }
