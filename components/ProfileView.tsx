@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   updateProfileAction,
   uploadAvatarAction,
@@ -8,6 +8,23 @@ import {
 } from "@/app/actions/users";
 import { signOut } from "@/app/actions/auth";
 import Link from "next/link";
+
+type ThemeMode = "dark" | "light" | "system";
+
+const applyTheme = (mode: ThemeMode) => {
+  if (typeof window === "undefined") return;
+  const root = document.documentElement;
+  const isDark =
+    mode === "dark" ||
+    (mode === "system" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
+
+  if (isDark) {
+    root.classList.add("dark");
+  } else {
+    root.classList.remove("dark");
+  }
+};
 
 interface ProfileViewProps {
   user: {
@@ -29,6 +46,27 @@ export function ProfileView({ user }: ProfileViewProps) {
   const [emailNotificationsEnabled, setEmailNotificationsEnabled] = useState(
     user.emailNotificationsEnabled
   );
+  const [theme, setTheme] = useState<ThemeMode>("system");
+
+  useEffect(() => {
+    const savedTheme = (localStorage.getItem("famx-theme") as ThemeMode) || "system";
+    setTheme(savedTheme);
+    applyTheme(savedTheme);
+  }, []);
+
+  const handleThemeChange = (newTheme: ThemeMode) => {
+    setTheme(newTheme);
+    localStorage.setItem("famx-theme", newTheme);
+    applyTheme(newTheme);
+  };
+
+  useEffect(() => {
+    if (theme !== "system") return;
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => applyTheme("system");
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [theme]);
 
   const [isPending, setIsPending] = useState(false);
   const [isAvatarUploading, setIsAvatarUploading] = useState(false);
@@ -403,10 +441,64 @@ export function ProfileView({ user }: ProfileViewProps) {
             </div>
           </div>
 
-          <div className="pt-6 border-t border-outline-variant/40">
-            <h3 className="text-xs font-bold text-outline uppercase tracking-wider mb-4">
-              Preferences & Notifications
+          <div className="pt-6 border-t border-outline-variant/40 space-y-6">
+            <h3 className="text-xs font-bold text-outline uppercase tracking-wider">
+              Preferences & Appearance
             </h3>
+
+            {/* Theme Change Toggle */}
+            <div>
+              <label className="block text-xs font-semibold text-on-surface mb-2.5">
+                Appearance Theme
+              </label>
+              <div className="inline-flex p-1 rounded-2xl bg-surface-container-low border border-outline-variant/60 gap-1">
+                <button
+                  type="button"
+                  onClick={() => handleThemeChange("light")}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    theme === "light"
+                      ? "bg-surface-container-lowest text-on-surface shadow-xs border border-outline-variant/40"
+                      : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50"
+                  }`}
+                >
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <span>Light</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleThemeChange("dark")}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    theme === "dark"
+                      ? "bg-surface-container-lowest text-on-surface shadow-xs border border-outline-variant/40"
+                      : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50"
+                  }`}
+                >
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                  <span>Dark</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleThemeChange("system")}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    theme === "system"
+                      ? "bg-surface-container-lowest text-on-surface shadow-xs border border-outline-variant/40"
+                      : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50"
+                  }`}
+                >
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  <span>System</span>
+                </button>
+              </div>
+            </div>
+
             <label className="flex items-start space-x-3.5 group cursor-pointer select-none">
               <input
                 type="checkbox"
