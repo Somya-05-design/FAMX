@@ -18,10 +18,10 @@ export default async function ClientProjectsPage() {
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
             My Projects
           </h1>
-          <p className="text-xs sm:text-sm font-medium text-zinc-500 mt-1">
+          <p className="text-xs sm:text-sm font-medium text-on-surface-variant mt-1">
             Manage and track the lifecycle of your active and past requests.
           </p>
         </div>

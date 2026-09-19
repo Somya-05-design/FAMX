@@ -49,35 +49,35 @@ export default async function ClientOverviewPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900">
+          <h1 className="text-3xl font-extrabold tracking-tight text-on-surface">
             Welcome, {session.user.name || "Client"}
           </h1>
-          <p className="text-sm text-zinc-500 mt-1">
+          <p className="text-sm text-on-surface-variant mt-1">
             Track your ongoing requests and submit new briefs to our engineering team.
           </p>
         </div>
       </div>
 
       {/* Hero Card / Call to Action */}
-      <div className="relative overflow-hidden bg-primary border border-primary-container rounded-2xl p-8 md:p-10 text-on-primary shadow-xs">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-inverse-primary/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden bg-surface-container-lowest border border-outline-variant/60 rounded-2xl p-8 md:p-10 shadow-xs">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 max-w-xl">
-          <h2 className="text-xl md:text-2xl font-bold text-on-primary mb-2">
+          <h2 className="text-xl md:text-2xl font-bold text-on-surface mb-2">
             Ready to bring your ideas to life?
           </h2>
-          <p className="text-sm text-on-primary/80 leading-relaxed mb-6">
+          <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
             Submit a new project request. Provide your technical specifications, assets, and proposed budget. Our team will issue a binding quote shortly.
           </p>
           <div className="flex flex-wrap gap-4">
             <Link
               href="/projects/new"
-              className="bg-surface-container-lowest hover:bg-surface-container-low text-primary font-bold px-6 py-2.5 rounded-xl text-sm transition-all duration-200 shadow-xs cursor-pointer"
+              className="bg-primary hover:opacity-90 text-on-primary font-bold px-6 py-2.5 rounded-xl text-sm transition-all duration-200 shadow-xs cursor-pointer"
             >
               Start a Project
             </Link>
             <Link
               href="/projects"
-              className="bg-tertiary hover:bg-tertiary-container text-on-tertiary border border-transparent font-bold px-6 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer"
+              className="bg-surface-container-high hover:bg-surface-container-highest text-on-surface border border-outline-variant/60 font-bold px-6 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer"
             >
               View My Projects
             </Link>
