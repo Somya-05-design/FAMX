@@ -192,17 +192,17 @@ export default function MarketingLandingPage() {
                 <div
                   key={`${pkg.id}-${index}`}
                   onClickCapture={handleCardClick}
-                  className="w-[280px] sm:w-[320px] md:w-[340px] shrink-0 bg-white border border-outline-variant/60 rounded-xl p-5 flex flex-col justify-between transition-all duration-300 relative group text-left"
+                  className="w-[280px] sm:w-[320px] md:w-[340px] shrink-0 bg-surface-container-lowest border border-outline-variant/60 rounded-xl p-5 flex flex-col justify-between transition-all duration-300 relative group text-left shadow-xs"
                 >
                   <div className="space-y-4">
                     {/* Badge & Illustration Area */}
                     <div
                       className={`relative h-60 w-full rounded-lg overflow-hidden flex items-center justify-center border border-outline-variant/30 transition-colors ${
-                        index % 2 === 0 ? "bg-[#f4eee4]" : "bg-white"
+                        index % 2 === 0 ? "bg-[#f4eee4] dark:bg-surface-container" : "bg-surface-container-low"
                       }`}
                     >
                       {badge && (
-                        <span className="absolute top-3.5 left-3.5 text-[8px] font-black tracking-wider uppercase bg-white text-on-surface px-2.5 py-1 rounded shadow-xs z-10 border border-outline-variant/10">
+                        <span className="absolute top-3.5 left-3.5 text-[9px] font-black tracking-wider uppercase bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 px-2.5 py-1 rounded shadow-sm z-10 border border-zinc-700/50">
                           {badge}
                         </span>
                       )}
@@ -226,7 +226,7 @@ export default function MarketingLandingPage() {
                     {/* Package Info */}
                     <div className="space-y-1">
                       <h3 className="font-extrabold text-on-surface text-base tracking-tight leading-snug">{pkg.name}</h3>
-                      <p className="text-xs text-on-surface-variant/80 font-medium">
+                      <p className="text-xs text-on-surface-variant font-medium">
                         {pkg.deliveryTimeframe}
                       </p>
                     </div>
@@ -240,7 +240,7 @@ export default function MarketingLandingPage() {
 
                     <Link
                       href={`/signup?next=/projects/new&service=${pkg.id}`}
-                      className="text-xs font-black text-[var(--surface-tint)] hover:text-primary transition-colors flex items-center gap-0.5 shrink-0"
+                      className="text-xs font-black text-primary hover:opacity-80 transition-colors flex items-center gap-0.5 shrink-0"
                     >
                       <span>See more</span>
                       <span className="text-xs">→</span>
