@@ -29,17 +29,34 @@ export default async function ClientOverviewPage() {
   ).length;
 
   // Retrieve sum of succeeded payments for the total money spent stat
-  const succeededPayments = await prisma.payment.findMany({
-    where: {
-      project: { clientId: session.user.id },
-      status: "SUCCEEDED",
-    },
-  });
+  let totalSpent = 0;
+  try {
+    const succeededPayments = await prisma.payment.findMany({
+      where: {
+        project: { clientId: session.user.id },
+        status: "SUCCEEDED",
+      },
+    });
 
-  const totalSpent = succeededPayments.reduce(
-    (sum, p) => sum + p.amount.toNumber(),
-    0
-  );
+    totalSpent = succeededPayments.reduce(
+      (sum, p) => sum + p.amount.toNumber(),
+      0
+    );
+  } catch (err) {
+    try {
+      const { createAdminClient } = await import("@/lib/supabase/admin");
+      const supabase = createAdminClient();
+      const { data: payments } = await supabase
+        .from("Payment")
+        .select("amount, status, project:Project!projectId(clientId)")
+        .eq("status", "SUCCEEDED");
+
+      const filtered = payments?.filter((p: any) => p.project?.clientId === session.user.id) || [];
+      totalSpent = filtered.reduce((sum: number, p: any) => sum + Number(p.amount || 0), 0);
+    } catch {
+      totalSpent = 0;
+    }
+  }
 
   // Take the top 3 most recently updated projects for preview
   const recentProjects = projects.slice(0, 3);

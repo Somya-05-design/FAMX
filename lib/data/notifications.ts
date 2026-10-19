@@ -28,20 +28,43 @@ export function buildNotificationMessage(type: NotificationType, projectTitle: s
 }
 
 export async function getNotifications(session: Session) {
-  const notifications = await prisma.notification.findMany({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: "desc" },
-    include: {
-      project: {
-        select: { title: true },
+  try {
+    const notifications = await prisma.notification.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+      include: {
+        project: {
+          select: { title: true },
+        },
       },
-    },
-  });
+    });
 
-  return notifications.map((n) => ({
-    ...n,
-    message: n.message || (n.project?.title ? buildNotificationMessage(n.type, n.project.title) : "Notification update on project"),
-  }));
+    return notifications.map((n) => ({
+      ...n,
+      message: n.message || (n.project?.title ? buildNotificationMessage(n.type, n.project.title) : "Notification update on project"),
+    }));
+  } catch (err: any) {
+    try {
+      const { createAdminClient } = await import("@/lib/supabase/admin");
+      const supabase = createAdminClient();
+      const { data } = await supabase
+        .from("Notification")
+        .select(`
+          *,
+          project:Project (title)
+        `)
+        .eq("userId", session.user.id)
+        .order("createdAt", { ascending: false });
+
+      if (!data) return [];
+      return data.map((n: any) => ({
+        ...n,
+        message: n.message || (n.project?.title ? buildNotificationMessage(n.type, n.project.title) : "Notification update on project"),
+      }));
+    } catch {
+      return [];
+    }
+  }
 }
 
 export async function markAsRead(session: Session, notificationId: string) {

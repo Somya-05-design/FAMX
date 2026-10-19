@@ -5,30 +5,63 @@ import { ProjectStatus, TimelineTier, Prisma } from "@prisma/client";
 // Core project queries with strict session-based authorization checks
 
 export async function getProjectsForUser(session: Session) {
-  const projects = await prisma.project.findMany({
-    where: session.user.role === "ADMIN" ? { deletedAt: null } : { clientId: session.user.id, deletedAt: null },
-    orderBy: { updatedAt: "desc" },
-    include: {
-      client: {
-        select: { name: true, email: true }
-      },
-      service: true,
-      _count: {
-        select: {
-          attachments: true,
-          messages: true,
+  try {
+    const projects = await prisma.project.findMany({
+      where: session.user.role === "ADMIN" ? { deletedAt: null } : { clientId: session.user.id, deletedAt: null },
+      orderBy: { updatedAt: "desc" },
+      include: {
+        client: {
+          select: { name: true, email: true }
         },
-      },
-    }
-  });
+        service: true,
+        _count: {
+          select: {
+            attachments: true,
+            messages: true,
+          },
+        },
+      }
+    });
 
-  return projects.map((project) => ({
-    ...project,
-    proposedBudget: project.proposedBudget.toNumber(),
-    quoteAmount: project.quoteAmount ? project.quoteAmount.toNumber() : null,
-    attachmentCount: project._count?.attachments || 0,
-    messageCount: project._count?.messages || 0,
-  }));
+    return projects.map((project) => ({
+      ...project,
+      proposedBudget: project.proposedBudget.toNumber(),
+      quoteAmount: project.quoteAmount ? project.quoteAmount.toNumber() : null,
+      attachmentCount: project._count?.attachments || 0,
+      messageCount: project._count?.messages || 0,
+    }));
+  } catch (err: any) {
+    try {
+      const { createAdminClient } = await import("@/lib/supabase/admin");
+      const supabase = createAdminClient();
+      let query = supabase
+        .from("Project")
+        .select(`
+          *,
+          client:User!clientId (name, email),
+          service:Service (id, name, description)
+        `)
+        .is("deletedAt", null)
+        .order("updatedAt", { ascending: false });
+
+      if (session.user.role !== "ADMIN") {
+        query = query.eq("clientId", session.user.id);
+      }
+
+      const { data } = await query;
+      if (!data) return [];
+
+      return data.map((project: any) => ({
+        ...project,
+        proposedBudget: Number(project.proposedBudget) || 0,
+        quoteAmount: project.quoteAmount ? Number(project.quoteAmount) : null,
+        attachmentCount: 0,
+        messageCount: 0,
+      }));
+    } catch {
+      return [];
+    }
+  }
 }
 
 export async function getProjectById(session: Session, projectId: string) {

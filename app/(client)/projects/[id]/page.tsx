@@ -56,7 +56,7 @@ export default async function ClientProjectDetailPage({
       <div className="flex justify-between items-center">
         <Link
           href="/projects"
-          className="flex items-center space-x-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 transition-colors"
+          className="flex items-center space-x-2 text-xs font-semibold text-on-surface-variant hover:text-on-surface transition-colors"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />

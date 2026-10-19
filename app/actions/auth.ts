@@ -6,11 +6,34 @@ import { redirect } from "next/navigation";
 function isSupabaseConfigured() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  return Boolean(url && key && !url.includes("placeholder"));
+  if (!url || !key) return false;
+  if (
+    url.includes("placeholder") ||
+    url.includes("your-project-id") ||
+    url.includes("example.com")
+  ) {
+    return false;
+  }
+  if (
+    key.includes("placeholder") ||
+    key.includes("your-supabase-anon-key")
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function formatAuthError(err: { message: string } | string | null | undefined): string {
+  if (!err) return "An unexpected error occurred.";
+  const msg = typeof err === "string" ? err : err.message;
+  if (msg.includes("fetch failed")) {
+    return "Cannot connect to Supabase. Verify that NEXT_PUBLIC_SUPABASE_URL in .env.local is your real project URL and that your internet connection is active.";
+  }
+  return msg;
 }
 
 const MISSING_CONFIG_MSG =
-  "Supabase credentials are not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env.local file.";
+  "Supabase credentials are not configured. Please add your actual NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env.local file.";
 
 export async function signOut() {
   if (isSupabaseConfigured()) {
@@ -71,7 +94,7 @@ export async function signInWithEmail(prevState: any, formData: FormData) {
   }
 
   if (error || !data?.user) {
-    return { error: error?.message || "Invalid login credentials" };
+    return { error: error ? formatAuthError(error) : "Invalid login credentials" };
   }
 
   // Lookup user role in Prisma DB, auto-creating user row if missing
@@ -193,7 +216,7 @@ export async function signUpWithEmail(prevState: any, formData: FormData) {
       }
     } catch (adminFail) {
       console.error("Admin user creation fallback error:", adminFail);
-      if (error && !data?.user) return { error: error.message };
+      if (error && !data?.user) return { error: formatAuthError(error) };
     }
   }
 
@@ -265,7 +288,7 @@ export async function resetPasswordForEmail(prevState: any, formData: FormData) 
   });
 
   if (error) {
-    return { error: error.message };
+    return { error: formatAuthError(error) };
   }
 
   return { success: "Password reset link sent to your email." };
@@ -281,7 +304,7 @@ export async function updatePassword(prevState: any, formData: FormData) {
   const { error } = await supabase.auth.updateUser({ password });
 
   if (error) {
-    return { error: error.message };
+    return { error: formatAuthError(error) };
   }
 
   redirect("/login?reset=success");
