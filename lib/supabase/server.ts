@@ -27,6 +27,15 @@ export async function createClient() {
 }
 
 export async function getServerSession() {
+  await cookies();
+
+  if (
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    return null;
+  }
+
   const supabase = await createClient();
   const {
     data: { user },

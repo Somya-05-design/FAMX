@@ -6,9 +6,27 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
+  const path = request.nextUrl.pathname;
+
+  // Let public assets and webhooks pass without auth checks
+  if (
+    path.startsWith("/_next") ||
+    path.startsWith("/api/webhooks") ||
+    path === "/favicon.ico"
+  ) {
+    return supabaseResponse;
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {
@@ -31,17 +49,6 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const path = request.nextUrl.pathname;
-
-  // Let public assets and webhooks pass without auth checks
-  if (
-    path.startsWith("/_next") ||
-    path.startsWith("/api/webhooks") ||
-    path === "/favicon.ico"
-  ) {
-    return supabaseResponse;
-  }
 
   const isAdminRoute = path.startsWith("/admin");
   const isClientRoute =
