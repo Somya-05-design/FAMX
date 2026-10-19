@@ -3,9 +3,20 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
+function isSupabaseConfigured() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  return Boolean(url && key && !url.includes("placeholder"));
+}
+
+const MISSING_CONFIG_MSG =
+  "Supabase credentials are not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env.local file.";
+
 export async function signOut() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  if (isSupabaseConfigured()) {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+  }
   redirect("/login");
 }
 
@@ -16,6 +27,10 @@ export async function signInWithEmail(prevState: any, formData: FormData) {
 
   if (!email || !password) {
     return { error: "Email and password are required." };
+  }
+
+  if (!isSupabaseConfigured()) {
+    return { error: MISSING_CONFIG_MSG };
   }
 
   const supabase = await createClient();
@@ -113,6 +128,10 @@ export async function signUpWithEmail(prevState: any, formData: FormData) {
 
   if (!email || !password) {
     return { error: "Email and password are required." };
+  }
+
+  if (!isSupabaseConfigured()) {
+    return { error: MISSING_CONFIG_MSG };
   }
 
   const supabase = await createClient();
@@ -230,6 +249,9 @@ export async function signUpWithEmail(prevState: any, formData: FormData) {
 
 export async function resetPasswordForEmail(prevState: any, formData: FormData) {
   const email = formData.get("email") as string;
+  if (!isSupabaseConfigured()) {
+    return { error: MISSING_CONFIG_MSG };
+  }
   const supabase = await createClient();
   
   const headersList = await import("next/headers");
@@ -251,6 +273,9 @@ export async function resetPasswordForEmail(prevState: any, formData: FormData) 
 
 export async function updatePassword(prevState: any, formData: FormData) {
   const password = formData.get("password") as string;
+  if (!isSupabaseConfigured()) {
+    return { error: MISSING_CONFIG_MSG };
+  }
   const supabase = await createClient();
 
   const { error } = await supabase.auth.updateUser({ password });

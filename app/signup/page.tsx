@@ -19,6 +19,10 @@ function SignupForm() {
   const handleGoogleSignup = async () => {
     try {
       setGoogleError(null);
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder")) {
+        setGoogleError("Supabase credentials are not configured. Please add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your .env.local file.");
+        return;
+      }
       setGoogleLoading(true);
       const supabase = createClient();
       const { error } = await supabase.auth.signInWithOAuth({
